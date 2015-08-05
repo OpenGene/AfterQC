@@ -15,7 +15,7 @@ chen@haplox.com
 AFTER does following tasks automatically:  
 1, Filter PolyA/PolyT/PolyC/PolyG reads  
 2, Trim reads at front and tail according to bad per base sequence content  
-3, Detect and remove bubble artefacts caused by sequencer  
+3, Detect and eliminate bubble artifact caused by sequencer due to fluid dynamics issue  
 4, Filter low-quality reads  
 
 # Simple usage:
@@ -24,8 +24,8 @@ AFTER does following tasks automatically:
 ##### python after.py  
 
 # Debubble:
-If you want to remove bubble artefacts, run:  
-##### python after --debubble=on  
+If you want to eliminate bubble artifact, run:  
+##### python after.py --debubble=on  
 
 # Full usage:
 ###### python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-m min_quality] [-q qualified_quality] [-l max_low_quality] [-p poly_max] [-a allow_poly_mismatch] [-n max_n_count] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=\_R1\_] [--read2_flag=\_R2\_] [--index1_flag=\_I1\_] [--index2_flag=\_I2\_] 
