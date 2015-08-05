@@ -11,7 +11,7 @@ AFTER can simply go through all fastq files in a folder and then output a <b>goo
 infoteam@haplox.com  
 chen@haplox.com
 
-# Features
+# Features:
 AFTER does following tasks automatically:  
 1, Filter PolyA/PolyT/PolyC/PolyG reads  
 2, Trim reads at front and tail according to bad per base sequence content  
@@ -19,16 +19,16 @@ AFTER does following tasks automatically:
 4, Filter low-quality reads  
 
 # Simple usage:
-## 1, cd to the folder contains all fastq files  
-## 2, run:  
-## python after.py  
+##### 1, cd to the folder contains all fastq files  
+##### 2, run:  
+##### python after.py  
 
-# Debubble
-If you want to remove bubble artefacts, run  
-## python after --debubble=on  
+# Debubble:
+If you want to remove bubble artefacts, run:  
+##### python after --debubble=on  
 
 # Full usage:
-## python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-m min_quality] [-q qualified_quality] [-l max_low_quality] [-p poly_max] [-a allow_poly_mismatch] [-n max_n_count] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=_R1_] [--read2_flag=_R2_] [--index1_flag=_I1_] [--index2_flag=_I2_] 
+###### python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-m min_quality] [-q qualified_quality] [-l max_low_quality] [-p poly_max] [-a allow_poly_mismatch] [-n max_n_count] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=\_R1\_] [--read2_flag=\_R2\_] [--index1_flag=\_I1\_] [--index2_flag=\_I2\_] 
 
 Options:  
   * --version             show program's version number and exit  
