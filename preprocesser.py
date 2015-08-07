@@ -167,15 +167,19 @@ class seqFilter:
         #auto detect trim front and trim tail
         if self.options.trim_front == -1 or self.options.trim_tail == -1:
             tm = Trimmer()
+            #auto trim for read1
             trimFront, trimTail = tm.calcTrimLength(self.options.read1_file)
-            if self.options.read2_file != None:
-                trimFront2, trimTail2 = tm.calcTrimLength(self.options.read2_file)
-                trimFront = max(trimFront, trimFront2)
-                trimTail = max(trimTail, trimTail2)
             if self.options.trim_front == -1:
                 self.options.trim_front = trimFront
             if self.options.trim_tail == -1:
                 self.options.trim_tail = trimTail
+            #auto trim for read2
+            if self.options.read2_file != None:
+                trimFront2, trimTail2 = tm.calcTrimLength(self.options.read2_file)
+                if self.options.trim_front2 == -1:
+                    self.options.trim_front2 = trimFront2
+                if self.options.trim_tail2 == -1:
+                    self.options.trim_tail2 = trimTail2
                 
         print(self.options)
         
@@ -250,7 +254,7 @@ class seqFilter:
             if self.options.trim_front > 0 or self.options.trim_tail > 0:
                 r1 = trim(r1, self.options.trim_front, self.options.trim_tail)
                 if r2 != None:
-                    r2 = trim(r2, self.options.trim_front, self.options.trim_tail)
+                    r2 = trim(r2, self.options.trim_front2, self.options.trim_tail2)
             
             #filter debubble
             if self.options.debubble:

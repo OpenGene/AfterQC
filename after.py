@@ -138,6 +138,8 @@ def main():
     (options, args) = parseCommand()
     options.debubble = processBool(options.debubble)
     options.draw = processBool(options.draw)
+    options.trim_front2 = options.trim_front
+    options.trim_tail2 = options.trim_tail
     
     if options.input_dir == None and options.read1_file == None:
         print('specify current dir as input dir')
