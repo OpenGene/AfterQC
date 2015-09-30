@@ -33,6 +33,10 @@ class BubbleProcesser:
         
     def run(self):
         
+        if len(self.__input) == 0:
+            print("No fastq files")
+            return self.circles
+        
         #create queues to store the result
         queues = {}
         for fname in self.__input:
