@@ -76,14 +76,14 @@ class BubbleProcesser:
         return self.circles
         
     def calcMaxMin(self):
-        maxValue = [0 for x in range(10)]
+        maxValue = [0 for x in xrange(10)]
         for r in self.__polyRecords:
-            for i in range(10): 
+            for i in xrange(10): 
                 maxValue[i] = max(maxValue[i], r[i])
         
-        minValue = [maxValue[x] for x in range(10)]
+        minValue = [maxValue[x] for x in xrange(10)]
         for r in self.__polyRecords:
-            for i in range(10): 
+            for i in xrange(10): 
                 minValue[i] = min(minValue[i], r[i])        
         
         self.xmax = maxValue[5]
@@ -102,10 +102,10 @@ class BubbleProcesser:
         if len(self.__polyRecords) == 0:
             return
             
-        maxValue = [0 for x in range(10)]
+        maxValue = [0 for x in xrange(10)]
         
         for r in self.__polyRecords:
-            for i in range(10): 
+            for i in xrange(10): 
                 maxValue[i] = max(maxValue[i], r[i])
                     
         laneMin = self.__polyRecords[0][0]
@@ -113,7 +113,7 @@ class BubbleProcesser:
         
         #separate records by lane
         laneRecords = {}
-        for lane in range(laneMin, laneMax+1):
+        for lane in xrange(laneMin, laneMax+1):
             laneRecords[lane]=[]
             
         for r in self.__polyRecords:
@@ -175,8 +175,8 @@ class BubbleProcesser:
         colors = {}
         colors[ord('A')] = [255, 0, 0]
         colors[ord('T')] = [0, 255, 0]
-        colors[ord('C')] = [255, 128, 0]
-        colors[ord('G')] = [128, 255, 0]
+        colors[ord('C')] = [0, 0, 255]
+        colors[ord('G')] = [150,60,240]
         
         lane = polyRecords[0][0]
                 
@@ -202,8 +202,8 @@ class BubbleProcesser:
         #createimage data buffers
         cameraImageData = {}
         cameraImageDataCount = {}
-        for camera in range(1, cameraMax+1):
-            cameraImageData[camera] = [[0,0,0] for x in range(cameraImageWidth * cameraImageHeight)]
+        for camera in xrange(0, cameraMax+1):
+            cameraImageData[camera] = [[0,0,0] for x in xrange(cameraImageWidth * cameraImageHeight)]
             cameraImageDataCount[camera] = 0
         
         #draw pixels        
@@ -228,10 +228,6 @@ class BubbleProcesser:
             alpha = float(count)/float(countMax)
             blendColor = colors[base]
             
-            #set blue channel to 255 if it is in surface 2
-            if surface == 2:
-                blendColor[2] = 255
-            
             #########################################
             #calc the camera image pixel pos
             cameraImagePixelX = ((swath - 1) * (1.0 + tileGap) * xMax + x) * cameraImageScale + margin
@@ -246,7 +242,7 @@ class BubbleProcesser:
             pixel = cameraImageData[camera][cameraImageOffset]
             
             #blend
-            for c in range(3):
+            for c in xrange(3):
                 pixel[c] = int(alpha * blendColor[c] + (1.0 - alpha) * pixel[c])
                 pixel[c] = min(255, pixel[c])
                 
@@ -257,7 +253,7 @@ class BubbleProcesser:
             
         #write camera images
         print("write images by each camera")
-        for camera in range(1, cameraMax+1):
+        for camera in xrange(0, cameraMax+1):
             #skip the tiles that has no data, which actually don't exist
             if cameraImageDataCount[camera] == 0:
                 continue
@@ -274,11 +270,15 @@ class BubbleProcesser:
                     continue
                 x = circle[0]
                 y = circle[1]
-                radius = circle[2] * cameraImageScale
+                lineWidth = 7
+                radius = circle[2] * cameraImageScale - lineWidth/2
                 centerX =  ((swath - 1) * (1.0 + tileGap) * xMax + x) * cameraImageScale + margin
                 centerY = ((tile - 1) * (1.0 + tileGap) * yMax + y) * cameraImageScale + margin
                 draw = ImageDraw.Draw(img)
-                draw.ellipse((centerX-radius, centerY-radius, centerX+radius, centerY+radius))
+                #draw concentrical circles to make the circle thicker
+                for round in xrange(lineWidth):
+                    draw.ellipse((centerX-radius, centerY-radius, centerX+radius, centerY+radius))
+                    radius += 1.0
             img.save(os.path.join(self.__output, "image_by_camera", str(lane)+"_"+str(camera)+".png"))
             print("finished drawing lane " + str(lane) + " camera: " + str(camera))
             
@@ -296,13 +296,57 @@ class BubbleProcesser:
         for record in records:
             outfile.write(",".join([str(x) for x in record]) + "\n") 
         outfile.close()
-                
+    
     def statFile(self, filename, queue):
+        if filename.endswith(".bam") or filename.endswith(".cram"):
+            return self.statFileBam(filename, queue)
+        else:
+            return self.statFileFastq(filename, queue)
+    
+    def statFileBam(self, filename, queue):
         print("start: " + filename + "\n")
-        Reader = fastq.Reader(filename)
+        #we apply lazy import here for pysam, since this module need to be installed manually and it is not used for most case
+        import pysam
+        reader = pysam.AlignmentFile(filename)
         records = []
         while True:
-            read = Reader.nextRead()
+            try:
+                read = reader.next()
+            except StopIteration:
+                break
+            if read == None:
+                break
+            poly, count = self.countPoly(read.seq)
+            
+            if poly != None:
+                
+                #illumina sequence name line format
+                #@<instrument>:<run number>:<flowcell ID>:<lane>:<tile_no>:<x-pos>:<y-pos> <read>:<is filtered>:<control number>:<index sequence>
+                
+                items = read.qname.split(":")
+                if len(items) < 7:
+                    continue
+                lane = items[3]
+                tile_no = items[4]
+                surface = tile_no[0]
+                swath = tile_no[1]
+                camera = tile_no[2]
+                tile = tile_no[3:]
+                xpos = items[5]
+                ypos = items[6]
+                record = [int(lane), int(surface), int(swath), int(camera), int(tile), int(xpos), int(ypos), ord(poly), count, int(tile_no)]
+                records.append(record)
+
+        queue.put(records)
+        reader.close()
+        print("finished " +filename + " with " + str(len(records)) + " polyX records")
+                   
+    def statFileFastq(self, filename, queue):
+        print("start: " + filename + "\n")
+        reader = fastq.Reader(filename)
+        records = []
+        while True:
+            read = reader.nextRead()
             if read == None:
                 break
             poly, count = self.countPoly(read[1])

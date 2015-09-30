@@ -8,6 +8,7 @@ import preprocesser
 from multiprocessing import Process, Queue
 import copy
 import debubble
+from util import *
 
 def parseCommand():
     usage = "Automatic Filtering, Trimming, and Error Removing for Illumina fastq data(Illumina 1.8 or newer format, see http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)\n\nFull command:\n%prog [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-m min_quality] [-q qualified_quality] [-l max_low_quality] [-p poly_max] [-a allow_poly_mismatch] [-n max_n_count] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=_R1_] [--read2_flag=_R2_] [--index1_flag=_I1_] [--index2_flag=_I2_] \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
@@ -59,6 +60,14 @@ def parseCommand():
         help = "specify the name flag of index1, default is _I1_, which means a file with name *_I1_* is index2 file")
     parser.add_option("", "--index2_flag", dest = "index2_flag", default = "_I2_",
         help = "specify the name flag of index2, default is _I2_, which means a file with name *_I2_* is index2 file")
+    parser.add_option("", "--barcode", dest = "barcode", default = "on",
+        help = "specify whether deal with barcode sequencing files")
+    parser.add_option("", "--barcode_length", dest = "barcode_length", default = 12, type="int",
+        help = "specify the designed length of barcode")
+    parser.add_option("", "--barcode_flag", dest = "barcode_flag", default = "barcode",
+        help = "specify the name flag of a barcoded file, default is barcode, which means a file with name *barcode* is a barcoded file")
+    parser.add_option("", "--barcode_verify", dest = "barcode_verify", default = "CAGTA",
+        help = "specify the verify sequence of a barcode which is adjunct to the barcode")
     return parser.parse_args()
 
 def processDir(folder, options):
@@ -68,6 +77,7 @@ def processDir(folder, options):
     read2name = options.read2_flag
     index1name = options.index1_flag
     index2name = options.index2_flag
+    barcodeflag = options.barcode_flag
     
     #is not a dir
     if not os.path.isdir(folder):
@@ -99,6 +109,13 @@ def processDir(folder, options):
             if os.path.exists(index1):opt.index1_file = index1
             index2 = read1.replace(read1name, index2name)
             if os.path.exists(index2):opt.index2_file = index2
+            if barcodeflag in f and parseBool(options.barcode):
+                opt.barcode = True
+                #for barcode sequencing we don't trim it at front
+                opt.trim_front = 0
+                opt.trim_front2 = 0
+            else:
+                opt.barcode = False
             options_list.append(opt)
     
     if len(options_list) == 0:
@@ -122,13 +139,6 @@ def runDebubble(options):
     print("runDebubble")
     debubble.debubbleDir(options.input_dir, 20, options.debubble_dir, options.draw)
     
-def processBool(str):
-    str = str.lower()
-    if str=="true" or str=="yes" or str=="on":
-        return True
-    else:
-        return False
-    
 def main():
     time1 = time.time()
     if sys.version_info.major >2:
@@ -136,8 +146,8 @@ def main():
         sys.exit(1)
     
     (options, args) = parseCommand()
-    options.debubble = processBool(options.debubble)
-    options.draw = processBool(options.draw)
+    options.debubble = parseBool(options.debubble)
+    options.draw = parseBool(options.draw)
     options.trim_front2 = options.trim_front
     options.trim_tail2 = options.trim_tail
     

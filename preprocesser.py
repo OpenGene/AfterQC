@@ -5,6 +5,7 @@ from optparse import OptionParser
 import time
 import fastq
 from trimmer import Trimmer
+import barcodeprocesser
 
 def getMainName(filename):
     baseName = os.path.basename(filename)
@@ -30,7 +31,7 @@ def hasPolyX(seq, maxPoly, mismatch):
     polyArray = ("A", "T", "C", "G", "a", "t", "c", "g", "N")
     for poly in polyArray: polyCount[poly] = 0
     
-    for x in range(len(seq)):
+    for x in xrange(len(seq)):
         frontbase = seq[x]
         
         if not frontbase in polyArray:
@@ -249,6 +250,24 @@ class seqFilter:
                 i2 = index2_file.nextRead()
                 if i2==None:
                     break
+                    
+            #barcode processing
+            if self.options.barcode:
+                barcodeLen = barcodeprocesser.detectBarcode(r1[1], self.options.barcode_length, self.options.barcode_verify)
+                if barcodeLen == 0:
+                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD")
+                    continue
+                else:
+                    if r2 == None:
+                        barcodeprocesser.moveBarcodeToName(r1, self.options.barcode_length, self.options.barcode_verify)
+                    else:
+                        barcodeLen2 = barcodeprocesser.detectBarcode(r2[1], self.options.barcode_length, self.options.barcode_verify)
+                        if barcodeLen == 0:
+                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD")
+                            continue
+                        else:
+                            barcodeprocesser.moveBarcodeToName(r1, barcodeLen, self.options.barcode_verify)
+                            barcodeprocesser.moveBarcodeToName(r2, barcodeLen2, self.options.barcode_verify)
             
             #trim
             if self.options.trim_front > 0 or self.options.trim_tail > 0:

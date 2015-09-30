@@ -112,28 +112,28 @@ class CircleDetector:
     def detectOnEdge(self):
         
         topnumber = 500
-        top = [[0,0,0] for x in range(topnumber)]
+        top = [[0,0,0] for x in xrange(topnumber)]
         centerX = 0
         centerY = 0
         
         #find the pair of two points with max distance
         #set its center as circle center
-        for i in range(len(self.records)):
+        for i in xrange(len(self.records)):
             rec1 = self.records[i]
             x1 = rec1[0]
             y1 = rec1[1]
-            for j in range(i):
+            for j in xrange(i):
                 rec2 = self.records[j]
                 x2 = rec2[0]
                 y2 = rec2[1]
                 dist = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
                 pos = topnumber
-                for t in range(topnumber):
+                for t in xrange(topnumber):
                     if dist < top[t][2]:
                         pos = t+1
                         break
                 if pos > 0:
-                    for m in range(1, pos):
+                    for m in xrange(1, pos):
                         top[m-1] = top[m]
                     cx = (x1+x2)/2.0
                     cy = (y1+y2)/2.0

@@ -83,15 +83,15 @@ class BubbleDetector:
         self.gridX = int(self.xmax/self.cellSize)+1
         self.gridY = int(self.ymax/self.cellSize)+1
         
-        for gx in range(self.gridX):
+        for gx in xrange(self.gridX):
             self.grid[gx]={}
-            for gy in range(self.gridY):
+            for gy in xrange(self.gridY):
                 self.grid[gx][gy] = []
                 
     def calcMeanCount(self):
         totalCount = 0
-        for gx in range(self.gridX):
-            for gy in range(self.gridY):
+        for gx in xrange(self.gridX):
+            for gy in xrange(self.gridY):
                 for rec in self.grid[gx][gy]:
                     totalCount += rec[3]
         percent = (self.scope*self.scope*3.1415926)/float(self.xmax*self.ymax)
@@ -112,8 +112,8 @@ class BubbleDetector:
         gymax = int((y+self.scope)/self.cellSize) + 1
         gymax = min(self.gridY - 1, gymax)
                 
-        for ngx in range(gxmin, gxmax+1):
-            for ngy in range(gymin, gymax+1):
+        for ngx in xrange(gxmin, gxmax+1):
+            for ngy in xrange(gymin, gymax+1):
                 for nrec in self.grid[ngx][ngy]:
                     nx = nrec[0]
                     ny = nrec[1]
@@ -122,16 +122,16 @@ class BubbleDetector:
                         rec[4] += count
                             
     def calcDensity(self):
-        for gx in range(self.gridX):
-            for gy in range(self.gridY):
+        for gx in xrange(self.gridX):
+            for gy in xrange(self.gridY):
                 for rec in self.grid[gx][gy]:
                     rec[4] = 0
                     self.countNeighbour(rec)
             
     def mergeRecord(self):
         self.records = []
-        for gx in range(self.gridX):
-            for gy in range(self.gridY):
+        for gx in xrange(self.gridX):
+            for gy in xrange(self.gridY):
                 self.records = self.records + self.grid[gx][gy]
                 
     def isNeighbour(self, rec1, rec2):
@@ -145,7 +145,7 @@ class BubbleDetector:
             return False
             
     def filterCluster(self):
-        labels = range(1, self.totalLabel+1)
+        labels = xrange(1, self.totalLabel+1)
         numbers = {}
         for label in labels:numbers[label] = 0
         
@@ -206,8 +206,8 @@ class BubbleDetector:
     def filterRecord(self, fold):
         minNeighbour = self.meanNeighbour * fold
         
-        for gx in range(self.gridX):
-            for gy in range(self.gridY):
+        for gx in xrange(self.gridX):
+            for gy in xrange(self.gridY):
                 for i in range(len(self.grid[gx][gy]))[::-1]:
                     rec = self.grid[gx][gy][i]
                     neighbour = rec[4]
@@ -237,7 +237,7 @@ class BubbleDetector:
             neighbour = 0
                 
             #we only care polyT or polyG here
-            if (base == ord('G') or base == ord('T')) and count >= self.minPoly:
+            if base == ord('G') and count >= self.minPoly:
                 rec = [x, y, surface, count, neighbour, density, label]
                 gx = int(x/self.cellSize)
                 gy = int(y/self.cellSize)
@@ -262,7 +262,7 @@ class BubbleDetector:
                 neighbour = 0
                 
                 #we only care polyT or polyG here
-                if (base == ord('G') or base == ord('T')) and count >= self.minPoly:
+                if base == ord('G') and count >= self.minPoly:
                     rec = [x, y, surface, count, neighbour, density, label]
                     gx = int(x/self.cellSize)
                     gy = int(y/self.cellSize)
@@ -300,7 +300,7 @@ class BubbleDetector:
             
         #define the colors of A T C G
         colors = {}
-        for c in range(100):
+        for c in xrange(100):
             red = (c * 29791)%128 + 127
             green = (c * 67571)%128 + 127
             blue = (c * 87571)%128 + 127
@@ -316,7 +316,7 @@ class BubbleDetector:
         tileImageHeight = int(tileImageScale*yMax) + 4
         
         #draw pixels        
-        tileImageData = [[0,0,0] for x in range(tileImageWidth * tileImageHeight)]
+        tileImageData = [[0,0,0] for x in xrange(tileImageWidth * tileImageHeight)]
         for r in polyRecords:
             x = r[0]
             y = r[1]
@@ -346,7 +346,7 @@ class BubbleDetector:
             pixel = tileImageData[tileImageWidth * tileImagePixelY + tileImagePixelX]
             
             #blend
-            for c in range(3):
+            for c in xrange(3):
                 pixel[c] = blendColor[c]
                 pixel[c] = min(255, pixel[c])
                 

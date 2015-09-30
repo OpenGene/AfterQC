@@ -5,6 +5,7 @@ from optparse import OptionParser
 import time
 import fastq
 from bubbleprocesser import BubbleProcesser
+from util import *
 
 def parseCommand():
     usage = "usage: %prog <input_files> [options]"
@@ -16,7 +17,7 @@ def parseCommand():
         help = "folder to store the csv and image files")
     parser.add_option("-i", "--input", dest = "input", default = ".",
         help = "folder storing input fastq files")
-    parser.add_option("-d", "--draw", dest = "draw", default = False,
+    parser.add_option("-d", "--draw", dest = "draw", default = "on",
         help = "specify whether draw the pictures or not")
     return parser.parse_args()
     
@@ -69,6 +70,7 @@ def debubbleDir(folder, poly_max, output, drawImage):
 def main():
     time1 = time.time()
     (options, args) = parseCommand()
+    options.draw = parseBool(options.draw)
         
     debubbleDir(options.input, options.poly_max, options.output, options.draw)
     
@@ -76,4 +78,4 @@ def main():
     print('Time used: ' + str(time2-time1))
 
 if __name__  == "__main__":
-    main()
+    oldmain()

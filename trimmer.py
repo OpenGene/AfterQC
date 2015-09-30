@@ -14,8 +14,8 @@ class Trimmer:
         counts = {}
         percents = {}
         for base in allbases:
-            counts[base] = [0 for x in range(maxLen)]
-            percents[base] = [0.0 for x in range(maxLen)]
+            counts[base] = [0 for x in xrange(maxLen)]
+            percents[base] = [0.0 for x in xrange(maxLen)]
 
         reader = fastq.Reader(filename)
         #sample up to maxSample reads for stat
@@ -27,14 +27,14 @@ class Trimmer:
             if read==None or sampled>maxSample:
                 break
             seq = read[1]
-            for i in range(len(seq)):
+            for i in xrange(len(seq)):
                 b = seq[i]
                 if b in allbases:
                     counts[b][i] += 1
                 
         #get the length of read
         readLen = 0
-        for pos in range(maxLen):
+        for pos in xrange(maxLen):
             hasData = False
             for base in allbases:
                 if counts[base][pos]>0:
@@ -44,7 +44,7 @@ class Trimmer:
                 break
                 
         #calc percents of each base
-        for pos in range(readLen):
+        for pos in xrange(readLen):
             total = 0
             for base in allbases:
                 total += counts[base][pos]
@@ -67,7 +67,7 @@ class Trimmer:
         while not (leftFinished and rightFinished):
             for base in allbases:
                 meanPercents[base] = 0.0
-                for pos in range(left, right):
+                for pos in xrange(left, right):
                     meanPercents[base] += percents[base][pos]
                 meanPercents[base] /= (right-left)
             
@@ -105,9 +105,9 @@ class Trimmer:
         #if any in the window is bad, it is bad
         trimFront = left
         window = 3
-        for pos in range(0, left):
+        for pos in xrange(0, left):
             isGood = True
-            for posInWindow in range(pos, min(pos+3, readLen)):
+            for posInWindow in xrange(pos, min(pos+3, readLen)):
                 percentBias = 0.0
                 for base in allbases:
                     percentBias += abs(meanPercents[base] - percents[base][posInWindow])
@@ -119,9 +119,9 @@ class Trimmer:
         #find the bad segment from tail, considering a small window
         #if any in the window is bad, it is bad
         trimTail = right
-        for pos in range(readLen-1, right, -1):
+        for pos in xrange(readLen-1, right, -1):
             isGood = True
-            for posInWindow in range(pos, max(pos-3, 0), -1):
+            for posInWindow in xrange(pos, max(pos-3, 0), -1):
                 percentBias = 0.0
                 for base in allbases:
                     percentBias += abs(meanPercents[base] - percents[base][posInWindow])
