@@ -80,7 +80,7 @@ def main():
         print(circles)
     else:
         print("no bubble detected")
-    writeCircles(circles, output)
+    writeCircles(circles, options.output)
     
     time2 = time.time()
     print('Time used: ' + str(time2-time1))
