@@ -64,11 +64,11 @@ def main():
     time1 = time.time()
     (options, args) = parseCommand()
         
-    dashplace = 0
+    dashplace = 1
     for argv in sys.argv[1:]:
-        dashplace += 1
         if argv.startswith("-"):
             break
+        dashplace += 1
     if dashplace <= 1:
         runInFolder()
         return

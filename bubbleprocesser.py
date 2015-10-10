@@ -1,6 +1,7 @@
  #!/usr/bin/env python
  
 import os,sys
+import re
 import time
 import fastq
 import fileinput
@@ -349,6 +350,7 @@ class BubbleProcesser:
         print("start: " + filename + "\n")
         reader = fastq.Reader(filename)
         records = []
+        pattern = re.compile(r'\S+\:\d+\:\S+\:\d+\:\d+\:\d+\:\d+')
         while True:
             read = reader.nextRead()
             if read == None:
@@ -360,7 +362,11 @@ class BubbleProcesser:
                 #illumina sequence name line format
                 #@<instrument>:<run number>:<flowcell ID>:<lane>:<tile_no>:<x-pos>:<y-pos> <read>:<is filtered>:<control number>:<index sequence>
                 
-                items = read[0].split(" ")[0].split(":")
+                match = pattern.search(read[0]);
+                if not match:
+                    continue
+
+                items = match.group().split(":")
                 if len(items) < 7:
                     continue
                 lane = items[3]

@@ -1,6 +1,7 @@
  #!/usr/bin/env python
  
 import os,sys
+import re
 from optparse import OptionParser
 import time
 import fastq
@@ -104,6 +105,7 @@ class seqFilter:
     hasIndex = False
     bubbleCircles = {}
     bubbleTiles = []
+    pattern = None
     
     #opt is an object contains lots of parameters
     def __init__(self, opt):
@@ -114,7 +116,9 @@ class seqFilter:
             paired = True
         if self.options.index1_file != None:
             hasIndex = True
-            
+
+        self.pattern = re.compile(r'\S+\:\d+\:\S+\:\d+\:\d+\:\d+\:\d+')
+
     def loadBubbleCircles(self):
         bubbleCircleFile = os.path.join(self.options.debubble_dir, "circles.csv")
         with open(bubbleCircleFile) as f:
@@ -136,7 +140,11 @@ class seqFilter:
         #illumina sequence name line format
         #@<instrument>:<run number>:<flowcell ID>:<lane>:<tile_no>:<x-pos>:<y-pos> <read>:<is filtered>:<control number>:<index sequence>
 
-        items = seqInfo.split(" ")[0].split(":")
+        match = self.pattern.search(seqInfo);
+        if not match:
+            return False
+
+        items = match.group().split(":")
         if len(items) < 7:
             return False
             
