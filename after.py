@@ -7,7 +7,6 @@ import fastq
 import preprocesser
 from multiprocessing import Process, Queue
 import copy
-import debubble
 from util import *
 
 def parseCommand():
@@ -134,6 +133,9 @@ def processOptions(options):
     filter.run()
     
 def runDebubble(options):
+    #lazy import debubble here because debubble uses PIL, which is not supported by pypy
+    #we can run with pypy with debubble off
+    import debubble
     if os.path.exists(os.path.join(options.debubble_dir, "circles.csv")):
         return
     print("runDebubble")

@@ -173,6 +173,10 @@ class seqFilter:
         #read1_file is required
         read1_file = fastq.Reader(self.options.read1_file)
         
+        #no front trim if sequence is barcoded
+        if self.options.barcode:
+            self.options.trim_front = 0
+
         #auto detect trim front and trim tail
         if self.options.trim_front == -1 or self.options.trim_tail == -1:
             tm = Trimmer()
@@ -261,8 +265,8 @@ class seqFilter:
                     
             #barcode processing
             if self.options.barcode:
-                barcodeLen = barcodeprocesser.detectBarcode(r1[1], self.options.barcode_length, self.options.barcode_verify)
-                if barcodeLen == 0:
+                barcodeLen1 = barcodeprocesser.detectBarcode(r1[1], self.options.barcode_length, self.options.barcode_verify)
+                if barcodeLen1 == 0:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD")
                     continue
                 else:
@@ -270,12 +274,11 @@ class seqFilter:
                         barcodeprocesser.moveBarcodeToName(r1, self.options.barcode_length, self.options.barcode_verify)
                     else:
                         barcodeLen2 = barcodeprocesser.detectBarcode(r2[1], self.options.barcode_length, self.options.barcode_verify)
-                        if barcodeLen == 0:
+                        if barcodeLen2 == 0:
                             writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD")
                             continue
                         else:
-                            barcodeprocesser.moveBarcodeToName(r1, barcodeLen, self.options.barcode_verify)
-                            barcodeprocesser.moveBarcodeToName(r2, barcodeLen2, self.options.barcode_verify)
+                            barcodeprocesser.moveAndTrimPair(r1, r2, barcodeLen1, barcodeLen2, self.options.barcode_verify)
             
             #trim
             if self.options.trim_front > 0 or self.options.trim_tail > 0:

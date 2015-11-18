@@ -3,6 +3,7 @@
 import os,sys
 from optparse import OptionParser
 import time
+import util
 
 #how many chars are different of these two strings with same length
 def diffNumber(str1, str2):
@@ -41,11 +42,54 @@ def moveBarcodeToName(read, barcodeLen, verify):
     read[0] = '@' + barcode + read[0][colonPos:]
     read[1] = read[1][removeLen:]
     read[3] = read[3][removeLen:]
+    return barcode
+
+def cleanBarcodeTail(read1, read2, readStart1, readStart2):
+    reverse1 = util.reverseComplement(readStart1)
+    reverse2 = util.reverseComplement(readStart2)
+    barcodeStringLen = min(len(readStart1), len(readStart2))
+    r1len  = len(read1[1])
+    r2len  = len(read2[1])
+    compLen = 0
+    overlap = False
+    for i in xrange(barcodeStringLen):
+        compLen = barcodeStringLen - i
+        if compLen >= r1len or compLen >= r2len:
+            continue
+        distance1 = util.editDistance(read1[1][-compLen:], reverse2[i:])
+        distance2 = util.editDistance(read2[1][-compLen:], reverse1[i:])
+        #if the tail of one end matches the start of the other end
+        #we then suspect the template is not shorter than the read length
+        #so to trim them on both ends
+        threshold  = compLen/5
+        if distance1<=threshold  and distance2<=threshold:
+            read1[1] = read1[1][:-compLen]
+            read1[3] = read1[3][:-compLen]
+            read2[1] = read2[1][:-compLen]
+            read2[3] = read2[3][:-compLen]
+            overlap = True
+            break;
+    if overlap:
+        return compLen
+    else:
+        return 0
+
+def moveAndTrimPair(read1, read2, barcode1len, barcode2len, verify):
+    readStart1  = read1[1][0:barcode1len] + verify
+    readStart2  = read2[1][0:barcode2len] + verify
+    moveBarcodeToName(read1, barcode1len, verify)
+    moveBarcodeToName(read2, barcode2len, verify)
+    cleanBarcodeTail(read1, read2, readStart1, readStart2)
 
 #test
 if __name__  == "__main__":
-    read = ['@NS500713:17:HFG2YBGXX:1:11101:10560:1202 1:N:0:CGAGTA','ATAAAAAAAACACAGTATGGCAAAACCCCATCTCTACTAAAAATACAAAAATTAGCTGGGTGTGGTGGCNNNNNN','+','AAAAAEEEEEEEEEEEEEEEEEEEAEEEEEEEEEEEEEAEEEEEEEEEEEEEEEEEEEEEEEAEEEEEE######']
+    read1 = ['@NS500713:17:HFG2YBGXX:1:11101:10560:1202 1:N:0:CGAGTA','ATAAAAAAAACACAGTATGGCAAAACCCCATCTCTACTAAAAATACAAAAATTAGCTGGGTGTGGTGGCTACTGAAATTTCCCGGG','+','AAAAAEEEEEEEEEEEEEEEEEEEAEEEEEEEEEEEEEAEEEEEEEEEEEEEEEEEEEEEEEAEEEEEE######EEEEEEEEEEE']
+    read2 = ['@NS500713:17:HFG2YBGXX:1:11101:10560:1202 2:N:0:CGAGTA','CCCGGGAAATTTCAGTAGCCACCACACCCAGCTAATTTTTGTATTTTTAGTAGAGATGGGGTTTTGCCATACTGTGTTTTTTTTAT','+','AAAAAEEEEEEEEEEEEEEEEEEEAEEEEEEEEEEEEEAEEEEEEEEEEEEEEEEEEEEEEEAEEEEEE######EEEEEEEEEEE']
     verify = 'CAGTA'
     barcodeLen = 12
-    moveBarcodeToName(read, barcodeLen, verify)
-    print(read)
+    barcode1len = detectBarcode(read1[1], barcodeLen, verify)
+    barcode2len = detectBarcode(read2[1], barcodeLen, verify)
+    print barcode1len, barcode2len
+    moveAndTrimPair(read1, read2, barcode1len, barcode2len, verify)
+    print(read1)
+    print(read2)

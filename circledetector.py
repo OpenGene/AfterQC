@@ -5,7 +5,6 @@ import time
 import fastq
 import fileinput
 import multiprocessing
-from PIL import Image
 import math
     
 ########################### circleDetector
