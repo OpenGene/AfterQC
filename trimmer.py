@@ -131,8 +131,8 @@ class Trimmer:
                 trimTail = pos
                 break
         
-        trimFront = min(readLen*0.2,trimFront)
-        trimTail = min(readLen*0.1,readLen-1-trimTail)
+        trimFront = min(readLen*0.1,trimFront)
+        trimTail = min(readLen*0.05,readLen-1-trimTail)
         
         return (int(trimFront), int(trimTail))
         

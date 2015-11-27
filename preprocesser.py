@@ -267,7 +267,7 @@ class seqFilter:
             if self.options.barcode:
                 barcodeLen1 = barcodeprocesser.detectBarcode(r1[1], self.options.barcode_length, self.options.barcode_verify)
                 if barcodeLen1 == 0:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD")
+                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD1")
                     continue
                 else:
                     if r2 == None:
@@ -275,7 +275,7 @@ class seqFilter:
                     else:
                         barcodeLen2 = barcodeprocesser.detectBarcode(r2[1], self.options.barcode_length, self.options.barcode_verify)
                         if barcodeLen2 == 0:
-                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD")
+                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD2")
                             continue
                         else:
                             barcodeprocesser.moveAndTrimPair(r1, r2, barcodeLen1, barcodeLen2, self.options.barcode_verify)
@@ -283,13 +283,19 @@ class seqFilter:
             #trim
             if self.options.trim_front > 0 or self.options.trim_tail > 0:
                 r1 = trim(r1, self.options.trim_front, self.options.trim_tail)
+                if len(r1[1]) < 5:
+                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM1")
+                    continue
                 if r2 != None:
                     r2 = trim(r2, self.options.trim_front2, self.options.trim_tail2)
-            
+                    if len(r2[1]) < 5:
+                        writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM2")
+                        continue
+
             #filter debubble
             if self.options.debubble:
                 if self.isInBubble(r1[0]):
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBBL")
+                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBBL1")
                     continue
             
             #filter sequence length
