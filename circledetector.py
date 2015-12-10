@@ -213,7 +213,3 @@ def main():
     cd = CircleDetector([], 10.0, 10.0)
     c = [5, -0.5, 1.0]
     print(cd.circleAreaInTile(c, 10.0, 10.0))
-    
-#test
-if __name__  == "__main__":
-    main()

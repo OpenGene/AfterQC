@@ -80,16 +80,3 @@ def moveAndTrimPair(read1, read2, barcode1len, barcode2len, verify):
     moveBarcodeToName(read1, barcode1len, verify)
     moveBarcodeToName(read2, barcode2len, verify)
     cleanBarcodeTail(read1, read2, readStart1, readStart2)
-
-#test
-if __name__  == "__main__":
-    read1 = ['@NS500713:17:HFG2YBGXX:1:11101:10560:1202 1:N:0:CGAGTA','ATAAAAAAAACACAGTATGGCAAAACCCCATCTCTACTAAAAATACAAAAATTAGCTGGGTGTGGTGGCTACTGAAATTTCCCGGG','+','AAAAAEEEEEEEEEEEEEEEEEEEAEEEEEEEEEEEEEAEEEEEEEEEEEEEEEEEEEEEEEAEEEEEE######EEEEEEEEEEE']
-    read2 = ['@NS500713:17:HFG2YBGXX:1:11101:10560:1202 2:N:0:CGAGTA','CCCGGGAAATTTCAGTAGCCACCACACCCAGCTAATTTTTGTATTTTTAGTAGAGATGGGGTTTTGCCATACTGTGTTTTTTTTAT','+','AAAAAEEEEEEEEEEEEEEEEEEEAEEEEEEEEEEEEEAEEEEEEEEEEEEEEEEEEEEEEEAEEEEEE######EEEEEEEEEEE']
-    verify = 'CAGTA'
-    barcodeLen = 12
-    barcode1len = detectBarcode(read1[1], barcodeLen, verify)
-    barcode2len = detectBarcode(read2[1], barcodeLen, verify)
-    print barcode1len, barcode2len
-    moveAndTrimPair(read1, read2, barcode1len, barcode2len, verify)
-    print(read1)
-    print(read2)

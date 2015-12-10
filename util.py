@@ -35,7 +35,3 @@ def editDistance(s1, s2):
             tbl[i,j] = min(tbl[i, j-1]+1, tbl[i-1, j]+1, tbl[i-1, j-1]+cost)
 
     return tbl[i,j]
-    
-#test
-if __name__  == "__main__":
-    print editDistance("ATCGAAGTG", "ATCGCAGTG")

@@ -135,8 +135,4 @@ class Trimmer:
         trimTail = min(readLen*0.05,readLen-1-trimTail)
         
         return (int(trimFront), int(trimTail))
-        
-#test
-if __name__  == "__main__":
-    trimmer = Trimmer()
-    print(trimmer.calcTrimLength(sys.argv[1]))
+

@@ -84,6 +84,3 @@ def main():
     
     time2 = time.time()
     print('Time used: ' + str(time2-time1))
-
-if __name__  == "__main__":
-    main()

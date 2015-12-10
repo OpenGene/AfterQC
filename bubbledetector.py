@@ -389,6 +389,3 @@ def main():
         bd = BubbleDetector(xmax, ymax, xmin,ymin, True)
         bd.loadRecordsFromFile(argv)
         bd.detect()
-    
-if __name__  == "__main__":
-    main()

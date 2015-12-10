@@ -299,47 +299,37 @@ class seqFilter:
                     continue
             
             #filter sequence length
-            if len(r1[1])<self.options.min_seq_len:
+            if len(r1[1])<self.options.seq_len_req:
                 writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLEN")
                 continue
                     
             #check polyX
-            if self.options.poly_max > 0:
-                poly1 = hasPolyX(r1[1], self.options.poly_max, self.options.allow_poly_mismatch)
+            if self.options.poly_size_limit > 0:
+                poly1 = hasPolyX(r1[1], self.options.poly_size_limit, self.options.allow_mismatch_in_poly)
                 poly2 = None
                 if r2!=None:
-                    poly2 = hasPolyX(r2[1], self.options.poly_max, self.options.allow_poly_mismatch)
+                    poly2 = hasPolyX(r2[1], self.options.poly_size_limit, self.options.allow_mismatch_in_poly)
                 if poly1!=None or poly2!=None:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADPOL")
                     continue
             
-            #check min quality
-            if self.options.min_quality > 0:
-                minQual1 = minQuality(r1)
-                minQual2 = 255
-                if r2!=None:
-                    minQual2 = minQuality(r2)
-                if minQual1 < self.options.min_quality or minQual2 < self.options.min_quality:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMIN")
-                    continue
-            
             #check low quality count
-            if self.options.max_low_quality > 0:
-                lowQual1 = lowQualityNum(r1, self.options.qualified_quality)
+            if self.options.unqualified_base_limit > 0:
+                lowQual1 = lowQualityNum(r1, self.options.qualified_quality_phred)
                 lowQual2 = 0
                 if r2!=None:
-                    lowQual2 = lowQualityNum(r2, self.options.qualified_quality)
-                if lowQual1 > self.options.max_low_quality or lowQual1 > self.options.max_low_quality:
+                    lowQual2 = lowQualityNum(r2, self.options.qualified_quality_phred)
+                if lowQual1 > self.options.unqualified_base_limit or lowQual1 > self.options.unqualified_base_limit:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLQC")
                     continue
             
             #check N number
-            if self.options.max_n_count > 0:
+            if self.options.n_base_limit > 0:
                 nNum1 = nNumber(r1)
                 nNum2 = 0
                 if r2!=None:
                     nNum2 = nNumber(r2)
-                if nNum1 > self.options.max_n_count or nNum2 > self.options.max_n_count:
+                if nNum1 > self.options.n_base_limit or nNum2 > self.options.n_base_limit:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADNCT")
                     continue
                                 
@@ -359,7 +349,3 @@ class seqFilter:
             good_index2_file.flush()
             bad_index2_file.flush()
 
-#test        
-if __name__  == "__main__":
-    seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAATGAAAAAAAAAAAAAAAAAAAAA"
-    print(hasPolyX(seq, 40, 3))
