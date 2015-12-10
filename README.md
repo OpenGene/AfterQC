@@ -1,7 +1,7 @@
 # AFTER
 Automatic Filtering, Trimming, and Error Removing for fastq data   
 AFTER can simply go through all fastq files in a folder and then output a <b>good</b> folder and a <b>bad</b> folder, which contains good reads and bad reads of each fastq file   
-Currently it supports Illumina 1.8 or newer format, see [here](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
+Currently it supports [Illumina 1.8 or newer format](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
 # Latest release
 0.1.0 (Released in 2015-12-10)
@@ -14,7 +14,7 @@ AFTER does following tasks automatically:
 1, Filter PolyA/PolyT/PolyC/PolyG reads  
 2, Trim reads at front and tail according to bad per base sequence content  
 3, Detect and eliminate bubble artifact caused by sequencer due to fluid dynamics issue  
-4, Filter low-quality reads
+4, Filter low-quality reads   
 5, Barcode sequencing support: if all reads have a random barcode (see duplex sequencing), this program can detect and split the barcode into query name
 
 # Simple usage:
