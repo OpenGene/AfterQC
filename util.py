@@ -10,7 +10,7 @@ def parseBool(str):
         return False
 
 def reverseComplement(origin):
-    comp = {"A" : "T", "T" : "A", "C" : "G", "G" : "C", "a" : "t", "t" : "a", "c" : "g", "g" : "c", "N":"N"}
+    comp = {"A" : "T", "T" : "A", "C" : "G", "G" : "C", "a" : "t", "t" : "a", "c" : "g", "g" : "c", "N":"N", "\n":"\n"}
     length = len(origin)
     revCompArr = ['' for x in xrange(length)]
     for i in xrange(length):
