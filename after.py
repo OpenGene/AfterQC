@@ -93,6 +93,11 @@ def processDir(folder, options):
             if f.endswith(ext):isfq = True
         if isfq == False:
             continue
+
+        # here we skip those files with name starting with Undetermined
+        # because these files are usually with unknown barcode and have no need to be processed
+        if f.startswith("Undetermined"):
+            continue
         
         #find read1 file
         if read1name in f:
