@@ -39,7 +39,7 @@ Common options:
   -h, --help            show this help message and exit
 ```
 File (name) options:
-```shell
+```
 
   -1 READ1_FILE, --read1_file=READ1_FILE
                         file name of read1, required. If input_dir is
@@ -77,13 +77,17 @@ File (name) options:
                         which means a file with name *_I2_* is index2 file
 ```
 Filter options:
-```shell
+```
   -f TRIM_FRONT, --trim_front=TRIM_FRONT
                         number of bases to be trimmed in the head of read. -1
                         means auto detect
   -t TRIM_TAIL, --trim_tail=TRIM_TAIL
                         number of bases to be trimmed in the tail of read. -1
                         means auto detect
+  --trim_pair_same=TRIM_PAIR_SAME
+                        use same trimming configuration for read1 and read2 to
+                        keep their sequence length identical, default is true
+                        lots of dedup algorithms require this feature
   -q QUALIFIED_QUALITY_PHRED, --qualified_quality_phred=QUALIFIED_QUALITY_PHRED
                         the quality value that a base is qualifyed. Default 20
                         means base quality >=Q20 is qualified.
@@ -107,7 +111,7 @@ Filter options:
                         this read/pair is bad. Default is 35
 ```
 Debubble options:
-```shell
+```
   --debubble=DEBUBBLE   specify whether apply debubble algorithm to remove the
                         reads in the bubbles. Default is off
   --debubble_dir=DEBUBBLE_DIR
