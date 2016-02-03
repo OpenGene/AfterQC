@@ -188,11 +188,17 @@ class seqFilter:
                 self.options.trim_tail = trimTail
             #auto trim for read2
             if self.options.read2_file != None:
-                trimFront2, trimTail2 = tm.calcTrimLength(self.options.read2_file)
-                if self.options.trim_front2 == -1:
-                    self.options.trim_front2 = trimFront2
-                if self.options.trim_tail2 == -1:
-                    self.options.trim_tail2 = trimTail2
+                # check if we should keep same trimming for read1/read2 to keep their length identical
+                # this option is on by default because lots of dedup algorithms require this feature
+                if self.options.trim_pair_same:
+                    self.options.trim_front2 = self.options.trim_front
+                    self.options.trim_tail2 = self.options.trim_tail
+                else:
+                    trimFront2, trimTail2 = tm.calcTrimLength(self.options.read2_file)
+                    if self.options.trim_front2 == -1:
+                        self.options.trim_front2 = trimFront2
+                    if self.options.trim_tail2 == -1:
+                        self.options.trim_tail2 = trimTail2
                 
         print(self.options)
         
