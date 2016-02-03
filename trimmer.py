@@ -133,6 +133,8 @@ class Trimmer:
         
         trimFront = min(readLen*0.1,trimFront)
         trimTail = min(readLen*0.05,readLen-1-trimTail)
+        # the last base should be definitely trimmed for illumina sequencer output
+        trimTail = max(1, trimTail)
         
         return (int(trimFront), int(trimTail))
 
