@@ -201,6 +201,7 @@ class seqFilter:
                     if self.options.trim_tail2 == -1:
                         self.options.trim_tail2 = trimTail2
                 
+        print(self.options.read1_file + " options:")
         print(self.options)
         
         #if good output folder not specified, set it as the same folder of read1 file
@@ -251,7 +252,22 @@ class seqFilter:
         r2 = None
         i1 = None
         i2 = None
-        
+
+        # stat numbers
+        TOTAL = 0
+        GOOD = 0
+        BAD = 0
+        BADBCD1 = 0
+        BADBCD2 = 0
+        BADTRIM1 = 0
+        BADTRIM2 = 0
+        BADBBL = 0
+        BADLEN = 0
+        BADPOL = 0
+        BADLQC = 0
+        BADNCT = 0
+        BADOL = 0
+
         while True:
             r1 = read1_file.nextRead()
             if r1==None:
@@ -269,12 +285,15 @@ class seqFilter:
                 i2 = index2_file.nextRead()
                 if i2==None:
                     break
+
+            TOTAL += 1
                     
             #barcode processing
             if self.options.barcode:
                 barcodeLen1 = barcodeprocesser.detectBarcode(r1[1], self.options.barcode_length, self.options.barcode_verify)
                 if barcodeLen1 == 0:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD1")
+                    BADBCD1 += 1
                     continue
                 else:
                     if r2 == None:
@@ -283,6 +302,7 @@ class seqFilter:
                         barcodeLen2 = barcodeprocesser.detectBarcode(r2[1], self.options.barcode_length, self.options.barcode_verify)
                         if barcodeLen2 == 0:
                             writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD2")
+                            BADBCD2 += 1
                             continue
                         else:
                             barcodeprocesser.moveAndTrimPair(r1, r2, barcodeLen1, barcodeLen2, self.options.barcode_verify)
@@ -292,22 +312,26 @@ class seqFilter:
                 r1 = trim(r1, self.options.trim_front, self.options.trim_tail)
                 if len(r1[1]) < 5:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM1")
+                    BADTRIM1 += 1
                     continue
                 if r2 != None:
                     r2 = trim(r2, self.options.trim_front2, self.options.trim_tail2)
                     if len(r2[1]) < 5:
                         writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM2")
+                        BADTRIM2 += 1
                         continue
 
             #filter debubble
             if self.options.debubble:
                 if self.isInBubble(r1[0]):
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBBL1")
+                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBBL")
+                    BADBBL += 1
                     continue
             
             #filter sequence length
             if len(r1[1])<self.options.seq_len_req:
                 writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLEN")
+                BADLEN += 1
                 continue
                     
             #check polyX
@@ -318,6 +342,7 @@ class seqFilter:
                     poly2 = hasPolyX(r2[1], self.options.poly_size_limit, self.options.allow_mismatch_in_poly)
                 if poly1!=None or poly2!=None:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADPOL")
+                    BADPOL += 1
                     continue
             
             #check low quality count
@@ -328,6 +353,7 @@ class seqFilter:
                     lowQual2 = lowQualityNum(r2, self.options.qualified_quality_phred)
                 if lowQual1 > self.options.unqualified_base_limit or lowQual1 > self.options.unqualified_base_limit:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLQC")
+                    BADLQC += 1
                     continue
             
             #check N number
@@ -338,6 +364,7 @@ class seqFilter:
                     nNum2 = nNumber(r2)
                 if nNum1 > self.options.n_base_limit or nNum2 > self.options.n_base_limit:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADNCT")
+                    BADNCT += 1
                     continue
 
             #check overlap and do error correction
@@ -345,10 +372,12 @@ class seqFilter:
                 (offset, overlap_len, distance) = util.overlap(r1, r2)
                 if overlap_len>30 and distance >= 2:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
+                    BADOL += 1
                     continue
                                 
             #write to good       
             writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
+            GOOD += 1
         
         #close all files
         good_read1_file.flush()
@@ -362,4 +391,21 @@ class seqFilter:
         if self.options.index2_file != None:
             good_index2_file.flush()
             bad_index2_file.flush()
+
+        # print stat numbers
+        BAD = TOTAL - GOOD
+        print(self.options.read1_file + " results:")
+        print('total reads',TOTAL)
+        print('good reads',GOOD)
+        print('bad reads',BAD)
+        print('bad reads with bad barcode in read1',BADBCD1)
+        print('bad reads with bad barcode in read2',BADBCD2)
+        print('bad reads with bad read1 after trimming',BADTRIM1)
+        print('bad reads with bad read12 after trimming',BADTRIM2)
+        print('bad reads in bubble',BADBBL)
+        print('bad reads with bad read length',BADLEN)
+        print('bad reads with PolyX',BADPOL)
+        print('bad reads with bad low quality count',BADLQC)
+        print('bad reads with bad N count',BADNCT)
+        print('bad reads with bad overlapping of a pair',BADOL)
 
