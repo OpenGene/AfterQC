@@ -19,6 +19,8 @@ AFTER does following tasks automatically:
 6, `pypy` supported
 
 # Simple usage:
+* For single-end sequencing, the filenames in the folder should be `*_R1_*`
+* For pair-end sequencing, the filenames in the folder should be `*_R1_*` and `*_R2_*`
 ```shell
 cd /path/to/fastq/folder
 python after.py
@@ -39,7 +41,7 @@ python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [
   --version             show program's version number and exit
   -h, --help            show this help message and exit
 ```
-File (name) options:
+***File (name) options***
 ```
 
   -1 READ1_FILE, --read1_file=READ1_FILE
