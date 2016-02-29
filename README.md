@@ -15,7 +15,8 @@ AFTER does following tasks automatically:
 2, Trim reads at front and tail according to bad per base sequence content  
 3, Detect and eliminate bubble artifact caused by sequencer due to fluid dynamics issue  
 4, Filter low-quality reads   
-5, Barcode sequencing support: if all reads have a random barcode (see duplex sequencing), this program can detect and split the barcode into query name
+5, Barcode sequencing support: if all reads have a random barcode (see duplex sequencing), this program can detect and split the barcode into query name   
+6, `pypy` supported
 
 # Simple usage:
 ```shell
@@ -23,17 +24,17 @@ cd /path/to/fastq/folder
 python after.py
 ```
 
-# Debubble:
-If you want to eliminate bubble artifact, run:  
+# Use pypy for performance:
 ```shell
-python after.py --debubble=on
+cd /path/to/fastq/folder
+pypy after.py
 ```
 
-# Full usage:
+# Full options:
 ```shell
 python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-q qualified_quality_phred] [-l unqualified_base_limit] [-p poly_size_limit] [-a allow_mismatch_in_poly] [-n n_base_limit] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=_R1_] [--read2_flag=_R2_] [--index1_flag=_I1_] [--index2_flag=_I2_]
 ```
-Common options:
+***Common options***
 ```shell
   --version             show program's version number and exit
   -h, --help            show this help message and exit
@@ -76,7 +77,7 @@ File (name) options:
                         specify the name flag of index2, default is _I2_,
                         which means a file with name *_I2_* is index2 file
 ```
-Filter options:
+***Filter options***
 ```
   -f TRIM_FRONT, --trim_front=TRIM_FRONT
                         number of bases to be trimmed in the head of read. -1
@@ -110,7 +111,8 @@ Filter options:
                         if the trimmed read is shorter than seq_len_req, then
                         this read/pair is bad. Default is 35
 ```
-Debubble options:
+***Debubble options***   
+If you want to eliminate bubble artifact, turn debubble option on (this is slow, usually you don't need to do this): 
 ```
   --debubble=DEBUBBLE   specify whether apply debubble algorithm to remove the
                         reads in the bubbles. Default is off
@@ -120,7 +122,7 @@ Debubble options:
   --draw=DRAW           specify whether draw the pictures or not, when use
                         debubble or QC. Default is on
 ```
-Barcoded sequencing options:
+***Barcoded sequencing options***
 ```
   --barcode=BARCODE     specify whether deal with barcode sequencing files, default is on
   --barcode_length=BARCODE_LENGTH
