@@ -5,6 +5,7 @@ import re
 from optparse import OptionParser
 import time
 import fastq
+import util
 from trimmer import Trimmer
 import barcodeprocesser
 
@@ -337,6 +338,13 @@ class seqFilter:
                     nNum2 = nNumber(r2)
                 if nNum1 > self.options.n_base_limit or nNum2 > self.options.n_base_limit:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADNCT")
+                    continue
+
+            #check overlap and do error correction
+            if r2!=None:
+                (offset, overlap_len, distance) = util.overlap(r1, r2)
+                if overlap_len>30 and distance >= 2:
+                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                     continue
                                 
             #write to good       
