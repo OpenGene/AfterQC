@@ -401,7 +401,7 @@ class seqFilter:
         print('bad reads with bad barcode in read1',BADBCD1)
         print('bad reads with bad barcode in read2',BADBCD2)
         print('bad reads with bad read1 after trimming',BADTRIM1)
-        print('bad reads with bad read12 after trimming',BADTRIM2)
+        print('bad reads with bad read2 after trimming',BADTRIM2)
         print('bad reads in bubble',BADBBL)
         print('bad reads with bad read length',BADLEN)
         print('bad reads with PolyX',BADPOL)
