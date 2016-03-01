@@ -2,6 +2,16 @@
  
 import os,sys
 
+EDIT_DISTANCE_MODULE_EXISTS = True
+
+try:
+    import editdistance
+except ImportError:
+    EDIT_DISTANCE_MODULE_EXISTS = False
+else:
+    EDIT_DISTANCE_MODULE_EXISTS = True
+
+
 COMP = {"A" : "T", "T" : "A", "C" : "G", "G" : "C", "a" : "t", "t" : "a", "c" : "g", "g" : "c", "N":"N", "\n":"\n"}
     
 def parseBool(str):
@@ -41,6 +51,10 @@ def hammingDistance(s1, s2):
 
 #simple edit distance
 def editDistance(s1, s2):
+    # check if editdistance module loaded
+    if EDIT_DISTANCE_MODULE_EXISTS:
+        return editdistance.eval(s1, s2)
+
     m=len(s1)+1
     n=len(s2)+1
 

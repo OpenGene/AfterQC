@@ -374,18 +374,18 @@ class seqFilter:
             if r2!=None:
                 (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                 if overlap_len>30:
-                    if distance >= 2:
+                    if distance > 2:
                         writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                         BADOL += 1
                         continue
-                    elif distance == 1:
+                    elif distance > 0:
                         #try to fix low quality base
                         hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
-                        if hamming != 1:
+                        if hamming != distance:
                             writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADINDEL")
                             BADINDEL += 1
                             continue
-                        corrected = False
+                        corrected = 0
                         #print(r1[1][len(r1[1]) - overlap_len:])
                         #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         #print(r1[3][len(r1[1]) - overlap_len:])
@@ -396,26 +396,26 @@ class seqFilter:
                             q1 = r1[3][len(r1[3]) - overlap_len + o]
                             q2 = r2[3][-o-1]
                             if b1 != b2:
-                                # print(o, b1, b2, q1, q2)
+                                # print(TOTAL, o, b1, b2, q1, q2)
                                 if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 16:
                                     r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
                                     r2[3] = util.changeString(r2[3], -o-1, q1)
-                                    corrected = True
+                                    corrected += 1
                                 elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 16:
                                     r1[1]= util.changeString(r1[1], len(r1[1]) - overlap_len + o, b2)
                                     r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, q2)
-                                    corrected = True
-                                else:
-                                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
-                                    BADMISMATCH += 1
-                                break
+                                    corrected += 1
+                                if corrected >= distance:
+                                    break
                         #print(r1[1][len(r1[1]) - overlap_len:])
                         #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         #print(r1[3][len(r1[1]) - overlap_len:])
                         #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
-                        if corrected:
+                        if corrected == distance:
                             BASE_CORRECTED += 1
                         else:
+                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
+                            BADMISMATCH += 1
                             continue
                                 
             #write to good       
@@ -452,6 +452,6 @@ class seqFilter:
         print('bad reads with bad N count',BADNCT)
         print('bad reads with bad overlapping of a pair',BADOL)
         print('bad reads with mismatch of a pair',BADMISMATCH)
-        print('bad reads with bad inddel of a pair',BADINDEL)
+        print('bad reads with bad indel of a pair',BADINDEL)
         print('corrected low quality mismatch of a pair',BASE_CORRECTED)
 
