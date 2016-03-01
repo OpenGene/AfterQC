@@ -1,6 +1,8 @@
  #!/usr/bin/env python
  
 import os,sys
+
+COMP = {"A" : "T", "T" : "A", "C" : "G", "G" : "C", "a" : "t", "t" : "a", "c" : "g", "g" : "c", "N":"N", "\n":"\n"}
     
 def parseBool(str):
     str = str.lower()
@@ -9,17 +11,33 @@ def parseBool(str):
     else:
         return False
 
+def complement(base):
+    return COMP[base]
+
+def qualNum(q):
+    return ord(q) - 33
+
 def reverseComplement(origin):
-    comp = {"A" : "T", "T" : "A", "C" : "G", "G" : "C", "a" : "t", "t" : "a", "c" : "g", "g" : "c", "N":"N", "\n":"\n"}
     length = len(origin)
     revCompArr = ['' for x in xrange(length)]
     for i in xrange(length):
         orig = origin[length - i -1]
-        if orig in comp:
-            revCompArr[i] = comp[orig]
+        if orig in COMP:
+            revCompArr[i] = COMP[orig]
         else:
             revCompArr[i] = 'N'
     return ''.join(revCompArr)
+
+def reverse(origin):
+    return origin[::-1]
+
+def hammingDistance(s1, s2):
+    length = min(len(s1), len(s2))
+    d = 0
+    for i in xrange(length):
+        if s1[i] != s2[i]:
+            d += 1
+    return d
 
 #simple edit distance
 def editDistance(s1, s2):
@@ -61,3 +79,8 @@ def overlap(r1, r2):
             if distance <= distance2:
                 return (offset, overlap_len, distance)
     return (0,0,0)
+
+def changeString(str, pos, val):
+    lst = list(str)
+    lst[pos] = val
+    return ''.join(lst)

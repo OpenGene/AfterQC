@@ -267,6 +267,9 @@ class seqFilter:
         BADLQC = 0
         BADNCT = 0
         BADOL = 0
+        BADINDEL = 0
+        BADMISMATCH = 0
+        BASE_CORRECTED = 0
 
         while True:
             r1 = read1_file.nextRead()
@@ -370,10 +373,50 @@ class seqFilter:
             #check overlap and do error correction
             if r2!=None:
                 (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
-                if overlap_len>30 and distance >= 2:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
-                    BADOL += 1
-                    continue
+                if overlap_len>30:
+                    if distance >= 2:
+                        writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
+                        BADOL += 1
+                        continue
+                    elif distance == 1:
+                        #try to fix low quality base
+                        hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
+                        if hamming != 1:
+                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADINDEL")
+                            BADINDEL += 1
+                            continue
+                        corrected = False
+                        #print(r1[1][len(r1[1]) - overlap_len:])
+                        #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
+                        #print(r1[3][len(r1[1]) - overlap_len:])
+                        #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
+                        for o in xrange(overlap_len):
+                            b1 = r1[1][len(r1[1]) - overlap_len + o]
+                            b2 = util.complement(r2[1][-o-1])
+                            q1 = r1[3][len(r1[3]) - overlap_len + o]
+                            q2 = r2[3][-o-1]
+                            if b1 != b2:
+                                # print(o, b1, b2, q1, q2)
+                                if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 16:
+                                    r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
+                                    r2[3] = util.changeString(r2[3], -o-1, q1)
+                                    corrected = True
+                                elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 16:
+                                    r1[1]= util.changeString(r1[1], len(r1[1]) - overlap_len + o, b2)
+                                    r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, q2)
+                                    corrected = True
+                                else:
+                                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
+                                    BADMISMATCH += 1
+                                break
+                        #print(r1[1][len(r1[1]) - overlap_len:])
+                        #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
+                        #print(r1[3][len(r1[1]) - overlap_len:])
+                        #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
+                        if corrected:
+                            BASE_CORRECTED += 1
+                        else:
+                            continue
                                 
             #write to good       
             writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
@@ -408,4 +451,7 @@ class seqFilter:
         print('bad reads with bad low quality count',BADLQC)
         print('bad reads with bad N count',BADNCT)
         print('bad reads with bad overlapping of a pair',BADOL)
+        print('bad reads with mismatch of a pair',BADMISMATCH)
+        print('bad reads with bad inddel of a pair',BADINDEL)
+        print('corrected low quality mismatch of a pair',BASE_CORRECTED)
 
