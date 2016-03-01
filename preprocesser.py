@@ -17,8 +17,8 @@ def getMainName(filename):
 def trim(read, front, tail):
     if tail>0:
         #\n will be trimmed, so add it back
-        read[1] = read[1][front:-(tail+1)] + "\n"
-        read[3] = read[3][front:-(tail+1)] + "\n"
+        read[1] = read[1][front:-tail]
+        read[3] = read[3][front:-tail]
     else:
         read[1] = read[1][front:]
         read[3] = read[3][front:]
@@ -49,7 +49,7 @@ def hasPolyX(seq, maxPoly, mismatch):
     return None
     
 def minQuality(read):
-    qualStr = read[3][0:-1]
+    qualStr = read[3]
     minQual = 255
     for q in qualStr:
         if minQual > ord(q):
@@ -58,7 +58,7 @@ def minQuality(read):
     
 def lowQualityNum(read, qual):
     qual += 33
-    qualStr = read[3][0:-1]
+    qualStr = read[3]
     lowQualNum = 0
     for q in qualStr:
         if ord(q) < qual:
@@ -66,7 +66,7 @@ def lowQualityNum(read, qual):
     return lowQualNum
     
 def nNumber(read):
-    seqStr = read[1][0:-1]
+    seqStr = read[1]
     nNum = 0
     for s in seqStr:
         if s == 'N':
@@ -369,7 +369,7 @@ class seqFilter:
 
             #check overlap and do error correction
             if r2!=None:
-                (offset, overlap_len, distance) = util.overlap(r1, r2)
+                (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                 if overlap_len>30 and distance >= 2:
                     writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                     BADOL += 1

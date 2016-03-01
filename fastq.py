@@ -44,7 +44,7 @@ class Reader:
         lines = []
         #read 4 (lines, name, sequence, strand, quality)
         for i in xrange(0,4):
-            line = self.__file.readline()
+            line = self.__file.readline().rstrip()
             if len(line) == 0:
                 self.__eof = True
                 return None
@@ -90,16 +90,16 @@ class Writer:
             return False
             
         for line in lines:
-            self.__file.write(line)
+            self.__file.write(line+"\n")
         return True
             
     def writeRead(self, name, seqence, strand, quality):
         if self.__file == None:
             return False
             
-        self.__file.write(name)
-        self.__file.write(seqence)
-        self.__file.write(strand)
-        self.__file.write(quality)
+        self.__file.write(name+"\n")
+        self.__file.write(seqence+"\n")
+        self.__file.write(strand+"\n")
+        self.__file.write(quality+"\n")
         
         return True
