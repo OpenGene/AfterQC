@@ -270,6 +270,8 @@ class seqFilter:
         BADINDEL = 0
         BADMISMATCH = 0
         BASE_CORRECTED = 0
+        OVERLAPPED = 0
+        OVERLAP_LEN_SUM = 0
 
         while True:
             r1 = read1_file.nextRead()
@@ -374,6 +376,8 @@ class seqFilter:
             if r2!=None:
                 (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                 if overlap_len>30:
+                    OVERLAPPED += 1
+                    OVERLAP_LEN_SUM += overlap_len
                     if distance > 2:
                         writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                         BADOL += 1
@@ -421,6 +425,7 @@ class seqFilter:
             #write to good       
             writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
             GOOD += 1
+            #if TOTAL > 100000:break
         
         #close all files
         good_read1_file.flush()
@@ -441,6 +446,8 @@ class seqFilter:
         print('total reads',TOTAL)
         print('good reads',GOOD)
         print('bad reads',BAD)
+        print('overlapped pairs',OVERLAPPED)
+        print('average overlap length',float(OVERLAP_LEN_SUM)/OVERLAPPED)
         print('bad reads with bad barcode in read1',BADBCD1)
         print('bad reads with bad barcode in read2',BADBCD2)
         print('bad reads with bad read1 after trimming',BADTRIM1)
