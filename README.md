@@ -26,13 +26,15 @@ pip install editdistance
 If you cannot install `editdistance` module, AFTER will use a python implementation of editdistance, but it will be extremely slow.  
 
 # Simple usage:
+* Prepare your fastq files in a folder
 * For single-end sequencing, the filenames in the folder should be `*_R1_*`
 * For pair-end sequencing, the filenames in the folder should be `*_R1_*` and `*_R2_*`
 ```shell
 cd /path/to/fastq/folder
 python path/to/AFTER/after.py
-# two folders will be automatically generated, a folder 'good' stores the good reads and a folder 'bad' stores the bad reads
 ```
+* two folders will be automatically generated, a folder 'good' stores the good reads and a folder 'bad' stores the bad reads
+* AFTER will print some statistical information after it is done, such how many good reads, how many bad reads, and how many reads are corrected.
 
 # Full options:
 ```shell
