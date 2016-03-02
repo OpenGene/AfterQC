@@ -16,20 +16,22 @@ AFTER does following tasks automatically:
 3, Detect and eliminate bubble artifact caused by sequencer due to fluid dynamics issue  
 4, Filter low-quality reads   
 5, Barcode sequencing support: if all reads have a random barcode (see duplex sequencing), this program can detect and split the barcode into query name   
-6, `pypy` supported
+6, For pair-end sequencing data, AFTER automatically corrects some low quality wrong bases in read1 and read2's overlapped area.
+
+# Dependency:
+AFTER uses `editdistance` module, run following before using AFTER:
+```shell
+pip install editdistance
+```
+If you cannot install `editdistance` module, AFTER will use a python implementation of editdistance, but it will be extremely slow.  
 
 # Simple usage:
 * For single-end sequencing, the filenames in the folder should be `*_R1_*`
 * For pair-end sequencing, the filenames in the folder should be `*_R1_*` and `*_R2_*`
 ```shell
 cd /path/to/fastq/folder
-python after.py
-```
-
-# Use pypy for performance:
-```shell
-cd /path/to/fastq/folder
-pypy after.py
+python path/to/AFTER/after.py
+# two folders will be automatically generated, a folder 'good' stores the good reads and a folder 'bad' stores the bad reads
 ```
 
 # Full options:
