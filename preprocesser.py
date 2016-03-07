@@ -213,40 +213,63 @@ class seqFilter:
         bad_dir = self.options.bad_output_folder
         if bad_dir == None:
             bad_dir = os.path.dirname(self.options.read1_file)
+
+        #if overlap output folder not specified, set it as the same folder of read1 file
+        overlap_dir = self.options.overlap_output_folder
+        if overlap_dir == None:
+            overlap_dir = os.path.dirname(self.options.read1_file)
             
         if not os.path.exists(good_dir):
             os.makedirs(good_dir)
             
         if not os.path.exists(bad_dir):
             os.makedirs(bad_dir)
+
+        if self.options.store_overlap and self.options.read2_file != None and (not os.path.exists(overlap_dir)):
+            os.makedirs(overlap_dir)
         
         good_read1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read1_file)+".good.fq"))
         bad_read1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read1_file)+".bad.fq"))
+
+        overlap_read1_file = None
+        if self.options.store_overlap:
+            overlap_read1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read1_file)+".overlap.fq"))
         
         #other files are optional
         read2_file = None
         good_read2_file = None
         bad_read2_file = None
+        overlap_read2_file = None
+
         index1_file = None
         good_index1_file = None
         bad_index1_file = None
+        overlap_index1_file = None
+
         index2_file = None
         good_index2_file = None
         bad_index2_file = None
+        overlap_index2_file = None
         
         #if other files are specified, then read them
         if self.options.read2_file != None:
             read2_file = fastq.Reader(self.options.read2_file)
             good_read2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read2_file)+".good.fq"))
             bad_read2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read2_file)+".bad.fq"))
+            if self.options.store_overlap and self.options.read2_file != None:
+                overlap_read2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read2_file)+".overlap.fq"))
         if self.options.index1_file != None:
             index1_file = fastq.Reader(self.options.index1_file)
             good_index1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index1_file)+".good.fq"))
             bad_index1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index1_file)+".bad.fq"))
+            if self.options.store_overlap and self.options.read2_file != None:
+                overlap_index1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index1_file)+".overlap.fq"))
         if self.options.index2_file != None:
             index2_file = fastq.Reader(self.options.index2_file)
             good_index2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index2_file)+".good.fq"))
             bad_index2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index2_file)+".bad.fq"))
+            if self.options.store_overlap and self.options.read2_file != None:
+                overlap_index2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index2_file)+".overlap.fq"))
             
         r1 = None
         r2 = None
@@ -378,11 +401,14 @@ class seqFilter:
                 if overlap_len>30:
                     OVERLAPPED += 1
                     OVERLAP_LEN_SUM += overlap_len
-                    if distance > 2:
+                    if distance == 0:
+                        if self.options.store_overlap:
+                            writeReads(r1, r2, i1, i2, overlap_read1_file, overlap_read2_file, overlap_index1_file, overlap_index2_file, None)
+                    elif distance > 2:
                         writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                         BADOL += 1
                         continue
-                    elif distance > 0:
+                    else:
                         #try to fix low quality base
                         hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         if hamming != distance:
@@ -417,6 +443,8 @@ class seqFilter:
                         #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
                         if corrected == distance:
                             BASE_CORRECTED += 1
+                            if self.options.store_overlap:
+                                writeReads(r1, r2, i1, i2, overlap_read1_file, overlap_read2_file, overlap_index1_file, overlap_index2_file, None)
                         else:
                             writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
                             BADMISMATCH += 1

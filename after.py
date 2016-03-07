@@ -12,7 +12,7 @@ from util import *
 def parseCommand():
     usage = "Automatic Filtering, Trimming, and Error Removing for Illumina fastq data(Illumina 1.8 or newer format, see http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)\n\nFull command:\n%prog [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-q qualified_quality_phred] [-l unqualified_base_limit] [-p poly_size_limit] [-a allow_mismatch_in_poly] [-n n_base_limit] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=_R1_] [--read2_flag=_R2_] [--index1_flag=_I1_] [--index2_flag=_I2_] \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
     version = "%prog 0.1.0"
-    parser = OptionParser(usage = usage, version = version) 
+    parser = OptionParser(usage = usage, version = version)
     parser.add_option("-1", "--read1_file", dest = "read1_file",
         help = "file name of read1, required. If input_dir is specified, then this arg is ignored.")
     parser.add_option("-2", "--read2_file", dest = "read2_file", default = None,
@@ -67,6 +67,10 @@ def parseCommand():
         help = "specify the name flag of a barcoded file, default is barcode, which means a file with name *barcode* is a barcoded file")
     parser.add_option("", "--barcode_verify", dest = "barcode_verify", default = "CAGTA",
         help = "specify the verify sequence of a barcode which is adjunct to the barcode")
+    parser.add_option("", "--store_overlap", dest = "store_overlap", default = "off",
+        help = "specify whether store only overlapped bases of the good reads")
+    parser.add_option("", "--overlap_output_folder", dest = "overlap_output_folder", default = "overlap",
+        help = "the folder to store only overlapped bases of the good reads")
     return parser.parse_args()
 
 def processDir(folder, options):
@@ -156,6 +160,7 @@ def main():
     options.debubble = parseBool(options.debubble)
     options.trim_pair_same = parseBool(options.trim_pair_same)
     options.draw = parseBool(options.draw)
+    options.store_overlap = parseBool(options.store_overlap)
     options.trim_front2 = options.trim_front
     options.trim_tail2 = options.trim_tail
     
