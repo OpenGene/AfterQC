@@ -97,6 +97,14 @@ def writeReads(r1, r2, i1, i2, r1_file, r2_file, i1_file, i2_file, flag):
         if flag!=None:
             i2[0] = "@" + flag + i2[0][1:]
         i2_file.writeLines(i2)
+
+def getOverlap(r, overlap_len):
+    ret = []
+    ret.append(r[0])
+    ret.append(r[1][len(r[1]) - overlap_len:])
+    ret.append(r[2])
+    ret.append(r[3][len(r[3]) - overlap_len:])
+    return ret
     
 ########################### seqFilter
 class seqFilter:
@@ -401,21 +409,18 @@ class seqFilter:
                 if overlap_len>30:
                     OVERLAPPED += 1
                     OVERLAP_LEN_SUM += overlap_len
-                    if distance == 0:
-                        if self.options.store_overlap:
-                            writeReads(r1, r2, i1, i2, overlap_read1_file, overlap_read2_file, overlap_index1_file, overlap_index2_file, None)
-                    elif distance > 2:
+                    corrected = 0
+                    if distance > 2:
                         writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                         BADOL += 1
                         continue
-                    else:
+                    elif distance>0:
                         #try to fix low quality base
                         hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         if hamming != distance:
                             writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADINDEL")
                             BADINDEL += 1
                             continue
-                        corrected = 0
                         #print(r1[1][len(r1[1]) - overlap_len:])
                         #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         #print(r1[3][len(r1[1]) - overlap_len:])
@@ -443,13 +448,14 @@ class seqFilter:
                         #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
                         if corrected == distance:
                             BASE_CORRECTED += 1
-                            if self.options.store_overlap:
-                                writeReads(r1, r2, i1, i2, overlap_read1_file, overlap_read2_file, overlap_index1_file, overlap_index2_file, None)
                         else:
                             writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
                             BADMISMATCH += 1
                             continue
-                                
+                    if distance == 0 or distance == corrected:
+                        if self.options.store_overlap:
+                            writeReads(getOverlap(r1, overlap_len), getOverlap(r2, overlap_len), i1, i2, overlap_read1_file, overlap_read2_file, overlap_index1_file, overlap_index2_file, None)
+
             #write to good       
             writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
             GOOD += 1
