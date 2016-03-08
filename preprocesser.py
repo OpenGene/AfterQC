@@ -406,6 +406,15 @@ class seqFilter:
             #check overlap and do error correction
             if r2!=None:
                 (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
+                # deal with the case insert DNA is shorter than read length and cause offset is negative
+                if offset <0 and overlap_len > 30:
+                    # shift the junk bases
+                    r1[1] = r1[1][0:overlap_len]
+                    r1[3] = r1[3][0:overlap_len]
+                    r2[1] = r2[2][-offset:-offset+overlap_len]
+                    r2[3] = r2[3][-offset:-offset+overlap_len]
+                    # then calc overlap again
+                    (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                 if overlap_len>30:
                     OVERLAPPED += 1
                     OVERLAP_LEN_SUM += overlap_len
