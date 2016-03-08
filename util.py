@@ -76,10 +76,14 @@ def overlap(r1, r2):
     len2 = len(r2)
     reverse_r2 = reverseComplement(r2)
 
-    # a match of less than 5 is considered as unconfident
-    for offset in range(0,len1-5):
+    overlaped = False
+    overlap_len = 0
+    offset = 0
+    distance = 0
+    # a match of less than 10 is considered as unconfident
+    for offset in xrange(0,len1-10):
         # the overlap length of r1 & r2 when r2 is move right for offset
-        overlap_len = min(len1, (offset + len2 )) - offset
+        overlap_len = min(len1-offset, len2)
 
         # remind that Julia is a 1-based coordination system
         distance = editDistance(r1[offset : offset+overlap_len], reverse_r2[0 : overlap_len])
@@ -88,10 +92,29 @@ def overlap(r1, r2):
             # we verify it by moving r2 one more base to see if the distance is getting longer
             # if yes, then current is the best match, otherwise it's not
             next = offset + 1
-            next_overlap_len = min(len1, (next + len2 )) - next
+            next_overlap_len = min(len1-next, len2)
             distance2 = editDistance(r1[next : next+next_overlap_len], reverse_r2[0 : next_overlap_len])
             if distance <= distance2:
-                return (offset, overlap_len, distance)
+                overlaped = True
+                break
+
+    if overlaped and offset == 0:
+        # check if distance can get smaller if offset goes negative
+        # this only happens when insert DNA is shorter than sequencing read length, and some adapter/primer is sequenced but not trimmed cleanly
+        # we go reversely
+        for offset in xrange(0,-(len2-10), -1):
+            # the overlap length of r1 & r2 when r2 is move right for offset
+            overlap_len = min(len1,  len2- abs(offset))
+            distance = editDistance(r1[0:overlap_len], reverse_r2[-offset : -offset + overlap_len])
+            if distance <= distance_threshold(overlap_len):
+                next = offset - 1
+                next_overlap_len = min(len1,  len2- abs(next))
+                distance2 = editDistance(r1[0:next_overlap_len], reverse_r2[-next : -next + next_overlap_len])
+                if distance <= distance2:
+                    return (offset, overlap_len, distance)
+    elif overlaped:
+        return (offset, overlap_len, distance)
+
     return (0,0,0)
 
 def changeString(str, pos, val):
