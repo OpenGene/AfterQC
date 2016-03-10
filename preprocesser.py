@@ -468,7 +468,7 @@ class seqFilter:
             #write to good       
             writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
             GOOD += 1
-            #if TOTAL > 100000:break
+            #if TOTAL > 10000:break
         
         #close all files
         good_read1_file.flush()

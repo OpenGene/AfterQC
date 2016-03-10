@@ -41,10 +41,10 @@ def parseCommand():
         help = "number of bases to be trimmed in the tail of read. -1 means auto detect")
     parser.add_option("", "--trim_pair_same", dest = "trim_pair_same", default = "true",
         help = "use same trimming configuration for read1 and read2 to keep their sequence length identical, default is true")
-    parser.add_option("-q", "--qualified_quality_phred", dest = "qualified_quality_phred", default = 20, type = "int",
-        help = "the quality value that a base is qualifyed. Default 20 means phred base quality >=Q20 is qualified.")
-    parser.add_option("-u", "--unqualified_base_limit", dest = "unqualified_base_limit", default = 0, type = "int",
-        help = "if exists more than unqualified_base_limit bases that quality is lower than qualified quality, then this read/pair is bad. Default 0 means do not filter reads by low quality base count")
+    parser.add_option("-q", "--qualified_quality_phred", dest = "qualified_quality_phred", default = 14, type = "int",
+        help = "the quality value that a base is qualifyed. Default 14 means phred base quality >=Q14 is qualified.")
+    parser.add_option("-u", "--unqualified_base_limit", dest = "unqualified_base_limit", default = 10, type = "int",
+        help = "if exists more than unqualified_base_limit bases that quality is lower than qualified quality, then this read/pair is bad. Default is 10")
     parser.add_option("-p", "--poly_size_limit", dest = "poly_size_limit", default = 40, type = "int",
         help = "if exists one polyX(polyG means GGGGGGGGG...), and its length is >= poly_size_limit, then this read/pair is bad. Default is 40")
     parser.add_option("-a", "--allow_mismatch_in_poly", dest = "allow_mismatch_in_poly", default = 5, type = "int",
