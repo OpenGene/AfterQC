@@ -1,7 +1,7 @@
 # AFTER
 Automatic Filtering, Trimming, and Error Removing for fastq data   
 AFTER can simply go through all fastq files in a folder and then output a <b>good</b> folder and a <b>bad</b> folder, which contains good reads and bad reads of each fastq file   
-Currently it supports [Illumina 1.8 or newer format](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
+Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
 # Latest release
 0.2.0 (Released on 2016-03-28)
