@@ -4,10 +4,7 @@ AFTER can simply go through all fastq files in a folder and then output a <b>goo
 Currently it supports [Illumina 1.8 or newer format](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
 # Latest release
-0.1.0 (Released in 2015-12-10)
-
-# Feedback/contact
-chen@haplox.com
+0.2.0 (Released on 2016-03-28)
 
 # Features:
 AFTER does following tasks automatically:  
