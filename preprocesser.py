@@ -181,7 +181,10 @@ class seqFilter:
 
         #read1_file is required
         read1_file = fastq.Reader(self.options.read1_file)
-        
+        #create a *.QC folder to contains QC reports of this fastq file/pair
+        qc_dir = self.options.read1_file + ".QC"
+        os.makedirs(qc_dir)
+
         #no front trim if sequence is barcoded
         if self.options.barcode:
             self.options.trim_front = 0
