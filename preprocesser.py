@@ -8,6 +8,7 @@ import fastq
 import util
 from trimmer import Trimmer
 import barcodeprocesser
+import json
 
 def getMainName(filename):
     baseName = os.path.basename(filename)
@@ -183,7 +184,8 @@ class seqFilter:
         read1_file = fastq.Reader(self.options.read1_file)
         #create a *.QC folder to contains QC reports of this fastq file/pair
         qc_dir = self.options.read1_file + ".QC"
-        os.makedirs(qc_dir)
+        if not os.path.exists(qc_dir):
+            os.makedirs(qc_dir)
 
         #no front trim if sequence is barcoded
         if self.options.barcode:
@@ -488,23 +490,33 @@ class seqFilter:
 
         # print stat numbers
         BAD = TOTAL - GOOD
-        print(self.options.read1_file + " results:")
-        print('total reads',TOTAL)
-        print('good reads',GOOD)
-        print('bad reads',BAD)
-        print('overlapped pairs',OVERLAPPED)
-        print('average overlap length',float(OVERLAP_LEN_SUM)/OVERLAPPED)
-        print('bad reads with bad barcode in read1',BADBCD1)
-        print('bad reads with bad barcode in read2',BADBCD2)
-        print('bad reads with bad read1 after trimming',BADTRIM1)
-        print('bad reads with bad read2 after trimming',BADTRIM2)
-        print('bad reads in bubble',BADBBL)
-        print('bad reads with bad read length',BADLEN)
-        print('bad reads with PolyX',BADPOL)
-        print('bad reads with bad low quality count',BADLQC)
-        print('bad reads with bad N count',BADNCT)
-        print('bad reads with bad overlapping of a pair',BADOL)
-        print('bad reads with mismatch of a pair',BADMISMATCH)
-        print('bad reads with bad indel of a pair',BADINDEL)
-        print('corrected low quality mismatch of a pair',BASE_CORRECTED)
+        result = {}
+        result['total_reads']=TOTAL
+        result['good_reads']=GOOD
+        result['bad_reads']=BAD
+        result['overlapped_pairs']=OVERLAPPED
+        result['average overlap length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
+        result['bad_reads_with_bad_barcode_in_read1']=BADBCD1
+        result['bad_reads_with_bad_barcode_in_read2']=BADBCD2
+        result['bad_reads_with_bad_read1_after_trimming']=BADTRIM1
+        result['bad_reads_with_bad_read2_after_trimming']=BADTRIM2
+        result['bad_reads_in_bubble']=BADBBL
+        result['bad_reads_with_bad_read_length']=BADLEN
+        result['bad_reads_with_PolyX']=BADPOL
+        result['bad_reads_with_bad_low_quality_count']=BADLQC
+        result['bad_reads_with_bad_N_count']=BADNCT
+        result['bad_reads_with_bad_overlapping_of_a_pair']=BADOL
+        result['bad_reads_with_mismatch_of_a_pair']=BADMISMATCH
+        result['bad_reads_with_bad_indel_of_a_pair']=BADINDEL
+        result['corrected_low_quality_mismatch_of_a_pair']=BASE_CORRECTED
+
+        stat={}
+        # stat["options"]=self.options
+        stat["result"]=result
+
+        stat_file = open(os.path.join(qc_dir, "stat.json"), "w")
+        stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
+        stat_file.write(stat_json)
+        stat_file.close()
+
 
