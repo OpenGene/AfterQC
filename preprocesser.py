@@ -106,6 +106,42 @@ def getOverlap(r, overlap_len):
     ret.append(r[2])
     ret.append(r[3][len(r[3]) - overlap_len:])
     return ret
+
+def makeDict(opt):
+    d = {
+    'index2_flag': opt.index2_flag,
+    'draw': opt.draw,
+    'barcode':opt.barcode ,
+    'index1_flag':opt.index1_flag,
+    'seq_len_req': opt.seq_len_req,
+    'index1_file': opt.index1_file,
+    'overlap_output_folder': opt.overlap_output_folder,
+    'trim_tail': opt.trim_tail,
+    'trim_pair_same': opt.trim_pair_same,
+    'poly_size_limit': opt.poly_size_limit,
+    'good_output_folder': opt.good_output_folder,
+    'debubble_dir': opt.debubble_dir,
+    'index2_file': opt.index2_file,
+    'qualified_quality_phred': opt.qualified_quality_phred,
+    'barcode_flag': opt.barcode_flag,
+    'trim_front': opt.trim_front,
+    'barcode_verify': opt.barcode_verify,
+    'read2_file': opt.read2_file,
+    'n_base_limit': opt.n_base_limit,
+    'barcode_length': opt.barcode_length,
+    'trim_tail2': opt.trim_tail2,
+    'unqualified_base_limit': opt.unqualified_base_limit,
+    'allow_mismatch_in_poly': opt.allow_mismatch_in_poly,
+    'input_dir': opt.input_dir,
+    'read1_file': opt.read1_file,
+    'read2_flag': opt.read2_flag,
+    'store_overlap': opt.store_overlap,
+    'debubble': opt.debubble,
+    'read1_flag': opt.read1_flag,
+    'trim_front2': opt.trim_front2,
+    'bad_output_folder': opt.bad_output_folder
+    }
+    return d
     
 ########################### seqFilter
 class seqFilter:
@@ -495,7 +531,7 @@ class seqFilter:
         result['good_reads']=GOOD
         result['bad_reads']=BAD
         result['overlapped_pairs']=OVERLAPPED
-        result['average overlap length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
+        result['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
         result['bad_reads_with_bad_barcode_in_read1']=BADBCD1
         result['bad_reads_with_bad_barcode_in_read2']=BADBCD2
         result['bad_reads_with_bad_read1_after_trimming']=BADTRIM1
@@ -512,9 +548,10 @@ class seqFilter:
 
         stat={}
         # stat["options"]=self.options
-        stat["result"]=result
+        stat["summary"]=result
+        stat["command"]=makeDict(self.options)
 
-        stat_file = open(os.path.join(qc_dir, "stat.json"), "w")
+        stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
         stat_file.write(stat_json)
         stat_file.close()
