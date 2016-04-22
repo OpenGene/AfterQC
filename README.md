@@ -103,7 +103,7 @@ python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [
   -p POLY_SIZE_LIMIT, --poly_size_limit=POLY_SIZE_LIMIT
                         if exists one polyX(polyG means GGGGGGGGG...), and its
                         length is >= poly_size_limit, then this read/pair is
-                        bad. Default is 40
+                        bad. Default is 35
   -a ALLOW_MISMATCH_IN_POLY, --allow_mismatch_in_poly=ALLOW_MISMATCH_IN_POLY
                         the count of allowed mismatches when evaluating
                         poly_X. Default 5 means disallow any mismatches
