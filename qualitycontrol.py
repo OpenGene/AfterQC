@@ -2,8 +2,9 @@ import os,sys
 from optparse import OptionParser
 import time
 import fastq
+import util
 
-maxLen = 200
+maxLen = 1000
 allbases = ("A", "T", "C", "G");
 
 ########################### QualityControl
@@ -12,7 +13,9 @@ class QualityControl:
     readCount = 0
     counts = {}
     percents = {}
-    qualities = [0 for x in xrange(maxLen)]
+    totalQual = [0 for x in xrange(maxLen)]
+    totalNum = [0 for x in xrange(maxLen)]
+    meanQual = [0.0 for x in xrange(maxLen)]
 
     def __init__(self):
         for base in allbases:
@@ -21,7 +24,10 @@ class QualityControl:
 
     def statRead(self, read):
         seq = read[1]
+        qual = read[3]
         for i in xrange(len(seq)):
+            self.totalNum[i] += 1
+            self.totalQual[i] += util.qualNum(qual[i])
             b = seq[i]
             if b in allbases:
                 self.counts[b][i] += 1
@@ -44,20 +50,29 @@ class QualityControl:
                 total += self.counts[base][pos]
             for base in allbases:
                 self.percents[base][pos] = float(self.counts[base][pos])/float(total)
+
+    def calcQualities(self):
+        for pos in xrange(self.readLen):
+            self.meanQual[pos] = float(self.totalQual[pos])/float(self.totalNum[pos])
+
+    def qc(self):    
+        self.calcReadLen()
+        self.calcPercents()
+        self.calcQualities()
+        print(self.meanQual)
         
     def statFile(self, filename):
         reader = fastq.Reader(filename)
         #sample up to maxSample reads for stat
-        maxSample = 5000
+        maxSample = 50000000
         while True:
             read = reader.nextRead()
             self.readCount += 1
             if read==None or self.readCount>maxSample:
                 break
             self.statRead(read)
-                
-        self.calcReadLen()
-        self.calcPercents()
+
+        self.qc()
 
     def autoTrim(self):
         #use (center-5, center+5) as initial good segment        
