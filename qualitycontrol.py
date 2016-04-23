@@ -133,7 +133,7 @@ class QualityControl:
             for posInWindow in xrange(pos, max(pos-3, 0), -1):
                 percentBias = 0.0
                 for base in allbases:
-                    percentBias += abs(meanPercents[base] - percents[base][posInWindow])
+                    percentBias += abs(meanPercents[base] - self.percents[base][posInWindow])
                 if percentBias > threshold:
                     isGood = False
             if isGood: 
@@ -150,3 +150,4 @@ class QualityControl:
 if __name__  == "__main__":
     qc = QualityControl()
     qc.statFile("R1.fq")
+    print(qc.autoTrim())
