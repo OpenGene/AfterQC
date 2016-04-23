@@ -11,7 +11,7 @@ allbases = ("A", "T", "C", "G");
 class QualityControl:
     readLen = 0
     readCount = 0
-    counts = {}
+    baseCounts = {}
     percents = {}
     totalQual = [0 for x in xrange(maxLen)]
     totalNum = [0 for x in xrange(maxLen)]
@@ -19,7 +19,7 @@ class QualityControl:
 
     def __init__(self):
         for base in allbases:
-            self.counts[base] = [0 for x in xrange(maxLen)]
+            self.baseCounts[base] = [0 for x in xrange(maxLen)]
             self.percents[base] = [0.0 for x in xrange(maxLen)]
 
     def statRead(self, read):
@@ -30,13 +30,13 @@ class QualityControl:
             self.totalQual[i] += util.qualNum(qual[i])
             b = seq[i]
             if b in allbases:
-                self.counts[b][i] += 1
+                self.baseCounts[b][i] += 1
 
     def calcReadLen(self):
         for pos in xrange(maxLen):
             hasData = False
             for base in allbases:
-                if self.counts[base][pos]>0:
+                if self.baseCounts[base][pos]>0:
                     hasData = True
             if hasData == False:
                 self.readLen = pos
@@ -47,9 +47,9 @@ class QualityControl:
         for pos in xrange(self.readLen):
             total = 0
             for base in allbases:
-                total += self.counts[base][pos]
+                total += self.baseCounts[base][pos]
             for base in allbases:
-                self.percents[base][pos] = float(self.counts[base][pos])/float(total)
+                self.percents[base][pos] = float(self.baseCounts[base][pos])/float(total)
 
     def calcQualities(self):
         for pos in xrange(self.readLen):
