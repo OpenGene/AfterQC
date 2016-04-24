@@ -4,7 +4,7 @@ import time
 import fastq
 import util
 
-maxLen = 1000
+maxLen = 200
 allbases = ("A", "T", "C", "G");
 
 ########################### QualityControl
@@ -13,6 +13,8 @@ class QualityControl:
     readCount = 0
     baseCounts = {}
     percents = {}
+    baseTotalQual = {}
+    baseMeanQual = {}
     totalQual = [0 for x in xrange(maxLen)]
     totalNum = [0 for x in xrange(maxLen)]
     meanQual = [0.0 for x in xrange(maxLen)]
@@ -21,16 +23,20 @@ class QualityControl:
         for base in allbases:
             self.baseCounts[base] = [0 for x in xrange(maxLen)]
             self.percents[base] = [0.0 for x in xrange(maxLen)]
+            self.baseMeanQual[base] = [0.0 for x in xrange(maxLen)]
+            self.baseTotalQual[base] = [0 for x in xrange(maxLen)]
 
     def statRead(self, read):
         seq = read[1]
         qual = read[3]
         for i in xrange(len(seq)):
             self.totalNum[i] += 1
-            self.totalQual[i] += util.qualNum(qual[i])
+            qnum = util.qualNum(qual[i])
+            self.totalQual[i] += qnum
             b = seq[i]
             if b in allbases:
                 self.baseCounts[b][i] += 1
+                self.baseTotalQual[b][i] += qnum
 
     def calcReadLen(self):
         for pos in xrange(maxLen):
@@ -54,12 +60,15 @@ class QualityControl:
     def calcQualities(self):
         for pos in xrange(self.readLen):
             self.meanQual[pos] = float(self.totalQual[pos])/float(self.totalNum[pos])
+            for base in allbases:
+                if self.baseCounts[base][pos] > 0:
+                    self.baseMeanQual[base][pos] = float(self.baseTotalQual[base][pos])/float(self.baseCounts[base][pos])
 
     def qc(self):    
         self.calcReadLen()
         self.calcPercents()
         self.calcQualities()
-        print(self.meanQual)
+        print(self.baseMeanQual)
         
     def statFile(self, filename):
         reader = fastq.Reader(filename)
