@@ -94,6 +94,10 @@ class QualityControl:
         plt.savefig(filename)
         plt.close(1)
 
+    def plot(self, folder=".", prefix=""):
+        self.plotQuality(os.path.join(folder, prefix + "quality.png"))
+        self.plotContent(os.path.join(folder, prefix + "content.png"))
+
     def qc(self): 
         self.calcReadLen()
         self.calcPercents()
@@ -202,6 +206,5 @@ class QualityControl:
 if __name__  == "__main__":
     qc = QualityControl()
     qc.statFile("R1.fq.gz")
-    qc.plotQuality("quality.png")
-    qc.plotContent("content.png")
+    qc.plot()
     print(qc.autoTrim())

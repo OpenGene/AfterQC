@@ -230,8 +230,10 @@ class seqFilter:
         r1qc = QualityControl()
         r2qc = QualityControl()
         r1qc.statFile(self.options.read1_file)
+        r1qc.plot(qc_dir, "R1-prefilter-")
         if self.options.read2_file != None:
             r2qc.statFile(self.options.read2_file)
+            r2qc.plot(qc_dir, "R2-prefilter-")
 
         #auto detect trim front and trim tail
         if self.options.trim_front == -1 or self.options.trim_tail == -1:
