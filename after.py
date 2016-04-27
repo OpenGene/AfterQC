@@ -27,14 +27,14 @@ def parseCommand():
         help = "the folder to store good reads, by default it is the same folder contains read1")
     parser.add_option("-b", "--bad_output_folder", dest = "bad_output_folder", default = "bad",
         help = "the folder to store bad reads, by default it is same as good_output_folder")
-    parser.add_option("", "--read1_flag", dest = "read1_flag", default = "_R1_",
-        help = "specify the name flag of read1, default is _R1_, which means a file with name *_R1_* is read1 file")
-    parser.add_option("", "--read2_flag", dest = "read2_flag", default = "_R2_",
-        help = "specify the name flag of read2, default is _R2_, which means a file with name *_R2_* is read2 file")
-    parser.add_option("", "--index1_flag", dest = "index1_flag", default = "_I1_",
-        help = "specify the name flag of index1, default is _I1_, which means a file with name *_I1_* is index2 file")
-    parser.add_option("", "--index2_flag", dest = "index2_flag", default = "_I2_",
-        help = "specify the name flag of index2, default is _I2_, which means a file with name *_I2_* is index2 file")
+    parser.add_option("", "--read1_flag", dest = "read1_flag", default = "R1",
+        help = "specify the name flag of read1, default is R1, which means a file with name *R1* is read1 file")
+    parser.add_option("", "--read2_flag", dest = "read2_flag", default = "R2",
+        help = "specify the name flag of read2, default is R2, which means a file with name *R2* is read2 file")
+    parser.add_option("", "--index1_flag", dest = "index1_flag", default = "I1",
+        help = "specify the name flag of index1, default is I1, which means a file with name *I1* is index2 file")
+    parser.add_option("", "--index2_flag", dest = "index2_flag", default = "I2",
+        help = "specify the name flag of index2, default is I2, which means a file with name *I2* is index2 file")
     parser.add_option("-f", "--trim_front", dest = "trim_front", default = -1, type = "int",
         help = "number of bases to be trimmed in the head of read. -1 means auto detect")
     parser.add_option("-t", "--trim_tail", dest = "trim_tail", default = -1, type = "int",
@@ -73,6 +73,12 @@ def parseCommand():
         help = "the folder to store only overlapped bases of the good reads")
     return parser.parse_args()
 
+def matchFlag(filename, flag):
+    if flag.endswith('.') or flag.endswith('_') or flag.endswith('-'):
+        return flag in filename
+    else:
+        return (flag+"." in filename) or (flag+"_" in filename) or (flag+"-" in filename)
+
 def processDir(folder, options):
     
     fqext = (".fq", ".fastq", "fq.gz", ".fastq.gz")
@@ -106,7 +112,7 @@ def processDir(folder, options):
             continue
         
         #find read1 file
-        if read1name in f:
+        if matchFlag(f, read1name):
             print(f)
             opt = copy.copy(options)
             read1 = path
