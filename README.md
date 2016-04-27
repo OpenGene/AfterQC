@@ -1,37 +1,38 @@
-# AFTER
-Automatic Filtering, Trimming, and Error Removing for fastq data   
-AFTER can simply go through all fastq files in a folder and then output a <b>good</b> folder and a <b>bad</b> folder, which contains good reads and bad reads of each fastq file   
+# AfterQC
+Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data   
+`AfterQC` can simply go through all fastq files in a folder and then output a <b>good</b> folder and a <b>bad</b> folder, which contains good reads and bad reads of each fastq file   
 Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
 # Latest release
 0.2.0 (Released on 2016-03-28)
 
 # Features:
-AFTER does following tasks automatically:  
-1, Filter PolyA/PolyT/PolyC/PolyG reads  
-2, Trim reads at front and tail according to bad per base sequence content  
-3, Detect and eliminate bubble artifact caused by sequencer due to fluid dynamics issue  
-4, Filter low-quality reads   
-5, Barcode sequencing support: if all reads have a random barcode (see duplex sequencing), this program can detect and split the barcode into query name   
-6, For pair-end sequencing data, AFTER automatically corrects some low quality wrong bases in read1 and read2's overlapped area.
+`AfterQC` does following tasks automatically:  
+* Filter PolyA/PolyT/PolyC/PolyG reads
+* Trim reads at front and tail according to bad per-base sequence content
+* For pair-end sequencing data, AfterQC automatically corrects some low quality wrong bases in read1 and read2's overlapped area
+* Do per-base quality and per-base content quality control and plot these figures
+* Filter low-quality reads
+* Barcode sequencing support: if all reads have a random barcode (see duplex sequencing), this program can detect and split the barcode into query name
+* Detect and eliminate bubble artifact caused by sequencer due to fluid dynamics issue
 
 # Dependency:
-AFTER uses `editdistance` module, run following before using AFTER:
+`AfterQC` uses `editdistance` module, run following before using `AfterQC`:
 ```shell
 pip install editdistance
 ```
-If you cannot install `editdistance` module, AFTER will use a python implementation of editdistance, but it will be extremely slow.  
+<font color=red>If you didn't install `editdistance` module, `AfterQC` will use a python implementation of editdistance, but it will be extremely slow.</font>  
 
 # Simple usage:
 * Prepare your fastq files in a folder
-* For single-end sequencing, the filenames in the folder should be `*_R1_*`
-* For pair-end sequencing, the filenames in the folder should be `*_R1_*` and `*_R2_*`
+* For single-end sequencing, the filenames in the folder should be `*R1*`
+* For pair-end sequencing, the filenames in the folder should be `*R1*` and `*R2*`
 ```shell
 cd /path/to/fastq/folder
-python path/to/AFTER/after.py
+python path/to/AfterQC/after.py
 ```
 * two folders will be automatically generated, a folder 'good' stores the good reads and a folder 'bad' stores the bad reads
-* AFTER will print some statistical information after it is done, such how many good reads, how many bad reads, and how many reads are corrected.
+* `AfterQC` will print some statistical information after it is done, such how many good reads, how many bad reads, and how many reads are corrected.
 
 # Full options:
 ```shell
