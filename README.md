@@ -1,6 +1,6 @@
 # AfterQC
 Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data   
-`AfterQC` can simply go through all fastq files in a folder and then output a <b>good</b> folder and a <b>bad</b> folder, which contains good reads and bad reads of each fastq file   
+`AfterQC` can simply go through all fastq files in a folder and then output three folders: <b>good</b>, <b>bad</b> and <b>*QC</b> folders, which contains good reads, bad reads and the QC results of each fastq file/pair.   
 Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
 # Latest release
@@ -14,7 +14,8 @@ Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 50
 * Trims reads at front and tail, according to QC results
 * For pair-end sequencing data, `AfterQC` automatically corrects low quality wrong bases in overlapped area of read1/read2
 * Detects and eliminates bubble artifact caused by sequencer due to fluid dynamics issues
-* Single molecule barcode sequencing support: if all reads have a single molecule barcode (see duplex sequencing), `AfterQC` detects and splits the barcodes from the reads, and put them in the fastq query names
+* Single molecule barcode sequencing support: if all reads have a single molecule barcode (see duplex sequencing), `AfterQC` shifts the barcodes from the reads to the fastq query names
+* Support single-end sequencing or pair-end sequencing
 
 
 # Dependency:
