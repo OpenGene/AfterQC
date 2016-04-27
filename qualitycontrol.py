@@ -3,7 +3,7 @@ from optparse import OptionParser
 import time
 import fastq
 import util
-import pylab as pl
+import matplotlib.pyplot as plt
 
 maxLen = 200
 allbases = ("A", "T", "C", "G");
@@ -65,27 +65,26 @@ class QualityControl:
                 if self.baseCounts[base][pos] > 0:
                     self.baseMeanQual[base][pos] = float(self.baseTotalQual[base][pos])/float(self.baseCounts[base][pos])
 
-    def plots(self):
-        x = range(self.readLen)
-        pl.ylabel('Quality')
-        pl.xlabel('Base')
+    def plot(self, filename):
         colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
+        x = range(self.readLen)
+        plt.ylabel('Quality')
+        plt.xlabel('Base')
         for base in allbases:
-            pl.plot(x, self.baseMeanQual[base][0:self.readLen], colors[base])
-        pl.plot(x, self.meanQual[0:self.readLen], 'black')
-        pl.savefig("qual.png")
+            plt.plot(x, self.baseMeanQual[base][0:self.readLen], color = colors[base], label=base)
+        plt.plot(x, self.meanQual[0:self.readLen], color = 'black', label = 'mean')
+        plt.legend(loc='upper right')
+        plt.savefig(filename)
 
     def qc(self): 
         self.calcReadLen()
         self.calcPercents()
         self.calcQualities()
-        self.plots()
-        print(self.baseMeanQual)
         
     def statFile(self, filename):
         reader = fastq.Reader(filename)
         #sample up to maxSample reads for stat
-        maxSample = 500000
+        maxSample = 50000
         while True:
             read = reader.nextRead()
             self.readCount += 1
@@ -186,4 +185,5 @@ class QualityControl:
 if __name__  == "__main__":
     qc = QualityControl()
     qc.statFile("R1.fq.gz")
+    qc.plot("qual.png")
     print(qc.autoTrim())
