@@ -6,9 +6,9 @@ from optparse import OptionParser
 import time
 import fastq
 import util
-from trimmer import Trimmer
 import barcodeprocesser
 import json
+from qualitycontrol import QualityControl
 
 def getMainName(filename):
     baseName = os.path.basename(filename)
@@ -227,11 +227,16 @@ class seqFilter:
         if self.options.barcode:
             self.options.trim_front = 0
 
+        r1qc = QualityControl()
+        r2qc = QualityControl()
+        r1qc.statFile(self.options.read1_file)
+        if self.options.read2_file != None:
+            r2qc.statFile(self.options.read2_file)
+
         #auto detect trim front and trim tail
         if self.options.trim_front == -1 or self.options.trim_tail == -1:
-            tm = Trimmer()
             #auto trim for read1
-            trimFront, trimTail = tm.calcTrimLength(self.options.read1_file)
+            trimFront, trimTail = r1qc.autoTrim()
             if self.options.trim_front == -1:
                 self.options.trim_front = trimFront
             if self.options.trim_tail == -1:
@@ -244,7 +249,7 @@ class seqFilter:
                     self.options.trim_front2 = self.options.trim_front
                     self.options.trim_tail2 = self.options.trim_tail
                 else:
-                    trimFront2, trimTail2 = tm.calcTrimLength(self.options.read2_file)
+                    trimFront2, trimTail2 = r2qc.autoTrim()
                     if self.options.trim_front2 == -1:
                         self.options.trim_front2 = trimFront2
                     if self.options.trim_tail2 == -1:
@@ -531,7 +536,10 @@ class seqFilter:
         result['good_reads']=GOOD
         result['bad_reads']=BAD
         result['overlapped_pairs']=OVERLAPPED
-        result['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
+        if OVERLAPPED > 0:
+            result['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
+        else:
+            result['average_overlap_length']=0.0
         result['bad_reads_with_bad_barcode_in_read1']=BADBCD1
         result['bad_reads_with_bad_barcode_in_read2']=BADBCD2
         result['bad_reads_with_bad_read1_after_trimming']=BADTRIM1

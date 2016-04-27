@@ -5,8 +5,9 @@ import fastq
 import util
 import matplotlib.pyplot as plt
 
-maxLen = 200
-allbases = ("A", "T", "C", "G");
+MAX_LEN = 200
+MAX_SAMPLING_COUNT = 50000
+ALL_BASES = ("A", "T", "C", "G");
 
 ########################### QualityControl
 class QualityControl:
@@ -16,16 +17,16 @@ class QualityControl:
     percents = {}
     baseTotalQual = {}
     baseMeanQual = {}
-    totalQual = [0 for x in xrange(maxLen)]
-    totalNum = [0 for x in xrange(maxLen)]
-    meanQual = [0.0 for x in xrange(maxLen)]
+    totalQual = [0 for x in xrange(MAX_LEN)]
+    totalNum = [0 for x in xrange(MAX_LEN)]
+    meanQual = [0.0 for x in xrange(MAX_LEN)]
 
     def __init__(self):
-        for base in allbases:
-            self.baseCounts[base] = [0 for x in xrange(maxLen)]
-            self.percents[base] = [0.0 for x in xrange(maxLen)]
-            self.baseMeanQual[base] = [0.0 for x in xrange(maxLen)]
-            self.baseTotalQual[base] = [0 for x in xrange(maxLen)]
+        for base in ALL_BASES:
+            self.baseCounts[base] = [0 for x in xrange(MAX_LEN)]
+            self.percents[base] = [0.0 for x in xrange(MAX_LEN)]
+            self.baseMeanQual[base] = [0.0 for x in xrange(MAX_LEN)]
+            self.baseTotalQual[base] = [0 for x in xrange(MAX_LEN)]
 
     def statRead(self, read):
         seq = read[1]
@@ -35,14 +36,14 @@ class QualityControl:
             qnum = util.qualNum(qual[i])
             self.totalQual[i] += qnum
             b = seq[i]
-            if b in allbases:
+            if b in ALL_BASES:
                 self.baseCounts[b][i] += 1
                 self.baseTotalQual[b][i] += qnum
 
     def calcReadLen(self):
-        for pos in xrange(maxLen):
+        for pos in xrange(MAX_LEN):
             hasData = False
-            for base in allbases:
+            for base in ALL_BASES:
                 if self.baseCounts[base][pos]>0:
                     hasData = True
             if hasData == False:
@@ -53,15 +54,15 @@ class QualityControl:
         #calc percents of each base
         for pos in xrange(self.readLen):
             total = 0
-            for base in allbases:
+            for base in ALL_BASES:
                 total += self.baseCounts[base][pos]
-            for base in allbases:
+            for base in ALL_BASES:
                 self.percents[base][pos] = float(self.baseCounts[base][pos])/float(total)
 
     def calcQualities(self):
         for pos in xrange(self.readLen):
             self.meanQual[pos] = float(self.totalQual[pos])/float(self.totalNum[pos])
-            for base in allbases:
+            for base in ALL_BASES:
                 if self.baseCounts[base][pos] > 0:
                     self.baseMeanQual[base][pos] = float(self.baseTotalQual[base][pos])/float(self.baseCounts[base][pos])
 
@@ -72,7 +73,7 @@ class QualityControl:
         plt.xlim(0, self.readLen)
         plt.ylabel('Quality')
         plt.xlabel('Base')
-        for base in allbases:
+        for base in ALL_BASES:
             plt.plot(x, self.baseMeanQual[base][0:self.readLen], color = colors[base], label=base)
         plt.plot(x, self.meanQual[0:self.readLen], color = 'black', label = 'mean')
         plt.legend(loc='upper right')
@@ -87,7 +88,7 @@ class QualityControl:
         plt.ylim(0.0, 0.5)
         plt.ylabel('Percents')
         plt.xlabel('Base')
-        for base in allbases:
+        for base in ALL_BASES:
             plt.plot(x, self.percents[base][0:self.readLen], color = colors[base], label=base)
         plt.legend(loc='upper right')
         plt.savefig(filename)
@@ -101,11 +102,10 @@ class QualityControl:
     def statFile(self, filename):
         reader = fastq.Reader(filename)
         #sample up to maxSample reads for stat
-        maxSample = 50000
         while True:
             read = reader.nextRead()
             self.readCount += 1
-            if read==None or self.readCount>maxSample:
+            if read==None or self.readCount > MAX_SAMPLING_COUNT:
                 break
             self.statRead(read)
 
@@ -126,7 +126,7 @@ class QualityControl:
         #expand the good segment
         meanPercents = {}
         while not (leftFinished and rightFinished):
-            for base in allbases:
+            for base in ALL_BASES:
                 meanPercents[base] = 0.0
                 for pos in xrange(left, right):
                     meanPercents[base] += self.percents[base][pos]
@@ -146,7 +146,7 @@ class QualityControl:
                 lastStepIsLeft = True
                                 
             percentBias = 0.0
-            for base in allbases:
+            for base in ALL_BASES:
                 percentBias += abs(meanPercents[base] - self.percents[base][current])
             
             if percentBias > threshold:
@@ -170,7 +170,7 @@ class QualityControl:
             isGood = True
             for posInWindow in xrange(pos, min(pos+3, self.readLen)):
                 percentBias = 0.0
-                for base in allbases:
+                for base in ALL_BASES:
                     percentBias += abs(meanPercents[base] - self.percents[base][posInWindow])
                 if percentBias > threshold:
                     isGood = False
@@ -184,7 +184,7 @@ class QualityControl:
             isGood = True
             for posInWindow in xrange(pos, max(pos-3, 0), -1):
                 percentBias = 0.0
-                for base in allbases:
+                for base in ALL_BASES:
                     percentBias += abs(meanPercents[base] - self.percents[base][posInWindow])
                 if percentBias > threshold:
                     isGood = False
