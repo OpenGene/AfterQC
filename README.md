@@ -8,20 +8,21 @@ Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 50
 
 # Features:
 `AfterQC` does following tasks automatically:  
-* Filter PolyA/PolyT/PolyC/PolyG reads
-* Trim reads at front and tail according to bad per-base sequence content
-* For pair-end sequencing data, AfterQC automatically corrects some low quality wrong bases in read1 and read2's overlapped area
-* Do per-base quality and per-base content quality control and plot these figures
-* Filter low-quality reads
-* Barcode sequencing support: if all reads have a random barcode (see duplex sequencing), this program can detect and split the barcode into query name
-* Detect and eliminate bubble artifact caused by sequencer due to fluid dynamics issue
+* Filters reads with too low quality, too short length or too many N
+* Filters reads with abnormal PolyA/PolyT/PolyC/PolyG sequences
+* Does per-base quality control and plots the figures
+* Trims reads at front and tail, according to QC results
+* For pair-end sequencing data, `AfterQC` automatically corrects low quality wrong bases in overlapped area of read1/read2
+* Detects and eliminates bubble artifact caused by sequencer due to fluid dynamics issues
+* Single molecule barcode sequencing support: if all reads have a single molecule barcode (see duplex sequencing), `AfterQC` detects and splits the barcodes from the reads, and put them in the fastq query names
+
 
 # Dependency:
 `AfterQC` uses `editdistance` module, run following before using `AfterQC`:
 ```shell
 pip install editdistance
 ```
-<font color=red>If you didn't install `editdistance` module, `AfterQC` will use a python implementation of editdistance, but it will be extremely slow.</font>  
+***WARNING: If you haven't installed `editdistance` module, `AfterQC` will use a python implementation of editdistance, but it will be extremely slow.***
 
 # Simple usage:
 * Prepare your fastq files in a folder
@@ -69,17 +70,17 @@ python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [
                         the folder to store bad reads, by default it is same
                         as good_output_folder
   --read1_flag=READ1_FLAG
-                        specify the name flag of read1, default is _R1_, which
-                        means a file with name *_R1_* is read1 file
+                        specify the name flag of read1, default is R1, which
+                        means a file with name *R1* is read1 file
   --read2_flag=READ2_FLAG
-                        specify the name flag of read2, default is _R2_, which
-                        means a file with name *_R2_* is read2 file
+                        specify the name flag of read2, default is R2, which
+                        means a file with name *R2* is read2 file
   --index1_flag=INDEX1_FLAG
-                        specify the name flag of index1, default is _I1_,
-                        which means a file with name *_I1_* is index2 file
+                        specify the name flag of index1, default is I1,
+                        which means a file with name *I1* is index2 file
   --index2_flag=INDEX2_FLAG
-                        specify the name flag of index2, default is _I2_,
-                        which means a file with name *_I2_* is index2 file
+                        specify the name flag of index2, default is I2,
+                        which means a file with name *I2* is index2 file
 ```
 ***Filter options***
 ```
