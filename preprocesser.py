@@ -227,18 +227,21 @@ class seqFilter:
         if self.options.barcode:
             self.options.trim_front = 0
 
-        r1qc = QualityControl()
-        r2qc = QualityControl()
-        r1qc.statFile(self.options.read1_file)
-        r1qc.plot(qc_dir, "R1-prefilter-")
+        r1qc_prefilter = QualityControl()
+        r2qc_prefilter = QualityControl()
+        r1qc_prefilter.statFile(self.options.read1_file)
+        r1qc_prefilter.plot(qc_dir, "R1-prefilter-")
         if self.options.read2_file != None:
-            r2qc.statFile(self.options.read2_file)
-            r2qc.plot(qc_dir, "R2-prefilter-")
+            r2qc_prefilter.statFile(self.options.read2_file)
+            r2qc_prefilter.plot(qc_dir, "R2-prefilter-")
+
+        r1qc_postfilter = QualityControl()
+        r2qc_postfilter = QualityControl()
 
         #auto detect trim front and trim tail
         if self.options.trim_front == -1 or self.options.trim_tail == -1:
             #auto trim for read1
-            trimFront, trimTail = r1qc.autoTrim()
+            trimFront, trimTail = r1qc_prefilter.autoTrim()
             if self.options.trim_front == -1:
                 self.options.trim_front = trimFront
             if self.options.trim_tail == -1:
@@ -251,7 +254,7 @@ class seqFilter:
                     self.options.trim_front2 = self.options.trim_front
                     self.options.trim_tail2 = self.options.trim_tail
                 else:
-                    trimFront2, trimTail2 = r2qc.autoTrim()
+                    trimFront2, trimTail2 = r2qc_prefilter.autoTrim()
                     if self.options.trim_front2 == -1:
                         self.options.trim_front2 = trimFront2
                     if self.options.trim_tail2 == -1:
@@ -515,8 +518,17 @@ class seqFilter:
 
             #write to good       
             writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
+            r1qc_postfilter.statRead(r1)
+            if r2 != None:
+                r2qc_postfilter.statRead(r2)
+
             GOOD += 1
             #if TOTAL > 10000:break
+
+        r1qc_postfilter.qc()
+        r1qc_postfilter.plot(qc_dir, "R1-postfilter-")
+        r2qc_postfilter.qc()
+        r2qc_postfilter.plot(qc_dir, "R2-postfilter-")
         
         #close all files
         good_read1_file.flush()

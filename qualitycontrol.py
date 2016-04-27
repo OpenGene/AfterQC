@@ -6,7 +6,7 @@ import util
 import matplotlib.pyplot as plt
 
 MAX_LEN = 200
-MAX_SAMPLING_COUNT = 50000
+MAX_SAMPLING_COUNT = 500000
 ALL_BASES = ("A", "T", "C", "G");
 
 ########################### QualityControl
