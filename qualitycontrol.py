@@ -65,9 +65,11 @@ class QualityControl:
                 if self.baseCounts[base][pos] > 0:
                     self.baseMeanQual[base][pos] = float(self.baseTotalQual[base][pos])/float(self.baseCounts[base][pos])
 
-    def plot(self, filename):
+    def plotQuality(self, filename):
         colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
         x = range(self.readLen)
+        plt.figure(1)
+        plt.xlim(0, self.readLen)
         plt.ylabel('Quality')
         plt.xlabel('Base')
         for base in allbases:
@@ -75,6 +77,21 @@ class QualityControl:
         plt.plot(x, self.meanQual[0:self.readLen], color = 'black', label = 'mean')
         plt.legend(loc='upper right')
         plt.savefig(filename)
+        plt.close(1)
+
+    def plotContent(self, filename):
+        colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
+        x = range(self.readLen)
+        plt.figure(1)
+        plt.xlim(0, self.readLen)
+        plt.ylim(0.0, 0.5)
+        plt.ylabel('Percents')
+        plt.xlabel('Base')
+        for base in allbases:
+            plt.plot(x, self.percents[base][0:self.readLen], color = colors[base], label=base)
+        plt.legend(loc='upper right')
+        plt.savefig(filename)
+        plt.close(1)
 
     def qc(self): 
         self.calcReadLen()
@@ -185,5 +202,6 @@ class QualityControl:
 if __name__  == "__main__":
     qc = QualityControl()
     qc.statFile("R1.fq.gz")
-    qc.plot("qual.png")
+    qc.plotQuality("quality.png")
+    qc.plotContent("content.png")
     print(qc.autoTrim())
