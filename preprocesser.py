@@ -218,8 +218,12 @@ class seqFilter:
 
         #read1_file is required
         read1_file = fastq.Reader(self.options.read1_file)
-        #create a *.QC folder to contains QC reports of this fastq file/pair
-        qc_dir = self.options.read1_file + ".QC"
+        #create a QC folder to contains QC results
+        qc_base_folder = os.path.join(os.path.dirname(self.options.read1_file), "QC")
+        if not os.path.exists(qc_base_folder):
+            os.makedirs(qc_base_folder)
+        #QC result of this file/pair
+        qc_dir =  os.path.join(qc_base_folder, os.path.basename(self.options.read1_file))
         if not os.path.exists(qc_dir):
             os.makedirs(qc_dir)
 
