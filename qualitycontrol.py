@@ -20,6 +20,7 @@ class QualityControl:
     totalQual = [0 for x in xrange(MAX_LEN)]
     totalNum = [0 for x in xrange(MAX_LEN)]
     meanQual = [0.0 for x in xrange(MAX_LEN)]
+    gcPercents = [0.0 for x in xrange(MAX_LEN)]
 
     def __init__(self):
         for base in ALL_BASES:
@@ -58,6 +59,7 @@ class QualityControl:
                 total += self.baseCounts[base][pos]
             for base in ALL_BASES:
                 self.percents[base][pos] = float(self.baseCounts[base][pos])/float(total)
+                self.gcPercents[pos] = float(self.baseCounts['G'][pos] + self.baseCounts['C'][pos])/float(total)
 
     def calcQualities(self):
         for pos in xrange(self.readLen):
@@ -85,11 +87,12 @@ class QualityControl:
         x = range(self.readLen)
         plt.figure(1)
         plt.xlim(0, self.readLen)
-        plt.ylim(0.0, 0.5)
+        plt.ylim(0.0, 0.8)
         plt.ylabel('Percents')
         plt.xlabel('Base')
         for base in ALL_BASES:
             plt.plot(x, self.percents[base][0:self.readLen], color = colors[base], label=base)
+        plt.plot(x, self.gcPercents[0:self.readLen], color = 'black', label='GC')
         plt.legend(loc='upper right')
         plt.savefig(filename)
         plt.close(1)
@@ -205,6 +208,6 @@ class QualityControl:
 
 if __name__  == "__main__":
     qc = QualityControl()
-    qc.statFile("R1.fq.gz")
+    qc.statFile("R1.fq")
     qc.plot()
     print(qc.autoTrim())
