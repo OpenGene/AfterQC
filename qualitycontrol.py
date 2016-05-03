@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 MAX_LEN = 200
 MAX_SAMPLING_COUNT = 500000
 ALL_BASES = ("A", "T", "C", "G");
+KMER_LEN = 8
+KMER_TOP = 10
 
 ########################### QualityControl
 class QualityControl:
@@ -21,6 +23,9 @@ class QualityControl:
     totalNum = [0 for x in xrange(MAX_LEN)]
     meanQual = [0.0 for x in xrange(MAX_LEN)]
     gcPercents = [0.0 for x in xrange(MAX_LEN)]
+    kmerCount = {}
+    topKmerCount = []
+    totalKmer = 0
 
     def __init__(self):
         for base in ALL_BASES:
@@ -40,6 +45,13 @@ class QualityControl:
             if b in ALL_BASES:
                 self.baseCounts[b][i] += 1
                 self.baseTotalQual[b][i] += qnum
+        for i in xrange(len(seq) - KMER_LEN):
+            self.totalKmer += 1
+            kmer = seq[i:i+KMER_LEN]
+            if kmer in self.kmerCount:
+                self.kmerCount[kmer] += 1
+            else:
+                self.kmerCount[kmer] = 1
 
     def calcReadLen(self):
         for pos in xrange(MAX_LEN):
@@ -67,6 +79,9 @@ class QualityControl:
             for base in ALL_BASES:
                 if self.baseCounts[base][pos] > 0:
                     self.baseMeanQual[base][pos] = float(self.baseTotalQual[base][pos])/float(self.baseCounts[base][pos])
+
+    def sortKmer(self):
+        self.topKmerCount = sorted(self.kmerCount.items(), key=lambda x: x[1], reverse=True)
 
     def plotQuality(self, filename):
         colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
@@ -105,6 +120,7 @@ class QualityControl:
         self.calcReadLen()
         self.calcPercents()
         self.calcQualities()
+        self.sortKmer()
         
     def statFile(self, filename):
         reader = fastq.Reader(filename)
@@ -211,3 +227,4 @@ if __name__  == "__main__":
     qc.statFile("R1.fq")
     qc.plot()
     print(qc.autoTrim())
+    print(qc.topKmerCount[0:10])
