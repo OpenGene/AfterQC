@@ -3,6 +3,9 @@ from optparse import OptionParser
 import time
 import fastq
 import util
+import matplotlib
+# fix matplotlib DISPLAY issue
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 MAX_LEN = 200
