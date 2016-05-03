@@ -571,12 +571,12 @@ class seqFilter:
         # stat["options"]=self.options
         stat["summary"]=result
         stat["command"]=makeDict(self.options)
-        stat["over_represented_kmer"] = {}
-        stat["over_represented_kmer"]["read1_prefilter"] = r1qc_prefilter.topKmerCount[0:10]
-        stat["over_represented_kmer"]["read1_postfilter"] = r1qc_postfilter.topKmerCount[0:10]
+        stat["kmer_content"] = {}
+        stat["kmer_content"]["read1_prefilter"] = r1qc_prefilter.topKmerCount[0:10]
+        stat["kmer_content"]["read1_postfilter"] = r1qc_postfilter.topKmerCount[0:10]
         if self.options.read2_file != None:
-            stat["over_represented_kmer"]["read2_prefilter"] = r2qc_prefilter.topKmerCount[0:10]
-            stat["over_represented_kmer"]["read2_postfilter"] = r2qc_postfilter.topKmerCount[0:10]
+            stat["kmer_content"]["read2_prefilter"] = r2qc_prefilter.topKmerCount[0:10]
+            stat["kmer_content"]["read2_postfilter"] = r2qc_postfilter.topKmerCount[0:10]
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
