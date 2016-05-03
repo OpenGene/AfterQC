@@ -237,6 +237,10 @@ class seqFilter:
         r1qc_postfilter = QualityControl()
         r2qc_postfilter = QualityControl()
 
+        readLen = r1qc_prefilter.readLen
+        overlap_histgram = [0 for x in xrange(readLen+1)]
+        distance_histgram = [0 for x in xrange(readLen+1)]
+
         #auto detect trim front and trim tail
         if self.options.trim_front == -1 or self.options.trim_tail == -1:
             #auto trim for read1
@@ -456,6 +460,7 @@ class seqFilter:
             #check overlap and do error correction
             if r2!=None:
                 (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
+                overlap_histgram[overlap_len] += 1
                 # deal with the case insert DNA is shorter than read length and cause offset is negative
                 if offset <0 and overlap_len > 30:
                     # shift the junk bases
@@ -467,6 +472,7 @@ class seqFilter:
                     (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                 if overlap_len>30:
                     OVERLAPPED += 1
+                    distance_histgram[distance] += 1
                     OVERLAP_LEN_SUM += overlap_len
                     corrected = 0
                     if distance > 2:
@@ -548,11 +554,6 @@ class seqFilter:
         result['total_reads']=TOTAL
         result['good_reads']=GOOD
         result['bad_reads']=BAD
-        result['overlapped_pairs']=OVERLAPPED
-        if OVERLAPPED > 0:
-            result['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
-        else:
-            result['average_overlap_length']=0.0
         result['bad_reads_with_bad_barcode_in_read1']=BADBCD1
         result['bad_reads_with_bad_barcode_in_read2']=BADBCD2
         result['bad_reads_with_bad_read1_after_trimming']=BADTRIM1
@@ -562,10 +563,6 @@ class seqFilter:
         result['bad_reads_with_PolyX']=BADPOL
         result['bad_reads_with_bad_low_quality_count']=BADLQC
         result['bad_reads_with_bad_N_count']=BADNCT
-        result['bad_reads_with_bad_overlapping_of_a_pair']=BADOL
-        result['bad_reads_with_mismatch_of_a_pair']=BADMISMATCH
-        result['bad_reads_with_bad_indel_of_a_pair']=BADINDEL
-        result['corrected_low_quality_mismatch_of_a_pair']=BASE_CORRECTED
 
         stat={}
         # stat["options"]=self.options
@@ -577,6 +574,17 @@ class seqFilter:
         if self.options.read2_file != None:
             stat["kmer_content"]["read2_prefilter"] = r2qc_prefilter.topKmerCount[0:10]
             stat["kmer_content"]["read2_postfilter"] = r2qc_postfilter.topKmerCount[0:10]
+            stat["overlap"]={}
+            stat["overlap"]['overlapped_pairs']=OVERLAPPED
+            if OVERLAPPED > 0:
+                stat["overlap"]['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
+            else:
+                stat["overlap"]['average_overlap_length']=0.0
+            stat["overlap"]['bad_reads_with_bad_overlapping_of_a_pair']=BADOL
+            stat["overlap"]['bad_reads_with_mismatch_of_a_pair']=BADMISMATCH
+            stat["overlap"]['bad_reads_with_bad_indel_of_a_pair']=BADINDEL
+            stat["overlap"]['corrected_low_quality_mismatch_of_a_pair']=BASE_CORRECTED
+            stat["overlap"]['distance_of_overlap_area']=distance_histgram[0:10]
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
