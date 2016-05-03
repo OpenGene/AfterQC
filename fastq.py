@@ -14,14 +14,11 @@ def isFastq(f):
 #fastq.reader
 
 class Reader:
-    
-    filename = ""
-    
-    __file = None
-    __gz = False
-    __eof = False
-    
+
     def __init__(self, fname):
+        self.__file = None
+        self.__gz = False
+        self.__eof = False
         self.filename = fname
         if self.filename.endswith(".gz"):
             self.__gz = True

@@ -10,34 +10,27 @@ from circledetector import CircleDetector
 ########################### BubbleDetector
 class BubbleDetector:
     
-    #TODO: these can be set as parameters
-    scope = 500.0
-    cellSize = 300.0
-    minPoly = 30
-    minPointOfCluster = 150
-    
-    needDraw = False
-    
-    filename = ""
-    rawRecords = []
-    records = []
-    xmax = 0
-    ymax = 0
-    xmin = 0
-    ymin = 0
-    meanNeighbour = 0.0
-    gridX = 0
-    gridY = 0
-    grid = {}
-    
-    totalLabel = 0
-    labels = []
-    
-    circles = []
-    tile = 0
-    lane = 0
-    
     def __init__(self, xmax, ymax, xmin, ymin, draw):
+        #TODO: these can be set as parameters
+        self.scope = 500.0
+        self.cellSize = 300.0
+        self.minPoly = 30
+        self.minPointOfCluster = 150
+
+        self.filename = ""
+        self.rawRecords = []
+        self.records = []
+        self.meanNeighbour = 0.0
+        self.gridX = 0
+        self.gridY = 0
+        self.grid = {}
+
+        self.totalLabel = 0
+        self.labels = []
+
+        self.circles = []
+        self.tile = 0
+        self.lane = 0
         self.xmax = xmax
         self.ymax = ymax
         self.xmin = xmin

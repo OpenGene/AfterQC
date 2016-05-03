@@ -16,21 +16,21 @@ KMER_TOP = 10
 
 ########################### QualityControl
 class QualityControl:
-    readLen = 0
-    readCount = 0
-    baseCounts = {}
-    percents = {}
-    baseTotalQual = {}
-    baseMeanQual = {}
-    totalQual = [0 for x in xrange(MAX_LEN)]
-    totalNum = [0 for x in xrange(MAX_LEN)]
-    meanQual = [0.0 for x in xrange(MAX_LEN)]
-    gcPercents = [0.0 for x in xrange(MAX_LEN)]
-    kmerCount = {}
-    topKmerCount = []
-    totalKmer = 0
 
     def __init__(self):
+        self.readLen = 0
+        self.readCount = 0
+        self.baseCounts = {}
+        self.percents = {}
+        self.baseTotalQual = {}
+        self.baseMeanQual = {}
+        self.totalQual = [0 for x in xrange(MAX_LEN)]
+        self.totalNum = [0 for x in xrange(MAX_LEN)]
+        self.meanQual = [0.0 for x in xrange(MAX_LEN)]
+        self.gcPercents = [0.0 for x in xrange(MAX_LEN)]
+        self.kmerCount = {}
+        self.topKmerCount = []
+        self.totalKmer = 0
         for base in ALL_BASES:
             self.baseCounts[base] = [0 for x in xrange(MAX_LEN)]
             self.percents[base] = [0.0 for x in xrange(MAX_LEN)]

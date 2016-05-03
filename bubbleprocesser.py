@@ -12,8 +12,7 @@ from bubbledetector import BubbleDetector
     
 ########################### BubbleProcesser
 class BubbleProcesser:
-    
-    __polyRecords = []
+
     __input = None
     __output = None
     __poly_x_num = None
@@ -23,13 +22,13 @@ class BubbleProcesser:
     xmin = 0
     ymin = 0
     
-    circles = []
-    
     def __init__(self, input, poly_x_num, output, drawImage):
         self.__input = input
         self.__output = output
         self.__poly_x_num = poly_x_num
         self.__drawImage = drawImage
+        self.__polyRecords = []
+        self.circles = []
         
         
     def run(self):

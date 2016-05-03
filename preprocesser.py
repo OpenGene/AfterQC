@@ -146,22 +146,17 @@ def makeDict(opt):
 ########################### seqFilter
 class seqFilter:
     
-    options = None
-    paired = False
-    hasIndex = False
-    bubbleCircles = {}
-    bubbleTiles = []
-    pattern = None
-    
     #opt is an object contains lots of parameters
     def __init__(self, opt):
         self.options = opt
+        self.bubbleCircles = {}
+        self.bubbleTiles = []
         
         #detect if the input is paired and if it has index files
         if self.options.read2_file != None:
-            paired = True
+            self.paired = True
         if self.options.index1_file != None:
-            hasIndex = True
+            self.hasIndex = True
 
         self.pattern = re.compile(r'\S+\:\d+\:\S+\:\d+\:\d+\:\d+\:\d+')
 

@@ -9,13 +9,6 @@ import math
     
 ########################### circleDetector
 class CircleDetector:
-    radiusThreshold = 800
-    areaRatioThreshold = 0.85
-    xmax = 0
-    ymax = 0
-    xmin = 0
-    ymin = 0
-    records = []
     
     def __init__(self, allRecords, xmax, ymax, xmin, ymin):
         self.records = allRecords
@@ -23,6 +16,9 @@ class CircleDetector:
         self.ymax = ymax
         self.xmin = xmin
         self.ymin = ymin
+        self.records = []
+        self.radiusThreshold = 800
+        self.areaRatioThreshold = 0.85
     
     def detect(self):    
         circles = []
