@@ -9,6 +9,21 @@ import util
 import barcodeprocesser
 import json
 from qualitycontrol import QualityControl
+import matplotlib
+# fix matplotlib DISPLAY issue
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+def plotOverlapHistgram(overlap_histgram, readLen, TOTAL, filename):
+    ratio = [100.0 * float(i)/float(TOTAL) for i in overlap_histgram]
+    x = range(readLen+1)
+    plt.figure(1)
+    plt.xlim(0, readLen)
+    plt.ylabel('Ratio(%)')
+    plt.xlabel('Overlap Length (0 means not overlapped, which has '+ str(float(overlap_histgram[0])*100.0/TOTAL) + '%)')
+    plt.plot(x, ratio)
+    plt.savefig(filename)
+    plt.close(1)
 
 def getMainName(filename):
     baseName = os.path.basename(filename)
@@ -585,6 +600,7 @@ class seqFilter:
             stat["overlap"]['bad_reads_with_bad_indel_of_a_pair']=BADINDEL
             stat["overlap"]['corrected_low_quality_mismatch_of_a_pair']=BASE_CORRECTED
             stat["overlap"]['distance_of_overlap_area']=distance_histgram[0:10]
+            plotOverlapHistgram(overlap_histgram, readLen, TOTAL, os.path.join(qc_dir, "overlap.png"))
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
