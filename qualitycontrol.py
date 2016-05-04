@@ -94,7 +94,7 @@ class QualityControl:
         plt.ylabel('Quality')
         plt.xlabel('Base')
         for base in ALL_BASES:
-            plt.plot(x, self.baseMeanQual[base][0:self.readLen], color = colors[base], label=base)
+            plt.plot(x, self.baseMeanQual[base][0:self.readLen], color = colors[base], label=base, alpha=0.3)
         plt.plot(x, self.meanQual[0:self.readLen], color = 'black', label = 'mean')
         plt.legend(loc='upper right', ncol=5)
         plt.savefig(filename)
@@ -109,7 +109,7 @@ class QualityControl:
         plt.ylabel('Percents')
         plt.xlabel('Base')
         for base in ALL_BASES:
-            plt.plot(x, self.percents[base][0:self.readLen], color = colors[base], label=base)
+            plt.plot(x, self.percents[base][0:self.readLen], color = colors[base], label=base, alpha=0.5)
         plt.plot(x, self.gcPercents[0:self.readLen], color = 'black', label='GC')
         plt.legend(loc='upper right', ncol=5)
         plt.savefig(filename)
