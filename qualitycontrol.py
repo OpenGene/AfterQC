@@ -9,15 +9,15 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 MAX_LEN = 200
-MAX_SAMPLING_COUNT = 500000
 ALL_BASES = ("A", "T", "C", "G");
-KMER_LEN = 8
 KMER_TOP = 10
 
 ########################### QualityControl
 class QualityControl:
 
-    def __init__(self):
+    def __init__(self, qc_sample=1000000, qc_kmer=8):
+        self.sampleLimit = qc_sample
+        self.kmerLen = qc_kmer
         self.readLen = 0
         self.readCount = 0
         self.baseCounts = {}
@@ -48,9 +48,9 @@ class QualityControl:
             if b in ALL_BASES:
                 self.baseCounts[b][i] += 1
                 self.baseTotalQual[b][i] += qnum
-        for i in xrange(len(seq) - KMER_LEN):
+        for i in xrange(len(seq) - self.kmerLen):
             self.totalKmer += 1
-            kmer = seq[i:i+KMER_LEN]
+            kmer = seq[i:i+self.kmerLen]
             if kmer in self.kmerCount:
                 self.kmerCount[kmer] += 1
             else:
@@ -131,7 +131,7 @@ class QualityControl:
         while True:
             read = reader.nextRead()
             self.readCount += 1
-            if read==None or self.readCount > MAX_SAMPLING_COUNT:
+            if read==None or self.readCount > self.sampleLimit:
                 break
             self.statRead(read)
 

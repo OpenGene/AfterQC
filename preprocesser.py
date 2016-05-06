@@ -88,31 +88,6 @@ def nNumber(read):
         if s == 'N':
             nNum += 1
     return nNum
-    
-def writeReads(r1, r2, i1, i2, r1_file, r2_file, i1_file, i2_file, flag):
-    if r1!=None and r1_file!=None:
-        #add flag into the read name
-        if flag!=None:
-            r1[0] = "@" + flag + r1[0][1:]
-        r1_file.writeLines(r1)
-        
-    if r2!=None and r2_file!=None:
-        #add flag into the read name
-        if flag!=None:
-            r2[0] = "@" + flag + r2[0][1:]
-        r2_file.writeLines(r2)
-        
-    if i1!=None and i1_file!=None:
-        #add flag into the read name
-        if flag!=None:
-            i1[0] = "@" + flag + i1[0][1:]
-        i1_file.writeLines(i1)
-        
-    if i2!=None and i2_file!=None:
-        #add flag into the read name
-        if flag!=None:
-            i2[0] = "@" + flag + i2[0][1:]
-        i2_file.writeLines(i2)
 
 def getOverlap(r, overlap_len):
     ret = []
@@ -154,7 +129,10 @@ def makeDict(opt):
         'debubble': opt.debubble,
         'read1_flag': opt.read1_flag,
         'trim_front2': opt.trim_front2,
-        'bad_output_folder': opt.bad_output_folder
+        'bad_output_folder': opt.bad_output_folder,
+        'qc_only': opt.qc_only,
+        'qc_sample': opt.qc_sample,
+        'qc_kmer': opt.qc_kmer
     }
     return d
     
@@ -221,7 +199,35 @@ class seqFilter:
                     return True
                     
         return False
-        
+
+    def writeReads(self, r1, r2, i1, i2, r1_file, r2_file, i1_file, i2_file, flag):
+        if self.options.qc_only:
+            return
+
+        if r1!=None and r1_file!=None:
+            #add flag into the read name
+            if flag!=None:
+                r1[0] = "@" + flag + r1[0][1:]
+            r1_file.writeLines(r1)
+
+        if r2!=None and r2_file!=None:
+            #add flag into the read name
+            if flag!=None:
+                r2[0] = "@" + flag + r2[0][1:]
+            r2_file.writeLines(r2)
+
+        if i1!=None and i1_file!=None:
+            #add flag into the read name
+            if flag!=None:
+                i1[0] = "@" + flag + i1[0][1:]
+            i1_file.writeLines(i1)
+
+        if i2!=None and i2_file!=None:
+            #add flag into the read name
+            if flag!=None:
+                i2[0] = "@" + flag + i2[0][1:]
+            i2_file.writeLines(i2)
+
     def run(self):
         if self.options.debubble:
             self.loadBubbleCircles()
@@ -241,16 +247,16 @@ class seqFilter:
         if self.options.barcode:
             self.options.trim_front = 0
 
-        r1qc_prefilter = QualityControl()
-        r2qc_prefilter = QualityControl()
+        r1qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
+        r2qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         r1qc_prefilter.statFile(self.options.read1_file)
         r1qc_prefilter.plot(qc_dir, "R1-prefilter-")
         if self.options.read2_file != None:
             r2qc_prefilter.statFile(self.options.read2_file)
             r2qc_prefilter.plot(qc_dir, "R2-prefilter-")
 
-        r1qc_postfilter = QualityControl()
-        r2qc_postfilter = QualityControl()
+        r1qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
+        r2qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
 
         readLen = r1qc_prefilter.readLen
         overlap_histgram = [0 for x in xrange(readLen+1)]
@@ -305,12 +311,16 @@ class seqFilter:
         if self.options.store_overlap and self.options.read2_file != None and (not os.path.exists(overlap_dir)):
             os.makedirs(overlap_dir)
         
-        good_read1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read1_file)+".good.fq"))
-        bad_read1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read1_file)+".bad.fq"))
-
+        good_read1_file = None
+        bad_read1_file = None
         overlap_read1_file = None
-        if self.options.store_overlap:
-            overlap_read1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read1_file)+".overlap.fq"))
+        if not self.options.qc_only:
+            good_read1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read1_file)+".good.fq"))
+            bad_read1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read1_file)+".bad.fq"))
+
+            overlap_read1_file = None
+            if self.options.store_overlap:
+                overlap_read1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read1_file)+".overlap.fq"))
         
         #other files are optional
         read2_file = None
@@ -331,22 +341,25 @@ class seqFilter:
         #if other files are specified, then read them
         if self.options.read2_file != None:
             read2_file = fastq.Reader(self.options.read2_file)
-            good_read2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read2_file)+".good.fq"))
-            bad_read2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read2_file)+".bad.fq"))
-            if self.options.store_overlap and self.options.read2_file != None:
-                overlap_read2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read2_file)+".overlap.fq"))
+            if not self.options.qc_only:
+                good_read2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read2_file)+".good.fq"))
+                bad_read2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read2_file)+".bad.fq"))
+                if self.options.store_overlap and self.options.read2_file != None:
+                    overlap_read2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read2_file)+".overlap.fq"))
         if self.options.index1_file != None:
             index1_file = fastq.Reader(self.options.index1_file)
-            good_index1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index1_file)+".good.fq"))
-            bad_index1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index1_file)+".bad.fq"))
-            if self.options.store_overlap and self.options.read2_file != None:
-                overlap_index1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index1_file)+".overlap.fq"))
+            if not self.options.qc_only:
+                good_index1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index1_file)+".good.fq"))
+                bad_index1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index1_file)+".bad.fq"))
+                if self.options.store_overlap and self.options.read2_file != None:
+                    overlap_index1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index1_file)+".overlap.fq"))
         if self.options.index2_file != None:
             index2_file = fastq.Reader(self.options.index2_file)
-            good_index2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index2_file)+".good.fq"))
-            bad_index2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index2_file)+".bad.fq"))
-            if self.options.store_overlap and self.options.read2_file != None:
-                overlap_index2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index2_file)+".overlap.fq"))
+            if not self.options.qc_only:
+                good_index2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index2_file)+".good.fq"))
+                bad_index2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index2_file)+".bad.fq"))
+                if self.options.store_overlap and self.options.read2_file != None:
+                    overlap_index2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index2_file)+".overlap.fq"))
             
         r1 = None
         r2 = None
@@ -397,7 +410,7 @@ class seqFilter:
             if self.options.barcode:
                 barcodeLen1 = barcodeprocesser.detectBarcode(r1[1], self.options.barcode_length, self.options.barcode_verify)
                 if barcodeLen1 == 0:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD1")
+                    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD1")
                     BADBCD1 += 1
                     continue
                 else:
@@ -406,7 +419,7 @@ class seqFilter:
                     else:
                         barcodeLen2 = barcodeprocesser.detectBarcode(r2[1], self.options.barcode_length, self.options.barcode_verify)
                         if barcodeLen2 == 0:
-                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD2")
+                            self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBCD2")
                             BADBCD2 += 1
                             continue
                         else:
@@ -416,26 +429,26 @@ class seqFilter:
             if self.options.trim_front > 0 or self.options.trim_tail > 0:
                 r1 = trim(r1, self.options.trim_front, self.options.trim_tail)
                 if len(r1[1]) < 5:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM1")
+                    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM1")
                     BADTRIM1 += 1
                     continue
                 if r2 != None:
                     r2 = trim(r2, self.options.trim_front2, self.options.trim_tail2)
                     if len(r2[1]) < 5:
-                        writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM2")
+                        self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADTRIM2")
                         BADTRIM2 += 1
                         continue
 
             #filter debubble
             if self.options.debubble:
                 if self.isInBubble(r1[0]):
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBBL")
+                    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADBBL")
                     BADBBL += 1
                     continue
             
             #filter sequence length
             if len(r1[1])<self.options.seq_len_req:
-                writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLEN")
+                self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLEN")
                 BADLEN += 1
                 continue
                     
@@ -446,7 +459,7 @@ class seqFilter:
                 if r2!=None:
                     poly2 = hasPolyX(r2[1], self.options.poly_size_limit, self.options.allow_mismatch_in_poly)
                 if poly1!=None or poly2!=None:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADPOL")
+                    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADPOL")
                     BADPOL += 1
                     continue
             
@@ -457,7 +470,7 @@ class seqFilter:
                 if r2!=None:
                     lowQual2 = lowQualityNum(r2, self.options.qualified_quality_phred)
                 if lowQual1 > self.options.unqualified_base_limit or lowQual1 > self.options.unqualified_base_limit:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLQC")
+                    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLQC")
                     BADLQC += 1
                     continue
             
@@ -468,7 +481,7 @@ class seqFilter:
                 if r2!=None:
                     nNum2 = nNumber(r2)
                 if nNum1 > self.options.n_base_limit or nNum2 > self.options.n_base_limit:
-                    writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADNCT")
+                    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADNCT")
                     BADNCT += 1
                     continue
 
@@ -491,14 +504,14 @@ class seqFilter:
                     OVERLAP_LEN_SUM += overlap_len
                     corrected = 0
                     if distance > 2:
-                        writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
+                        self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                         BADOL += 1
                         continue
                     elif distance>0:
                         #try to fix low quality base
                         hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         if hamming != distance:
-                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADINDEL")
+                            self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADINDEL")
                             BADINDEL += 1
                             continue
                         #print(r1[1][len(r1[1]) - overlap_len:])
@@ -529,21 +542,22 @@ class seqFilter:
                         if corrected == distance:
                             BASE_CORRECTED += 1
                         else:
-                            writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
+                            self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
                             BADMISMATCH += 1
                             continue
                     if distance == 0 or distance == corrected:
                         if self.options.store_overlap:
-                            writeReads(getOverlap(r1, overlap_len), getOverlap(r2, overlap_len), i1, i2, overlap_read1_file, overlap_read2_file, overlap_index1_file, overlap_index2_file, None)
+                            self.writeReads(getOverlap(r1, overlap_len), getOverlap(r2, overlap_len), i1, i2, overlap_read1_file, overlap_read2_file, overlap_index1_file, overlap_index2_file, None)
 
             #write to good       
-            writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
+            self.writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
             r1qc_postfilter.statRead(r1)
             if r2 != None:
                 r2qc_postfilter.statRead(r2)
 
             GOOD += 1
-            #if TOTAL > 10000:break
+            if self.options.qc_only and TOTAL > self.options.qc_sample:
+                break
 
         r1qc_postfilter.qc()
         r1qc_postfilter.plot(qc_dir, "R1-postfilter-")
@@ -551,17 +565,18 @@ class seqFilter:
         r2qc_postfilter.plot(qc_dir, "R2-postfilter-")
         
         #close all files
-        good_read1_file.flush()
-        bad_read1_file.flush()
-        if self.options.read2_file != None:
-            good_read2_file.flush()
-            bad_read2_file.flush()
-        if self.options.index1_file != None:
-            good_index1_file.flush()
-            bad_index1_file.flush()
-        if self.options.index2_file != None:
-            good_index2_file.flush()
-            bad_index2_file.flush()
+        if not self.options.qc_only:
+            good_read1_file.flush()
+            bad_read1_file.flush()
+            if self.options.read2_file != None:
+                good_read2_file.flush()
+                bad_read2_file.flush()
+            if self.options.index1_file != None:
+                good_index1_file.flush()
+                bad_index1_file.flush()
+            if self.options.index2_file != None:
+                good_index2_file.flush()
+                bad_index2_file.flush()
 
         # print stat numbers
         BAD = TOTAL - GOOD

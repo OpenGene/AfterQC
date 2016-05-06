@@ -10,8 +10,8 @@ import copy
 from util import *
 
 def parseCommand():
-    usage = "Automatic Filtering, Trimming, and Error Removing for Illumina fastq data(Illumina 1.8 or newer format, see http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)\n\nFull command:\n%prog [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-q qualified_quality_phred] [-l unqualified_base_limit] [-p poly_size_limit] [-a allow_mismatch_in_poly] [-n n_base_limit] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=_R1_] [--read2_flag=_R2_] [--index1_flag=_I1_] [--index2_flag=_I2_] \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
-    version = "%prog 0.1.0"
+    usage = "Automatic Filtering, Trimming, Error Removing and Quality Control for Illumina fastq data \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
+    version = "0.3.0"
     parser = OptionParser(usage = usage, version = version)
     parser.add_option("-1", "--read1_file", dest = "read1_file",
         help = "file name of read1, required. If input_dir is specified, then this arg is ignored.")
@@ -53,8 +53,8 @@ def parseCommand():
         help = "if exists more than maxn bases have N, then this read/pair is bad. Default is 5")
     parser.add_option("-s", "--seq_len_req", dest = "seq_len_req", default = 35, type = "int",
         help = "if the trimmed read is shorter than seq_len_req, then this read/pair is bad. Default is 35")
-    parser.add_option("", "--debubble", dest = "debubble", default = "off",
-        help = "specify whether apply debubble algorithm to remove the reads in the bubbles. Default is off")
+    parser.add_option("", "--debubble", dest = "debubble", action="store_true", default = False,
+        help = "specify whether apply debubble algorithm to remove the reads in the bubbles. Default is False")
     parser.add_option("", "--debubble_dir", dest = "debubble_dir", default = "debubble",
         help = "specify the folder to store output of debubble algorithm, default is debubble")
     parser.add_option("", "--draw", dest = "draw", default = "on",
@@ -71,6 +71,12 @@ def parseCommand():
         help = "specify whether store only overlapped bases of the good reads")
     parser.add_option("", "--overlap_output_folder", dest = "overlap_output_folder", default = "overlap",
         help = "the folder to store only overlapped bases of the good reads")
+    parser.add_option("", "--qc_only", dest = "qc_only", action='store_true', default = False,
+        help = "if qconly is true, only QC result will be output, this can be much fast")
+    parser.add_option("", "--qc_sample", dest = "qc_sample", default = 1000000, type = "int",
+        help = "sample up to qc_sample when do QC, default is 1000,000")
+    parser.add_option("", "--qc_kmer", dest = "qc_kmer", default = 8, type = "int",
+        help = "specify the kmer length for KMER statistics for QC, default is 8")
     return parser.parse_args()
 
 def matchFlag(filename, flag):
@@ -163,7 +169,6 @@ def main():
         sys.exit(1)
     
     (options, args) = parseCommand()
-    options.debubble = parseBool(options.debubble)
     options.trim_pair_same = parseBool(options.trim_pair_same)
     options.draw = parseBool(options.draw)
     options.store_overlap = parseBool(options.store_overlap)
