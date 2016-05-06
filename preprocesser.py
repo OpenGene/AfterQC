@@ -155,6 +155,8 @@ class seqFilter:
 
     def loadBubbleCircles(self):
         bubbleCircleFile = os.path.join(self.options.debubble_dir, "circles.csv")
+        if not os.path.exists(bubbleCircleFile):
+            return
         with open(bubbleCircleFile) as f:
             rows = f.readlines()
             for row in rows[1:]:

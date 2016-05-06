@@ -22,6 +22,8 @@ def parseCommand():
     return parser.parse_args()
     
 def writeCircles(circles, outdir):
+    if not os.path.exists(outdir):
+        return
     outfile = open(os.path.join(outdir, "circles.csv"), "w")
     outfile.write("x,y,radius,lane,tile\n")
     for c in circles:
