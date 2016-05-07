@@ -4,7 +4,7 @@ Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data
 Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
 # Latest release
-0.2.0 (Released on 2016-03-28)
+0.3.0 (Released on 2016-05-07)
 
 # Features:
 `AfterQC` does following tasks automatically:  
@@ -36,10 +36,13 @@ python path/to/AfterQC/after.py
 * two folders will be automatically generated, a folder 'good' stores the good reads and a folder 'bad' stores the bad reads
 * `AfterQC` will print some statistical information after it is done, such how many good reads, how many bad reads, and how many reads are corrected.
 
-# Full options:
+# Quality Control only
+If you only want to get quality control statistics, run:  
 ```shell
-python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [-5 index2_file] [-g good_output_folder] [-b bad_output_folder] [-f trim_front] [-t trim_tail] [-q qualified_quality_phred] [-l unqualified_base_limit] [-p poly_size_limit] [-a allow_mismatch_in_poly] [-n n_base_limit] [--debubble=on/off] [--debubble_dir=xxx] [--draw=on/off] [--read1_flag=_R1_] [--read2_flag=_R2_] [--index1_flag=_I1_] [--index2_flag=_I2_]
+python after.py --qc_only
 ```
+
+# Full options:
 ***Common options***
 ```shell
   --version             show program's version number and exit
@@ -120,8 +123,8 @@ python after.py [-d input_dir][-1 read1_file] [-2 read1_file] [-7 index1_file] [
 ***Debubble options***   
 If you want to eliminate bubble artifact, turn debubble option on (this is slow, usually you don't need to do this): 
 ```
-  --debubble=DEBUBBLE   specify whether apply debubble algorithm to remove the
-                        reads in the bubbles. Default is off
+  --debubble            specify whether apply debubble algorithm to remove the
+                        reads in the bubbles. Default is False
   --debubble_dir=DEBUBBLE_DIR
                         specify the folder to store output of debubble
                         algorithm, default is debubble
@@ -142,3 +145,13 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
                         in filename will be treated as barcode sequencing
                         files
 ```
+***QC options***
+```shell
+  --qc_only             if qconly is true, only QC result will be output, this
+                        can be much fast
+  --qc_sample=QC_SAMPLE
+                        sample up to qc_sample when do QC, default is 1000,000
+  --qc_kmer=QC_KMER     specify the kmer length for KMER statistics for QC,
+                        default is 8
+```
+                        
