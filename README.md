@@ -1,6 +1,6 @@
 # AfterQC
 Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data   
-`AfterQC` can simply go through all fastq files in a folder and then output three folders: <b>good</b>, <b>bad</b> and <b>*QC</b> folders, which contains good reads, bad reads and the QC results of each fastq file/pair.   
+`AfterQC` can simply go through all fastq files in a folder and then output three folders: <b>good</b>, <b>bad</b> and <b>QC</b> folders, which contains good reads, bad reads and the QC results of each fastq file/pair.   
 Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
 # Latest release
@@ -123,7 +123,7 @@ python after.py --qc_only
 ***Debubble options***   
 If you want to eliminate bubble artifact, turn debubble option on (this is slow, usually you don't need to do this): 
 ```
-  --debubble            specify whether apply debubble algorithm to remove the
+  --debubble            enable debubble algorithm to remove the
                         reads in the bubbles. Default is False
   --debubble_dir=DEBUBBLE_DIR
                         specify the folder to store output of debubble
@@ -147,8 +147,8 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
 ```
 ***QC options***
 ```shell
-  --qc_only             if qconly is true, only QC result will be output, this
-                        can be much fast
+  --qc_only             enable this option, only QC result will be output, this
+                        can be much faster
   --qc_sample=QC_SAMPLE
                         sample up to qc_sample when do QC, default is 1000,000
   --qc_kmer=QC_KMER     specify the kmer length for KMER statistics for QC,
