@@ -3,10 +3,6 @@ Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data
 `AfterQC` can simply go through all fastq files in a folder and then output three folders: <b>good</b>, <b>bad</b> and <b>QC</b> folders, which contains good reads, bad reads and the QC results of each fastq file/pair.   
 Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
-# Download AfterQC
-* latest: `git clone https://github.com/OpenGene/AfterQC.git`
-* stable: [0.3.0 (Released on 2016-05-07)](https://github.com/OpenGene/AfterQC/archive/Release-0.3.0.zip)
-
 # Features:
 `AfterQC` does following tasks automatically:  
 * Filters reads with too low quality, too short length or too many N
@@ -18,6 +14,9 @@ Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 50
 * Single molecule barcode sequencing support: if all reads have a single molecule barcode (see duplex sequencing), `AfterQC` shifts the barcodes from the reads to the fastq query names
 * Support single-end sequencing or pair-end sequencing
 
+# Get AfterQC
+* latest: `git clone https://github.com/OpenGene/AfterQC.git`
+* stable: [0.3.0 (released on 2016-05-07)](https://github.com/OpenGene/AfterQC/archive/Release-0.3.0.zip)
 
 # Dependency:
 `AfterQC` uses `editdistance` module, run following before using `AfterQC`:
