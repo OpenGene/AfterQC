@@ -86,7 +86,11 @@ def matchFlag(filename, flag):
         return (flag+"." in filename) or (flag+"_" in filename) or (flag+"-" in filename)
 
 def processDir(folder, options):
-    
+
+    qc_base_folder = os.path.join(folder, "QC")
+    if not os.path.exists(qc_base_folder):
+        os.makedirs(qc_base_folder)
+
     fqext = (".fq", ".fastq", "fq.gz", ".fastq.gz")
     read1name = options.read1_flag
     read2name = options.read2_flag
