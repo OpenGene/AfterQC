@@ -588,15 +588,13 @@ class seqFilter:
         result['total_reads']=TOTAL
         result['good_reads']=GOOD
         result['bad_reads']=BAD
-        result['bad_reads_with_bad_barcode_in_read1']=BADBCD1
-        result['bad_reads_with_bad_barcode_in_read2']=BADBCD2
-        result['bad_reads_with_bad_read1_after_trimming']=BADTRIM1
-        result['bad_reads_with_bad_read2_after_trimming']=BADTRIM2
-        result['bad_reads_in_bubble']=BADBBL
-        result['bad_reads_with_bad_read_length']=BADLEN
-        result['bad_reads_with_PolyX']=BADPOL
-        result['bad_reads_with_bad_low_quality_count']=BADLQC
-        result['bad_reads_with_bad_N_count']=BADNCT
+        result['bad_reads_with_bad_barcode']= BADBCD1 + BADBCD2
+        result['bad_reads_with_reads_in_bubble']= BADBBL
+        result['bad_reads_with_bad_read_length']= BADLEN + BADTRIM1 + BADTRIM2
+        result['bad_reads_with_polyX']= BADPOL
+        result['bad_reads_with_low_quality']=BADLQC
+        result['bad_reads_with_too_many_N']= BADNCT
+        result['bad_reads_with_bad_overlap']= BADOL + BADMISMATCH + BADINDEL
 
         stat={}
         # stat["options"]=self.options
