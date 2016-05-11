@@ -612,11 +612,11 @@ class seqFilter:
                 stat["overlap"]['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
             else:
                 stat["overlap"]['average_overlap_length']=0.0
-            stat["overlap"]['bad_reads_with_bad_overlapping_of_a_pair']=BADOL
-            stat["overlap"]['bad_reads_with_mismatch_of_a_pair']=BADMISMATCH
-            stat["overlap"]['bad_reads_with_bad_indel_of_a_pair']=BADINDEL
-            stat["overlap"]['corrected_low_quality_mismatch_of_a_pair']=BASE_CORRECTED
-            stat["overlap"]['distance_of_overlap_area']=distance_histgram[0:10]
+            stat["overlap"]['bad_edit_distance']=BADOL
+            stat["overlap"]['bad_mismatch_bases']=BADMISMATCH
+            stat["overlap"]['bad_indel']=BADINDEL
+            stat["overlap"]['reads_with_corrected_mismatch_bases']=BASE_CORRECTED
+            stat["overlap"]['overlapped_area_edit_distance_histogram']=distance_histgram[0:10]
             plotOverlapHistgram(overlap_histgram, readLen, TOTAL, os.path.join(qc_dir, "overlap.png"))
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
