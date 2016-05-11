@@ -187,7 +187,14 @@ def main():
         if options.debubble:
             runDebubble(options)
         processDir(options.input_dir, options)
-    else:    
+    else:
+        if options.barcode_flag in options.read1_file and parseBool(options.barcode):
+            options.barcode = True
+            #for barcode sequencing we don't trim it at front
+            options.trim_front = 0
+            options.trim_front2 = 0
+        else:
+            options.barcode = False
         processOptions(options)
     
     time2 = time.time()
