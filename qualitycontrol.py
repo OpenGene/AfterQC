@@ -86,13 +86,14 @@ class QualityControl:
     def sortKmer(self):
         self.topKmerCount = sorted(self.kmerCount.items(), key=lambda x: x[1], reverse=True)
 
-    def plotQuality(self, filename):
+    def plotQuality(self, filename, prefix=""):
         colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
         x = range(self.readLen)
         plt.figure(1)
+        plt.title(prefix + " base quality" )
         plt.xlim(0, self.readLen)
         plt.ylabel('Quality')
-        plt.xlabel('Base')
+        plt.xlabel('Cycle')
         for base in ALL_BASES:
             plt.plot(x, self.baseMeanQual[base][0:self.readLen], color = colors[base], label=base, alpha=0.3)
         plt.plot(x, self.meanQual[0:self.readLen], color = 'black', label = 'mean')
@@ -100,14 +101,15 @@ class QualityControl:
         plt.savefig(filename)
         plt.close(1)
 
-    def plotContent(self, filename):
+    def plotContent(self, filename, prefix=""):
         colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
         x = range(self.readLen)
         plt.figure(1)
+        plt.title(prefix + " base contents" )
         plt.xlim(0, self.readLen)
         plt.ylim(0.0, 0.8)
         plt.ylabel('Percents')
-        plt.xlabel('Base')
+        plt.xlabel('Cycle')
         for base in ALL_BASES:
             plt.plot(x, self.percents[base][0:self.readLen], color = colors[base], label=base, alpha=0.5)
         plt.plot(x, self.gcPercents[0:self.readLen], color = 'black', label='GC')
@@ -116,8 +118,8 @@ class QualityControl:
         plt.close(1)
 
     def plot(self, folder=".", prefix=""):
-        self.plotQuality(os.path.join(folder, prefix + "quality.png"))
-        self.plotContent(os.path.join(folder, prefix + "content.png"))
+        self.plotQuality(os.path.join(folder, prefix + "-quality.png"), prefix)
+        self.plotContent(os.path.join(folder, prefix + "-content.png"), prefix)
 
     def qc(self): 
         self.calcReadLen()

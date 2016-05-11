@@ -252,10 +252,10 @@ class seqFilter:
         r1qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         r2qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         r1qc_prefilter.statFile(self.options.read1_file)
-        r1qc_prefilter.plot(qc_dir, "R1-prefilter-")
+        r1qc_prefilter.plot(qc_dir, "R1-prefilter")
         if self.options.read2_file != None:
             r2qc_prefilter.statFile(self.options.read2_file)
-            r2qc_prefilter.plot(qc_dir, "R2-prefilter-")
+            r2qc_prefilter.plot(qc_dir, "R2-prefilter")
 
         r1qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         r2qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
@@ -562,10 +562,10 @@ class seqFilter:
                 break
 
         r1qc_postfilter.qc()
-        r1qc_postfilter.plot(qc_dir, "R1-postfilter-")
+        r1qc_postfilter.plot(qc_dir, "R1-postfilter")
         if self.options.read2_file != None:
             r2qc_postfilter.qc()
-            r2qc_postfilter.plot(qc_dir, "R2-postfilter-")
+            r2qc_postfilter.plot(qc_dir, "R2-postfilter")
         
         #close all files
         if not self.options.qc_only:
