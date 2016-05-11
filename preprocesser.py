@@ -18,10 +18,11 @@ def plotOverlapHistgram(overlap_histgram, readLen, TOTAL, filename):
     ratio = [100.0 * float(i)/float(TOTAL) for i in overlap_histgram]
     x = range(readLen+1)
     plt.figure(1)
-    plt.xlim(0, readLen)
+    plt.title('Pair Overlap Length Histgram')
+    plt.xlim(-2, readLen)
     plt.ylabel('Ratio(%)')
-    plt.xlabel('Overlap Length (0 means not overlapped, which has '+ str(float(overlap_histgram[0])*100.0/TOTAL) + '%)')
-    plt.plot(x, ratio)
+    plt.xlabel('Overlap Length (' + str(int(overlap_histgram[0]*100.0/TOTAL)) + '% not overlapped)')
+    plt.bar(x, overlap_histgram, color='gray')
     plt.savefig(filename)
     plt.close(1)
 

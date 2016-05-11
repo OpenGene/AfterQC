@@ -28,6 +28,7 @@ class QualityControl:
         self.totalNum = [0 for x in xrange(MAX_LEN)]
         self.meanQual = [0.0 for x in xrange(MAX_LEN)]
         self.gcPercents = [0.0 for x in xrange(MAX_LEN)]
+        self.gcHistgram = [0 for x in xrange(100+1)]
         self.kmerCount = {}
         self.topKmerCount = []
         self.totalKmer = 0
@@ -40,15 +41,22 @@ class QualityControl:
     def statRead(self, read):
         seq = read[1]
         qual = read[3]
-        for i in xrange(len(seq)):
+        seqlen = len(seq)
+        gc = 0
+        for i in xrange(seqlen):
             self.totalNum[i] += 1
             qnum = util.qualNum(qual[i])
             self.totalQual[i] += qnum
             b = seq[i]
+            if b=='G' or b=='C':
+                gc += 1
             if b in ALL_BASES:
                 self.baseCounts[b][i] += 1
                 self.baseTotalQual[b][i] += qnum
-        for i in xrange(len(seq) - self.kmerLen):
+
+        gcPer = int(100.0* float(gc)/seqlen)
+        self.gcHistgram[gcPer] += 1
+        for i in xrange(seqlen - self.kmerLen):
             self.totalKmer += 1
             kmer = seq[i:i+self.kmerLen]
             if kmer in self.kmerCount:
@@ -117,9 +125,21 @@ class QualityControl:
         plt.savefig(filename)
         plt.close(1)
 
+    def plotGCHistogram(self, filename, prefix=""):
+        x = range(100+1)
+        plt.figure(1)
+        plt.title(prefix + " GC content distribution" )
+        plt.ylabel('Count')
+        plt.xlabel('GC percentage (%)')
+        plt.bar(x, self.gcHistgram, color = 'gray', label='Actual', alpha=0.8)
+        # plt.legend(loc='upper right', ncol=5)
+        plt.savefig(filename)
+        plt.close(1)
+
     def plot(self, folder=".", prefix=""):
         self.plotQuality(os.path.join(folder, prefix + "-quality.png"), prefix)
         self.plotContent(os.path.join(folder, prefix + "-content.png"), prefix)
+        self.plotGCHistogram(os.path.join(folder, prefix + "-gc-curve.png"), prefix)
 
     def qc(self): 
         self.calcReadLen()
