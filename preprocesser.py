@@ -563,8 +563,9 @@ class seqFilter:
 
         r1qc_postfilter.qc()
         r1qc_postfilter.plot(qc_dir, "R1-postfilter-")
-        r2qc_postfilter.qc()
-        r2qc_postfilter.plot(qc_dir, "R2-postfilter-")
+        if self.options.read2_file != None:
+            r2qc_postfilter.qc()
+            r2qc_postfilter.plot(qc_dir, "R2-postfilter-")
         
         #close all files
         if not self.options.qc_only:
