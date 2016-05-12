@@ -9,6 +9,7 @@ import util
 import barcodeprocesser
 import json
 from qualitycontrol import QualityControl
+from qcreporter import QCReporter
 import matplotlib
 # fix matplotlib DISPLAY issue
 matplotlib.use('Agg')
@@ -249,6 +250,8 @@ class seqFilter:
         #no front trim if sequence is barcoded
         if self.options.barcode:
             self.options.trim_front = 0
+
+        reporter = QCReporter()
 
         r1qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         r2qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
@@ -650,5 +653,33 @@ class seqFilter:
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
         stat_file.write(stat_json)
         stat_file.close()
+
+        self.addFiguresToReport(reporter)
+        reporter.output(os.path.join(qc_dir, "report.html"))
+
+    def addFiguresToReport(self, reporter):
+        reporter.addFigure('Good reads and bad reads after filtering', 'filter-stat.png')
+        if self.options.read2_file != None:
+            reporter.addFigure('Overlap length distribution for pair end sequencing', 'overlap.png')
+        if self.options.read2_file != None:
+            reporter.addFigure('Read1 quality curve before filtering', 'R1-prefilter-quality.png')
+            reporter.addFigure('Read1 base content distribution before filtering', 'R1-prefilter-content.png')
+            reporter.addFigure('Read1 GC curve before filtering', 'R1-prefilter-gc-curve.png')
+            reporter.addFigure('Read1 quality curve after filtering', 'R1-postfilter-quality.png')
+            reporter.addFigure('Read1 base content distribution after filtering', 'R1-postfilter-content.png')
+            reporter.addFigure('Read1 GC curve after filtering', 'R1-postfilter-gc-curve.png')
+            reporter.addFigure('Read2 quality curve before filtering', 'R2-prefilter-quality.png')
+            reporter.addFigure('Read2 base content distribution before filtering', 'R2-prefilter-content.png')
+            reporter.addFigure('Read2 GC curve before filtering', 'R2-prefilter-gc-curve.png')
+            reporter.addFigure('Read2 quality curve after filtering', 'R2-postfilter-quality.png')
+            reporter.addFigure('Read2 base content distribution after filtering', 'R2-postfilter-content.png')
+            reporter.addFigure('Read2 GC curve after filtering', 'R2-postfilter-gc-curve.png')
+        else:
+            reporter.addFigure('Quality curve before filtering', 'R1-prefilter-quality.png')
+            reporter.addFigure('Base content distribution before filtering', 'R1-prefilter-content.png')
+            reporter.addFigure('GC curve before filtering', 'R1-prefilter-gc-curve.png')
+            reporter.addFigure('Quality curve after filtering', 'R1-postfilter-quality.png')
+            reporter.addFigure('Base content distribution after filtering', 'R1-postfilter-content.png')
+            reporter.addFigure('GC curve after filtering', 'R1-postfilter-gc-curve.png')
 
 
