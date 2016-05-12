@@ -596,6 +596,28 @@ class seqFilter:
         result['bad_reads_with_too_many_N']= BADNCT
         result['bad_reads_with_bad_overlap']= BADOL + BADMISMATCH + BADINDEL
 
+        # plot result bar figure
+        labels = ['good reads', 'bad_reads_with_polyX', 'bad_reads_with_low_quality', 'bad_reads_with_bad_read_length', 'bad_reads_with_too_many_N']
+        counts = [GOOD, BADPOL, BADLQC, BADLEN + BADTRIM1 + BADTRIM2, BADNCT]
+        if self.options.read2_file != None:
+            labels.append('bad_reads_with_bad_overlap')
+            counts.append(BADOL + BADMISMATCH + BADINDEL)
+        if self.options.debubble:
+            labels.append('bad_reads_with_reads_in_bubble')
+            counts.append(BADBBL)
+        if self.options.barcode:
+            labels.append('bad_reads_with_bad_barcode')
+            counts.append(BADBCD1 + BADBCD2)
+
+        fig = plt.figure(1)
+        fig.subplots_adjust(left = 0.36)
+        lefts = xrange(len(counts))
+        plt.yticks(lefts, labels)
+        plt.ylim(-1, len(counts))
+        plt.barh(lefts, counts, align='center', height=0.5, alpha=0.6)
+        plt.savefig(os.path.join(qc_dir, "stat.png"))
+        plt.close(1)
+
         stat={}
         # stat["options"]=self.options
         stat["summary"]=result
