@@ -559,7 +559,7 @@ class seqFilter:
                 r2qc_postfilter.statRead(r2)
 
             GOOD += 1
-            if self.options.qc_only and TOTAL > self.options.qc_sample:
+            if self.options.qc_only and TOTAL >= self.options.qc_sample:
                 break
 
         r1qc_postfilter.qc()
@@ -597,25 +597,30 @@ class seqFilter:
         result['bad_reads_with_bad_overlap']= BADOL + BADMISMATCH + BADINDEL
 
         # plot result bar figure
-        labels = ['good reads', 'bad_reads_with_polyX', 'bad_reads_with_low_quality', 'bad_reads_with_bad_read_length', 'bad_reads_with_too_many_N']
+        labels = ['good reads', 'has_polyX', 'low_quality', 'too_short', 'too_many_N']
         counts = [GOOD, BADPOL, BADLQC, BADLEN + BADTRIM1 + BADTRIM2, BADNCT]
+        colors = ['green', '#FF1111', '#FF3333', '#FF5555', '#FF7777']
         if self.options.read2_file != None:
-            labels.append('bad_reads_with_bad_overlap')
+            labels.append('bad_overlap')
             counts.append(BADOL + BADMISMATCH + BADINDEL)
+            colors.append('#FF9999')
         if self.options.debubble:
-            labels.append('bad_reads_with_reads_in_bubble')
+            labels.append('in_bubble')
             counts.append(BADBBL)
+            colors.append('#FFBBBB')
         if self.options.barcode:
-            labels.append('bad_reads_with_bad_barcode')
+            labels.append('bad_barcode')
             counts.append(BADBCD1 + BADBCD2)
+            colors.append('#FFDDDD')
 
         fig = plt.figure(1)
-        fig.subplots_adjust(left = 0.36)
+        plt.title("Good reads (green) and bad reads (red) of total " + str(TOTAL))
+        fig.subplots_adjust(left = 0.14)
         lefts = xrange(len(counts))
         plt.yticks(lefts, labels)
-        plt.ylim(-1, len(counts))
-        plt.barh(lefts, counts, align='center', height=0.5, alpha=0.6)
-        plt.savefig(os.path.join(qc_dir, "stat.png"))
+        plt.ylim(-0.5, len(counts)-0.5)
+        plt.barh(lefts, counts, align='center', height=0.5, alpha=0.8, color=colors)
+        plt.savefig(os.path.join(qc_dir, "filter-stat.png"))
         plt.close(1)
 
         stat={}
