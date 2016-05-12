@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-MAX_LEN = 200
+MAX_LEN = 1000
 ALL_BASES = ("A", "T", "C", "G");
 KMER_TOP = 10
 
@@ -240,8 +240,8 @@ class QualityControl:
                 trimTail = pos
                 break
         
-        trimFront = min(self.readLen*0.1,trimFront)
-        trimTail = min(self.readLen*0.05,self.readLen-1-trimTail)
+        trimFront = min(self.readLen*0.04,trimFront)
+        trimTail = min(self.readLen*0.04,self.readLen-1-trimTail)
         # the last base should be definitely trimmed for illumina sequencer output
         trimTail = max(1, trimTail)
         
