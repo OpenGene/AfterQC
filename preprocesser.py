@@ -665,21 +665,28 @@ class seqFilter:
             reporter.addFigure('Read1 quality curve before filtering', 'R1-prefilter-quality.png')
             reporter.addFigure('Read1 base content distribution before filtering', 'R1-prefilter-content.png')
             reporter.addFigure('Read1 GC curve before filtering', 'R1-prefilter-gc-curve.png')
+            reporter.addFigure('Read1 per base discontinuity before filtering (window size = 5)', 'R1-prefilter-discontinuity.png')
             reporter.addFigure('Read1 quality curve after filtering', 'R1-postfilter-quality.png')
             reporter.addFigure('Read1 base content distribution after filtering', 'R1-postfilter-content.png')
             reporter.addFigure('Read1 GC curve after filtering', 'R1-postfilter-gc-curve.png')
+            reporter.addFigure('Read1 per base discontinuity after filtering (window size = 5)', 'R1-postfilter-discontinuity.png')
+
             reporter.addFigure('Read2 quality curve before filtering', 'R2-prefilter-quality.png')
             reporter.addFigure('Read2 base content distribution before filtering', 'R2-prefilter-content.png')
             reporter.addFigure('Read2 GC curve before filtering', 'R2-prefilter-gc-curve.png')
+            reporter.addFigure('Read2 per base discontinuity before filtering (window size = 5)', 'R2-prefilter-discontinuity.png')
             reporter.addFigure('Read2 quality curve after filtering', 'R2-postfilter-quality.png')
             reporter.addFigure('Read2 base content distribution after filtering', 'R2-postfilter-content.png')
             reporter.addFigure('Read2 GC curve after filtering', 'R2-postfilter-gc-curve.png')
+            reporter.addFigure('Read2 per base discontinuity after filtering (window size = 5)', 'R2-postfilter-discontinuity.png')
         else:
             reporter.addFigure('Quality curve before filtering', 'R1-prefilter-quality.png')
             reporter.addFigure('Base content distribution before filtering', 'R1-prefilter-content.png')
             reporter.addFigure('GC curve before filtering', 'R1-prefilter-gc-curve.png')
+            reporter.addFigure('Per base discontinuity before filtering (window size = 5)', 'R1-prefilter-discontinuity.png')
             reporter.addFigure('Quality curve after filtering', 'R1-postfilter-quality.png')
             reporter.addFigure('Base content distribution after filtering', 'R1-postfilter-content.png')
             reporter.addFigure('GC curve after filtering', 'R1-postfilter-gc-curve.png')
+            reporter.addFigure('Per base discontinuity after filtering (window size = 5)', 'R1-postfilter-discontinuity.png')
 
 
