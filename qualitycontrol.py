@@ -32,6 +32,8 @@ class QualityControl:
         self.kmerCount = {}
         self.topKmerCount = []
         self.totalKmer = 0
+        self.meanDiscontinuity = [0.0 for x in xrange(MAX_LEN)]
+        self.totalDiscontinuity = [0.0 for x in xrange(MAX_LEN)]
         for base in ALL_BASES:
             self.baseCounts[base] = [0 for x in xrange(MAX_LEN)]
             self.percents[base] = [0.0 for x in xrange(MAX_LEN)]
@@ -53,6 +55,21 @@ class QualityControl:
             if b in ALL_BASES:
                 self.baseCounts[b][i] += 1
                 self.baseTotalQual[b][i] += qnum
+
+            # calculate discontinuity
+            left = i-2
+            right = i+3
+            if left<0:
+                left = 0
+                right = 5
+            elif right >= seqlen:
+                right = seqlen
+                left = seqlen - 5
+            discontinuity = 0
+            for j in xrange(left, right-1):
+                if seq[j] != seq[j+1]:
+                    discontinuity += 1
+            self.totalDiscontinuity[i] += discontinuity
 
         gcPer = int(100.0* float(gc)/seqlen)
         self.gcHistgram[gcPer] += 1
@@ -90,6 +107,10 @@ class QualityControl:
             for base in ALL_BASES:
                 if self.baseCounts[base][pos] > 0:
                     self.baseMeanQual[base][pos] = float(self.baseTotalQual[base][pos])/float(self.baseCounts[base][pos])
+
+    def calcDiscontinuity(self):
+        for pos in xrange(self.readLen):
+            self.meanDiscontinuity[pos] = float(self.totalDiscontinuity[pos])/float(self.totalNum[pos])
 
     def sortKmer(self):
         self.topKmerCount = sorted(self.kmerCount.items(), key=lambda x: x[1], reverse=True)
@@ -136,15 +157,30 @@ class QualityControl:
         plt.savefig(filename)
         plt.close(1)
 
+    def plotDiscontinuity(self, filename, prefix=""):
+        x = range(self.readLen)
+        plt.figure(1)
+        plt.xlim(0, self.readLen)
+        plt.ylim(0.0, max(self.meanDiscontinuity)*1.5)
+        plt.title(prefix + " per base discontinuity" )
+        plt.ylabel('Mean discontinuity')
+        plt.xlabel('Cycle')
+        plt.plot(x, self.meanDiscontinuity[0:self.readLen], color = '#FF6600', label='Discontinuity', alpha=0.8)
+        # plt.legend(loc='upper right', ncol=5)
+        plt.savefig(filename)
+        plt.close(1)
+
     def plot(self, folder=".", prefix=""):
         self.plotQuality(os.path.join(folder, prefix + "-quality.png"), prefix)
         self.plotContent(os.path.join(folder, prefix + "-content.png"), prefix)
         self.plotGCHistogram(os.path.join(folder, prefix + "-gc-curve.png"), prefix)
+        self.plotDiscontinuity(os.path.join(folder, prefix + "-discontinuity.png"), prefix)
 
     def qc(self): 
         self.calcReadLen()
         self.calcPercents()
         self.calcQualities()
+        self.calcDiscontinuity()
         self.sortKmer()
         
     def statFile(self, filename):
