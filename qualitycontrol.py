@@ -151,6 +151,7 @@ class QualityControl:
         plt.figure(1)
         plt.title(prefix + " GC content distribution" )
         plt.ylabel('Count')
+        plt.xlim(0,100)
         plt.xlabel('GC percentage (%)')
         plt.bar(x, self.gcHistgram, color = 'gray', label='Actual', alpha=0.8)
         # plt.legend(loc='upper right', ncol=5)
