@@ -531,11 +531,11 @@ class seqFilter:
                             q2 = r2[3][-o-1]
                             if b1 != b2:
                                 # print(TOTAL, o, b1, b2, q1, q2)
-                                if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 16:
+                                if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 20:
                                     r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
                                     r2[3] = util.changeString(r2[3], -o-1, q1)
                                     corrected += 1
-                                elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 16:
+                                elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 20:
                                     r1[1]= util.changeString(r1[1], len(r1[1]) - overlap_len + o, b2)
                                     r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, q2)
                                     corrected += 1
@@ -602,28 +602,32 @@ class seqFilter:
         # plot result bar figure
         labels = ['good reads', 'has_polyX', 'low_quality', 'too_short', 'too_many_N']
         counts = [GOOD, BADPOL, BADLQC, BADLEN + BADTRIM1 + BADTRIM2, BADNCT]
-        colors = ['green', '#FF1111', '#FF3333', '#FF5555', '#FF7777']
+        colors = ['#66BB11', '#FF33AF', '#FFD3F2', '#FFA322', '#FF8899']
         if self.options.read2_file != None:
             labels.append('bad_overlap')
             counts.append(BADOL + BADMISMATCH + BADINDEL)
-            colors.append('#FF9999')
+            colors.append('#FF6600')
         if self.options.debubble:
             labels.append('in_bubble')
             counts.append(BADBBL)
-            colors.append('#FFBBBB')
+            colors.append('#EEBB00')
         if self.options.barcode:
             labels.append('bad_barcode')
             counts.append(BADBCD1 + BADBCD2)
-            colors.append('#FFDDDD')
+            colors.append('#CCDD22')
+
+        for i in xrange(len(counts)):
+            labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(100.0 * float(counts[i])/TOTAL) + "%)"
 
         fig = plt.figure(1)
-        plt.title("Good reads (green) and bad reads (red) of total " + str(TOTAL))
-        fig.subplots_adjust(left = 0.14)
-        lefts = xrange(len(counts))
-        plt.yticks(lefts, labels)
-        plt.ylim(-0.5, len(counts)-0.5)
-        plt.barh(lefts, counts, align='center', height=0.5, alpha=0.8, color=colors)
-        plt.savefig(os.path.join(qc_dir, "filter-stat.png"))
+        plt.title("Filtering statistics of sampled " + str(TOTAL) + " reads", fontsize=12, color='#666666')
+        plt.axis('equal')
+        patches, texts = plt.pie(counts, colors=colors, radius=0.7)
+        patches, labels, dummy =  zip(*sorted(zip(patches, labels, counts),
+                                                  key=lambda x: x[2],
+                                                  reverse=True))
+        plt.legend(patches, labels, loc='upper left', fontsize=9)
+        plt.savefig(os.path.join(qc_dir, "filter-stat.png"), bbox_inches='tight')
         plt.close(1)
 
         stat={}
