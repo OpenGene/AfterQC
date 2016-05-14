@@ -28,7 +28,7 @@ class QualityControl:
         self.totalNum = [0 for x in xrange(MAX_LEN)]
         self.meanQual = [0.0 for x in xrange(MAX_LEN)]
         self.gcPercents = [0.0 for x in xrange(MAX_LEN)]
-        self.gcHistgram = [0 for x in xrange(100+1)]
+        self.gcHistogram = [0 for x in xrange(MAX_LEN)]
         self.kmerCount = {}
         self.topKmerCount = []
         self.totalKmer = 0
@@ -71,8 +71,8 @@ class QualityControl:
                     discontinuity += 1
             self.totalDiscontinuity[i] += discontinuity
 
-        gcPer = int(100.0* float(gc)/seqlen)
-        self.gcHistgram[gcPer] += 1
+        #gcPer = int(1000.0* float(gc)/seqlen)
+        self.gcHistogram[gc] += 1
         for i in xrange(seqlen - self.kmerLen):
             self.totalKmer += 1
             kmer = seq[i:i+self.kmerLen]
@@ -147,13 +147,14 @@ class QualityControl:
         plt.close(1)
 
     def plotGCHistogram(self, filename, prefix=""):
-        x = range(100+1)
+        x = range(self.readLen+1)
         plt.figure(1)
         plt.title(prefix + " GC content distribution" )
         plt.ylabel('Count')
         plt.xlim(0,100)
         plt.xlabel('GC percentage (%)')
-        plt.bar(x, self.gcHistgram, color = 'gray', label='Actual', alpha=0.8)
+        xticks = [int(100.0 * float(t)/self.readLen) for t in x]
+        plt.bar(xticks, self.gcHistogram[0:self.readLen+1], color = 'gray', label='Actual', alpha=0.8)
         # plt.legend(loc='upper right', ncol=5)
         plt.savefig(filename)
         plt.close(1)
