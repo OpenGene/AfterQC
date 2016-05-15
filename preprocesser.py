@@ -531,11 +531,11 @@ class seqFilter:
                             q2 = r2[3][-o-1]
                             if b1 != b2:
                                 # print(TOTAL, o, b1, b2, q1, q2)
-                                if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 20:
+                                if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 16:
                                     r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
                                     r2[3] = util.changeString(r2[3], -o-1, q1)
                                     corrected += 1
-                                elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 20:
+                                elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 16:
                                     r1[1]= util.changeString(r1[1], len(r1[1]) - overlap_len + o, b2)
                                     r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, q2)
                                     corrected += 1
