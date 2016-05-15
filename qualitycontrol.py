@@ -80,6 +80,9 @@ class QualityControl:
                 self.kmerCount[kmer] += 1
             else:
                 self.kmerCount[kmer] = 1
+                rcKmer = util.reverseComplement(kmer)
+                if rcKmer not in self.kmerCount:
+                    self.kmerCount[rcKmer] = 0
 
     def calcReadLen(self):
         for pos in xrange(MAX_LEN):
@@ -151,9 +154,8 @@ class QualityControl:
         plt.figure(1)
         plt.title(prefix + " GC content distribution" )
         plt.ylabel('Count')
-        plt.xlim(0,100)
         plt.xlabel('GC percentage (%)')
-        xticks = [int(100.0 * float(t)/self.readLen) for t in x]
+        xticks = [100.0 * float(t)/self.readLen for t in x]
         plt.bar(xticks, self.gcHistogram[0:self.readLen+1], color = 'gray', label='Actual', alpha=0.8)
         # plt.legend(loc='upper right', ncol=5)
         plt.savefig(filename)
@@ -172,11 +174,35 @@ class QualityControl:
         plt.savefig(filename)
         plt.close(1)
 
+    def plotStrandBias(self, filename, prefix=""):
+        shift = min(50, len(self.topKmerCount)/2)
+        top = len(self.topKmerCount) - shift
+        forward = [0 for i in xrange(top)]
+        reverse = [0 for i in xrange(top)]
+        maxValue = 0
+        for i in xrange(top):
+            kmer = self.topKmerCount[i+shift][0]
+            forward[i] = self.kmerCount[kmer]
+            reverse[i] = self.kmerCount[util.reverseComplement(kmer)]
+            maxValue = max(max(forward[i], reverse[i]), maxValue)
+
+        plt.figure(1)
+        plt.xlim(-10, maxValue)
+        plt.ylim(-10, maxValue)
+        plt.title(prefix + " strand bias" )
+        plt.xlabel('Relative forward kmer')
+        plt.ylabel('Relative reverse kmer')
+        plt.scatter(forward, reverse, label='Discontinuity', alpha=0.4, s=0.3)
+        # plt.legend(loc='upper right', ncol=5)
+        plt.savefig(filename)
+        plt.close(1)
+
     def plot(self, folder=".", prefix=""):
         self.plotQuality(os.path.join(folder, prefix + "-quality.png"), prefix)
         self.plotContent(os.path.join(folder, prefix + "-content.png"), prefix)
         self.plotGCHistogram(os.path.join(folder, prefix + "-gc-curve.png"), prefix)
         self.plotDiscontinuity(os.path.join(folder, prefix + "-discontinuity.png"), prefix)
+        self.plotStrandBias(os.path.join(folder, prefix + "-strand-bias.png"), prefix)
 
     def qc(self): 
         self.calcReadLen()
