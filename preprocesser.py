@@ -21,7 +21,7 @@ def plotOverlapHistgram(overlap_histgram, readLen, TOTAL, filename):
     plt.figure(1)
     plt.title('Pair Overlap Length Histgram')
     plt.xlim(-2, readLen)
-    plt.ylabel('Ratio(%)')
+    plt.ylabel('Count')
     plt.xlabel('Overlap Length (' + str(int(overlap_histgram[0]*100.0/TOTAL)) + '% not overlapped)')
     plt.bar(x, overlap_histgram, color='gray')
     plt.savefig(filename)
