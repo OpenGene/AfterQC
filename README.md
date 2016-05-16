@@ -35,6 +35,14 @@ python path/to/AfterQC/after.py
 ```
 * two folders will be automatically generated, a folder 'good' stores the good reads and a folder 'bad' stores the bad reads
 * `AfterQC` will print some statistical information after it is done, such how many good reads, how many bad reads, and how many reads are corrected.
+* if you want to run `AfterQC` only with a single file/pair:
+```shell
+# with a single file
+python after.py -1 R1.fq
+
+# with a single pair
+python after.py -1 R1.fq -2 R2.fq
+```
 
 # Quality Control only
 If you only want to get quality control statistics, run:  
