@@ -81,7 +81,7 @@ def overlap(r1, r2):
     offset = 0
     distance = 0
     # a match of less than 10 is considered as unconfident
-    while offset < len1-10:
+    while offset < len1-10 and overlapped==False:
         # the overlap length of r1 & r2 when r2 is move right for offset
         overlap_len = min(len1-offset, len2)
 
@@ -92,13 +92,18 @@ def overlap(r1, r2):
             # now we find a good candidate
             # we verify it by moving r2 one more base to see if the distance is getting longer
             # if yes, then current is the best match, otherwise it's not
-            next = offset + 1
-            next_overlap_len = min(len1-next, len2)
-            distance2 = editDistance(r1[next : next+next_overlap_len], reverse_r2[0 : next_overlap_len])
-            if distance <= distance2:
-                overlapped = True
-                break
-            offset += 1
+            while offset < len1-10:
+                next_offset = offset + 1
+                next_overlap_len = min(len1-next_offset, len2)
+                next_distance = editDistance(r1[next_offset : next_offset+next_overlap_len], reverse_r2[0 : next_overlap_len])
+                if distance <= next_distance:
+                    overlapped = True
+                    break
+                else:
+                    offset = next_offset
+                    distance = next_distance
+                    overlap_len = next_overlap_len
+            break
         else:
             offset += max(1, (distance - int(threshold))/2 )
 
@@ -112,12 +117,16 @@ def overlap(r1, r2):
             distance = editDistance(r1[0:overlap_len], reverse_r2[-offset : -offset + overlap_len])
             threshold = distance_threshold(overlap_len)
             if distance <= threshold:
-                next = offset - 1
-                next_overlap_len = min(len1,  len2- abs(next))
-                distance2 = editDistance(r1[0:next_overlap_len], reverse_r2[-next : -next + next_overlap_len])
-                if distance <= distance2:
-                    return (offset, overlap_len, distance)
-                offset -= 1
+                while offset > -(len2-10):
+                    next_offset = offset - 1
+                    next_overlap_len = min(len1,  len2- abs(next_offset))
+                    next_distance = editDistance(r1[0:next_overlap_len], reverse_r2[-next_offset : -next_offset + next_overlap_len])
+                    if distance <= next_distance:
+                        return (offset, overlap_len, distance)
+                    else:
+                        distance = next_distance
+                        overlap_len = next_overlap_len
+                        offset = next_offset
             else:
                 offset -= max(1, (distance - int(threshold))/2 )
     elif overlapped:
