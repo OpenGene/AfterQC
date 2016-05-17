@@ -173,12 +173,22 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
 ### Filtering statistics
 ![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/filter-stat.png)
 
+### Overlapped length distribution
+![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/overlap.png)
+
 ### Per-cycle quality
 ![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-quality.png)
 
 ### Per-cycle base content
 ![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-content.png)
 
+### GC content ratio distribution
+![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-gc-curve.png)
+
 ### Per-cycle discontinuity
-`discontinuity` means the summution of the difference neighbor cycles, in a K-MER window. For example, `discontinuity` of `AAAAA` is `0`, `discontinuity` of `ATCGA` is `4`. This value reflects the `signal-noise-ratio` of each sequencing cycle. Idealy it should be nearly a hrizontal straight line.
+`discontinuity` means the summution of the difference neighbor cycles, in a KMER window. For example, `discontinuity` of `AAAAA` is `0`, `discontinuity` of `ATCGA` is `4`. This value reflects the `signal-noise-ratio` of each sequencing cycle. Idealy it should be nearly a hrizontal straight line.
 ![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-discontinuity.png)
+
+### KMER-based strand bias
+Theoretically in a sequencing run, the repeat count of a KMER should be close to the count of this KMER's reverse complement. If these two counts are not close, it reflects there is amplificaion bias (like PCR bias) or sequencing bias. If the bias is very low, the points of `(KMER-count, KMER-reverse-complement-count)` should be near the line `y=x`. The compacter the points are, the lower the bias is.  
+![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-strand-bias.png)
