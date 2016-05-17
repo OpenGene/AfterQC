@@ -11,7 +11,7 @@ from util import *
 
 def parseCommand():
     usage = "Automatic Filtering, Trimming, Error Removing and Quality Control for Illumina fastq data \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
-    version = "0.3.0"
+    version = "0.4.0"
     parser = OptionParser(usage = usage, version = version)
     parser.add_option("-1", "--read1_file", dest = "read1_file",
         help = "file name of read1, required. If input_dir is specified, then this arg is ignored.")
