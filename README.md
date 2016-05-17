@@ -163,3 +163,9 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
                         default is 8
 ```
                         
+# Understand the report
+* `AfterQC` will generate a QC folder, which contains lots of figures. 
+* For pair-end sequencing data, both read1 and read2 figures will be in the same folder with the folder name of read1's filename. `R1` means `read1`, `R2` means `read2`.
+* For single-end sequencing data, it will still have `R1`.
+* `prefilter` means `before filtering`, `postfilter` means `after filtering`
+* For pair-end sequencing data, `After` will do an `overlap analysis`. read1 and read2 will be overlapped when `read1_length + read2_length > DNA_template_length`. 
