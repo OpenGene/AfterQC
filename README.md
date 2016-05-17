@@ -169,3 +169,12 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
 * For single-end sequencing data, it will still have `R1`.
 * `prefilter` means `before filtering`, `postfilter` means `after filtering`
 * For pair-end sequencing data, `After` will do an `overlap analysis`. read1 and read2 will be overlapped when `read1_length + read2_length > DNA_template_length`. 
+
+### Filtering statistics
+![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/filter-stat.png)
+
+### Per-cycle quality
+![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-quality.png)
+
+### Per-cycle base content
+![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-content.png)
