@@ -557,9 +557,10 @@ class seqFilter:
 
             #write to good       
             self.writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
-            r1qc_postfilter.statRead(r1)
-            if r2 != None:
-                r2qc_postfilter.statRead(r2)
+            if self.options.qc_sample <=0 or TOTAL < self.options.qc_sample:
+                r1qc_postfilter.statRead(r1)
+                if r2 != None:
+                    r2qc_postfilter.statRead(r2)
 
             GOOD += 1
             if self.options.qc_only and TOTAL >= self.options.qc_sample:

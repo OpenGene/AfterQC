@@ -217,7 +217,7 @@ class QualityControl:
         while True:
             read = reader.nextRead()
             self.readCount += 1
-            if read==None or self.readCount > self.sampleLimit:
+            if read==None or (self.readCount > self.sampleLimit and self.sampleLimit>0):
                 break
             self.statRead(read)
 
