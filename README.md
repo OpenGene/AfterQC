@@ -12,11 +12,11 @@ Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 50
 * For pair-end sequencing data, `AfterQC` automatically corrects low quality wrong bases in overlapped area of read1/read2
 * Detects and eliminates bubble artifact caused by sequencer due to fluid dynamics issues
 * Single molecule barcode sequencing support: if all reads have a single molecule barcode (see duplex sequencing), `AfterQC` shifts the barcodes from the reads to the fastq query names
-* Support single-end sequencing or pair-end sequencing
+* Support both single-end sequencing and pair-end sequencing data
 
 # Get AfterQC
 * latest: `git clone https://github.com/OpenGene/AfterQC.git`
-* stable: [0.3.0 (released on 2016-05-07)](https://github.com/OpenGene/AfterQC/archive/Release-0.3.0.zip)
+* stable: [0.4.0 (released on 2016-05-17)](https://github.com/OpenGene/AfterQC/archive/Release-0.4.0.zip)
 
 # Dependency:
 `AfterQC` uses `editdistance` module, run following before using `AfterQC`:
