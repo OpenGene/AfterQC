@@ -178,3 +178,7 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
 
 ### Per-cycle base content
 ![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-content.png)
+
+### Per-cycle discontinuity
+`discontinuity` means the summution of the difference neighbor cycles, in a K-MER window. For example, `discontinuity` of `AAAAA` is `0`, `discontinuity` of `ATCGA` is `4`. This value reflects the `signal-noise-ratio` of each sequencing cycle. Idealy it should be nearly a hrizontal straight line.
+![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-content.png)
