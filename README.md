@@ -27,8 +27,8 @@ pip install editdistance
 
 # Simple usage:
 * Prepare your fastq files in a folder
-* For single-end sequencing, the filenames in the folder should be `*R1*`
-* For pair-end sequencing, the filenames in the folder should be `*R1*` and `*R2*`
+* For single-end sequencing, the filenames in the folder should be `*R1*`, otherwise you should specify `--read1_flag`
+* For pair-end sequencing, the filenames in the folder should be `*R1*` and `*R2*`, otherwise you should specify `--read1_flag` and `--read2_flag`
 ```shell
 cd /path/to/fastq/folder
 python path/to/AfterQC/after.py
