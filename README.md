@@ -33,7 +33,7 @@ pip install editdistance
 cd /path/to/fastq/folder
 python path/to/AfterQC/after.py
 ```
-* two folders will be automatically generated, a folder 'good' stores the good reads and a folder 'bad' stores the bad reads
+* three folders will be automatically generated, a folder `good` stores the good reads, a folder `bad` stores the bad reads and a folder `QC` stores the report of quality control
 * `AfterQC` will print some statistical information after it is done, such how many good reads, how many bad reads, and how many reads are corrected.
 * if you want to run `AfterQC` only with a single file/pair:
 ```shell
