@@ -15,14 +15,14 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-def plotOverlapHistgram(overlap_histgram, readLen, TOTAL, filename):
-    ratio = [100.0 * float(i)/float(TOTAL) for i in overlap_histgram]
+def plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, filename):
+    ratio = [100.0 * float(i)/float(TOTAL_READS) for i in overlap_histgram]
     x = range(readLen+1)
     plt.figure(1)
     plt.title('Pair Overlap Length Histgram')
     plt.xlim(-2, readLen)
     plt.ylabel('Count')
-    plt.xlabel('Overlap Length (' + str(int(overlap_histgram[0]*100.0/TOTAL)) + '% not overlapped)')
+    plt.xlabel('Overlap Length (' + str(int(overlap_histgram[0]*100.0/TOTAL_READS)) + '% not overlapped)')
     plt.bar(x, overlap_histgram, color='gray')
     plt.savefig(filename)
     plt.close(1)
@@ -373,9 +373,9 @@ class seqFilter:
         i2 = None
 
         # stat numbers
-        TOTAL = 0
-        GOOD = 0
-        BAD = 0
+        TOTAL_READS = 0
+        GOOD_READS = 0
+        BAD_READS = 0
         BADBCD1 = 0
         BADBCD2 = 0
         BADTRIM1 = 0
@@ -410,7 +410,7 @@ class seqFilter:
                 if i2==None:
                     break
 
-            TOTAL += 1
+            TOTAL_READS += 1
                     
             #barcode processing
             if self.options.barcode:
@@ -530,7 +530,7 @@ class seqFilter:
                             q1 = r1[3][len(r1[3]) - overlap_len + o]
                             q2 = r2[3][-o-1]
                             if b1 != b2:
-                                # print(TOTAL, o, b1, b2, q1, q2)
+                                # print(TOTAL_READS, o, b1, b2, q1, q2)
                                 if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 16:
                                     r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
                                     r2[3] = util.changeString(r2[3], -o-1, q1)
@@ -557,13 +557,13 @@ class seqFilter:
 
             #write to good       
             self.writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
-            if self.options.qc_sample <=0 or TOTAL < self.options.qc_sample:
+            if self.options.qc_sample <=0 or TOTAL_READS < self.options.qc_sample:
                 r1qc_postfilter.statRead(r1)
                 if r2 != None:
                     r2qc_postfilter.statRead(r2)
 
-            GOOD += 1
-            if self.options.qc_only and TOTAL >= self.options.qc_sample:
+            GOOD_READS += 1
+            if self.options.qc_only and TOTAL_READS >= self.options.qc_sample:
                 break
 
         r1qc_postfilter.qc()
@@ -587,11 +587,11 @@ class seqFilter:
                 bad_index2_file.flush()
 
         # print stat numbers
-        BAD = TOTAL - GOOD
+        BAD_READS = TOTAL_READS - GOOD_READS
         result = {}
-        result['total_reads']=TOTAL
-        result['good_reads']=GOOD
-        result['bad_reads']=BAD
+        result['total_reads']=TOTAL_READS
+        result['good_reads']=GOOD_READS
+        result['bad_reads']=BAD_READS
         result['bad_reads_with_bad_barcode']= BADBCD1 + BADBCD2
         result['bad_reads_with_reads_in_bubble']= BADBBL
         result['bad_reads_with_bad_read_length']= BADLEN + BADTRIM1 + BADTRIM2
@@ -602,7 +602,7 @@ class seqFilter:
 
         # plot result bar figure
         labels = ['good reads', 'has_polyX', 'low_quality', 'too_short', 'too_many_N']
-        counts = [GOOD, BADPOL, BADLQC, BADLEN + BADTRIM1 + BADTRIM2, BADNCT]
+        counts = [GOOD_READS, BADPOL, BADLQC, BADLEN + BADTRIM1 + BADTRIM2, BADNCT]
         colors = ['#66BB11', '#FF33AF', '#FFD3F2', '#FFA322', '#FF8899']
         if self.options.read2_file != None:
             labels.append('bad_overlap')
@@ -618,10 +618,10 @@ class seqFilter:
             colors.append('#CCDD22')
 
         for i in xrange(len(counts)):
-            labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(100.0 * float(counts[i])/TOTAL) + "%)"
+            labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(100.0 * float(counts[i])/TOTAL_READS) + "%)"
 
         fig = plt.figure(1)
-        plt.title("Filtering statistics of sampled " + str(TOTAL) + " reads", fontsize=12, color='#666666')
+        plt.title("Filtering statistics of sampled " + str(TOTAL_READS) + " reads", fontsize=12, color='#666666')
         plt.axis('equal')
         patches, texts = plt.pie(counts, colors=colors, radius=0.7)
         patches, labels, dummy =  zip(*sorted(zip(patches, labels, counts),
@@ -652,7 +652,7 @@ class seqFilter:
             stat["overlap"]['bad_indel']=BADINDEL
             stat["overlap"]['reads_with_corrected_mismatch_bases']=BASE_CORRECTED
             stat["overlap"]['overlapped_area_edit_distance_histogram']=distance_histgram[0:10]
-            plotOverlapHistgram(overlap_histgram, readLen, TOTAL, os.path.join(qc_dir, "overlap.png"))
+            plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
