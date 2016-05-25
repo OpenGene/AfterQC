@@ -373,6 +373,8 @@ class seqFilter:
         i2 = None
 
         # stat numbers
+        TOTAL_BASES = 0
+        GOOD_BASES = 0
         TOTAL_READS = 0
         GOOD_READS = 0
         BAD_READS = 0
@@ -396,6 +398,8 @@ class seqFilter:
             r1 = read1_file.nextRead()
             if r1==None:
                 break
+            else:
+                TOTAL_BASES += len(r1[1])
                 
             if read2_file != None:
                 r2 = read2_file.nextRead()
@@ -409,6 +413,8 @@ class seqFilter:
                 i2 = index2_file.nextRead()
                 if i2==None:
                     break
+                else:
+                    TOTAL_BASES += len(r2[1])
 
             TOTAL_READS += 1
                     
@@ -557,6 +563,9 @@ class seqFilter:
 
             #write to good       
             self.writeReads(r1, r2, i1, i2, good_read1_file, good_read2_file, good_index1_file, good_index2_file, None)
+            GOOD_BASES += len(r1[1])
+            if i2 != None:
+                GOOD_BASES += len(r2[1])
             if self.options.qc_sample <=0 or TOTAL_READS < self.options.qc_sample:
                 r1qc_postfilter.statRead(r1)
                 if r2 != None:
@@ -589,6 +598,8 @@ class seqFilter:
         # print stat numbers
         BAD_READS = TOTAL_READS - GOOD_READS
         result = {}
+        result['total_bases']=TOTAL_BASES
+        result['good_bases']=GOOD_BASES
         result['total_reads']=TOTAL_READS
         result['good_reads']=GOOD_READS
         result['bad_reads']=BAD_READS
