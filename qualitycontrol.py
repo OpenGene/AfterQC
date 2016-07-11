@@ -139,7 +139,11 @@ class QualityControl:
         plt.figure(1)
         plt.title(prefix + " base contents" )
         plt.xlim(0, self.readLen)
-        plt.ylim(0.0, 0.8)
+        max_y = 0.8
+        for base in ALL_BASES:
+            max_of_base = max(self.percents[base][0:self.readLen])
+            max_y = max(max_y, max_of_base+0.05)
+        plt.ylim(0.0, max_y )
         plt.ylabel('Percents')
         plt.xlabel('Cycle')
         for base in ALL_BASES:
