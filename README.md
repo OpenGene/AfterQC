@@ -16,7 +16,7 @@ Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 50
 
 # Get AfterQC
 * latest: `git clone https://github.com/OpenGene/AfterQC.git`
-* stable: [0.4.0 (released on 2016-05-17)](https://github.com/OpenGene/AfterQC/archive/Release-0.4.0.zip)
+* stable: [0.5.0 (released on 2016-07-22)](https://github.com/OpenGene/AfterQC/archive/Release-0.5.0.zip)
 
 # Dependency:
 `AfterQC` uses `editdistance` module, run following before using `AfterQC`:
