@@ -515,7 +515,7 @@ class seqFilter:
                     distance_histgram[distance] += 1
                     OVERLAP_LEN_SUM += overlap_len
                     corrected = 0
-                    if distance > 2:
+                    if distance > 3:
                         self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
                         BADOL += 1
                         continue

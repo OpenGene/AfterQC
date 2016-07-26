@@ -69,7 +69,7 @@ def editDistance(s1, s2):
     return tbl[i][j]
 
 def distance_threshold(overlap_len):
-    return min(6, overlap_len/10.0)
+    return min(3, overlap_len/10.0)
 
 def overlap(r1, r2):
     len1 = len(r1)
