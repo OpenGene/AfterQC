@@ -10,22 +10,6 @@ import barcodeprocesser
 import json
 from qualitycontrol import QualityControl
 from qcreporter import QCReporter
-import matplotlib
-# fix matplotlib DISPLAY issue
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-
-def plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, filename):
-    ratio = [100.0 * float(i)/float(TOTAL_READS) for i in overlap_histgram]
-    x = range(readLen+1)
-    plt.figure(1)
-    plt.title('Pair Overlap Length Histgram')
-    plt.xlim(-2, readLen)
-    plt.ylabel('Count')
-    plt.xlabel('Overlap Length (' + str(int(overlap_histgram[0]*100.0/TOTAL_READS)) + '% not overlapped)')
-    plt.bar(x, overlap_histgram, color='gray')
-    plt.savefig(filename)
-    plt.close(1)
 
 def getMainName(filename):
     baseName = os.path.basename(filename)
@@ -631,16 +615,7 @@ class seqFilter:
         for i in xrange(len(counts)):
             labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(100.0 * float(counts[i])/TOTAL_READS) + "%)"
 
-        fig = plt.figure(1)
-        plt.title("Filtering statistics of sampled " + str(TOTAL_READS) + " reads", fontsize=12, color='#666666')
-        plt.axis('equal')
-        patches, texts = plt.pie(counts, colors=colors, radius=0.7)
-        patches, labels, dummy =  zip(*sorted(zip(patches, labels, counts),
-                                                  key=lambda x: x[2],
-                                                  reverse=True))
-        plt.legend(patches, labels, loc='upper left', fontsize=9)
-        plt.savefig(os.path.join(qc_dir, "filter-stat.png"), bbox_inches='tight')
-        plt.close(1)
+        r1qc_prefilter.plotFilterStats(labels, counts, colors, TOTAL_READS, os.path.join(qc_dir, "filter-stat.png"))
 
         stat={}
         # stat["options"]=self.options
@@ -663,7 +638,7 @@ class seqFilter:
             stat["overlap"]['bad_indel']=BADINDEL
             stat["overlap"]['reads_with_corrected_mismatch_bases']=BASE_CORRECTED
             stat["overlap"]['overlapped_area_edit_distance_histogram']=distance_histgram[0:10]
-            plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
+            r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))

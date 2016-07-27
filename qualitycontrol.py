@@ -208,6 +208,30 @@ class QualityControl:
         self.plotDiscontinuity(os.path.join(folder, prefix + "-discontinuity.png"), prefix)
         self.plotStrandBias(os.path.join(folder, prefix + "-strand-bias.png"), prefix)
 
+    def plotOverlapHistgram(self, overlap_histgram, readLen, total_reads, filename):
+        ratio = [100.0 * float(i)/float(total_reads) for i in overlap_histgram]
+        x = range(readLen+1)
+        plt.figure(1)
+        plt.title('Pair Overlap Length Histgram')
+        plt.xlim(-2, readLen)
+        plt.ylabel('Count')
+        plt.xlabel('Overlap Length (' + str(int(overlap_histgram[0]*100.0/total_reads)) + '% not overlapped)')
+        plt.bar(x, overlap_histgram, color='gray')
+        plt.savefig(filename)
+        plt.close(1)
+
+    def plotFilterStats(self, labels, counts, colors, total_reads, filename):
+        fig = plt.figure(1)
+        plt.title("Filtering statistics of sampled " + str(total_reads) + " reads", fontsize=12, color='#666666')
+        plt.axis('equal')
+        patches, texts = plt.pie(counts, colors=colors, radius=0.7)
+        patches, labels, dummy =  zip(*sorted(zip(patches, labels, counts),
+                                                  key=lambda x: x[2],
+                                                  reverse=True))
+        plt.legend(patches, labels, loc='upper left', fontsize=9)
+        plt.savefig(filename, bbox_inches='tight')
+        plt.close(1)
+
     def qc(self): 
         self.calcReadLen()
         self.calcPercents()
