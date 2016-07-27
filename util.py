@@ -1,15 +1,32 @@
  #!/usr/bin/env python
  
 import os,sys
+from ctypes import *
 
 EDIT_DISTANCE_MODULE_EXISTS = True
+EDIT_DISTANCE_CTYPES_LOADED = False
 
+# try load editdistance built-in module first
+# if editdistance built-in module not exist, try to load editdistance/libed.so, which is made by make in AfterQC folder
 try:
     import editdistance
 except ImportError:
     EDIT_DISTANCE_MODULE_EXISTS = False
+    ed_lib_file  = os.path.join(sys.path[0], "editdistance/libed.so")
+    if os.path.exists(ed_lib_file):
+        try:
+            ed_ctypes = cdll.LoadLibrary(ed_lib_file)
+        except Exception:
+            EDIT_DISTANCE_CTYPES_LOADED = False
+        else:
+            EDIT_DISTANCE_CTYPES_LOADED = True
 else:
     EDIT_DISTANCE_MODULE_EXISTS = True
+
+if EDIT_DISTANCE_MODULE_EXISTS==False and EDIT_DISTANCE_CTYPES_LOADED == False:
+    print("Warning: editdistance module doesn't exist, it will make AfterQC extremely slow")
+    print("If you are using python, run: pip install editdistance")
+    print("If you are using pypy, run: make, in AfterQC folder to build editdistance with ctypes")
 
 
 COMP = {"A" : "T", "T" : "A", "C" : "G", "G" : "C", "a" : "t", "t" : "a", "c" : "g", "g" : "c", "N":"N", "\n":"\n"}
@@ -54,6 +71,8 @@ def editDistance(s1, s2):
     # check if editdistance module loaded
     if EDIT_DISTANCE_MODULE_EXISTS:
         return editdistance.eval(s1, s2)
+    elif EDIT_DISTANCE_CTYPES_LOADED:
+        return ed_ctypes.edit_distance(s1, len(s1), s2, len(s2))
 
     m=len(s1)+1
     n=len(s2)+1
