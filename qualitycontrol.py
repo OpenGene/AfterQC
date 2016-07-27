@@ -3,10 +3,16 @@ from optparse import OptionParser
 import time
 import fastq
 import util
-import matplotlib
-# fix matplotlib DISPLAY issue
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+
+HAVE_MATPLOTLIB = True
+
+try:
+    import matplotlib
+    # fix matplotlib DISPLAY issue
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+except Exception:
+    HAVE_MATPLOTLIB = False
 
 MAX_LEN = 1000
 ALL_BASES = ("A", "T", "C", "G");
@@ -204,6 +210,8 @@ class QualityControl:
     def plot(self, folder=".", prefix=""):
         if self.readLen == 0:
             return
+        if HAVE_MATPLOTLIB == False:
+            return
         self.plotQuality(os.path.join(folder, prefix + "-quality.png"), prefix)
         self.plotContent(os.path.join(folder, prefix + "-content.png"), prefix)
         self.plotGCHistogram(os.path.join(folder, prefix + "-gc-curve.png"), prefix)
@@ -211,6 +219,8 @@ class QualityControl:
         self.plotStrandBias(os.path.join(folder, prefix + "-strand-bias.png"), prefix)
 
     def plotOverlapHistgram(self, overlap_histgram, readLen, total_reads, filename):
+        if HAVE_MATPLOTLIB == False:
+            return
         ratio = [100.0 * float(i)/float(total_reads) for i in overlap_histgram]
         x = range(readLen+1)
         plt.figure(1)
@@ -223,6 +233,8 @@ class QualityControl:
         plt.close(1)
 
     def plotFilterStats(self, labels, counts, colors, total_reads, filename):
+        if HAVE_MATPLOTLIB == False:
+            return
         fig = plt.figure(1)
         plt.title("Filtering statistics of sampled " + str(total_reads) + " reads", fontsize=12, color='#666666')
         plt.axis('equal')
