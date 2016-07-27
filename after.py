@@ -73,8 +73,8 @@ def parseCommand():
         help = "the folder to store only overlapped bases of the good reads")
     parser.add_option("", "--qc_only", dest = "qc_only", action='store_true', default = False,
         help = "if qconly is true, only QC result will be output, this can be much fast")
-    parser.add_option("", "--qc_sample", dest = "qc_sample", default = 1000000, type = "int",
-        help = "sample up to qc_sample reads when do QC, 0 means sample all reads. Default is 1,000,000")
+    parser.add_option("", "--qc_sample", dest = "qc_sample", default = 200000, type = "int",
+        help = "sample up to qc_sample reads when do QC, 0 means sample all reads. Default is 200,000")
     parser.add_option("", "--qc_kmer", dest = "qc_kmer", default = 8, type = "int",
         help = "specify the kmer length for KMER statistics for QC, default is 8")
     return parser.parse_args()

@@ -202,6 +202,8 @@ class QualityControl:
         plt.close(1)
 
     def plot(self, folder=".", prefix=""):
+        if self.readLen == 0:
+            return
         self.plotQuality(os.path.join(folder, prefix + "-quality.png"), prefix)
         self.plotContent(os.path.join(folder, prefix + "-content.png"), prefix)
         self.plotGCHistogram(os.path.join(folder, prefix + "-gc-curve.png"), prefix)
@@ -240,14 +242,29 @@ class QualityControl:
         self.sortKmer()
         
     def statFile(self, filename):
+        READ_TO_SKIP = 1000
         reader = fastq.Reader(filename)
+        stat_reads_num = 0
+        skipped_reads = []
         #sample up to maxSample reads for stat
         while True:
             read = reader.nextRead()
+            if read==None:
+                break
             self.readCount += 1
-            if read==None or (self.readCount > self.sampleLimit and self.sampleLimit>0):
+            # here we skip the first 1000 reads because usually they are usually not stable
+            if self.readCount < READ_TO_SKIP:
+                skipped_reads.append(read)
+                continue
+            stat_reads_num += 1
+            if stat_reads_num > self.sampleLimit and self.sampleLimit>0:
                 break
             self.statRead(read)
+
+        # if the fq file is too small, then we stat the skipped reads again
+        if stat_reads_num < READ_TO_SKIP:
+            for read in skipped_reads:
+                self.statRead(read)
 
         self.qc()
 
