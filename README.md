@@ -19,11 +19,13 @@ Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 50
 * stable: [0.5.0 (released on 2016-07-22)](https://github.com/OpenGene/AfterQC/archive/Release-0.5.0.zip)
 
 # Dependency:
-`AfterQC` uses `editdistance` module, run following before using `AfterQC`:
+`AfterQC` uses `editdistance` module for performance, if you are using pure `python`, install it using `pip`:
 ```shell
 pip install editdistance
 ```
-***WARNING: If you haven't installed `editdistance` module, `AfterQC` will use a python implementation of editdistance, but it will be extremely slow.***
+If you failed to install `editdistance` with `pip`, you can run `make` in the `AfterQC` module to build a `editdistance` library locally with `g++`, and `AfterQC` will load it automatically.
+
+***WARNING: If you don't install or build `editdistance` module, `AfterQC` will use a python implementation of editdistance, but it will be extremely slow.***
 
 # Simple usage:
 * Prepare your fastq files in a folder
