@@ -5,6 +5,7 @@ import fastq
 import util
 
 HAVE_MATPLOTLIB = True
+WARNED_PLOT_FAILURE = False
 
 try:
     import matplotlib
@@ -219,7 +220,9 @@ class QualityControl:
             self.plotDiscontinuity(os.path.join(folder, prefix + "-discontinuity.png"), prefix)
             self.plotStrandBias(os.path.join(folder, prefix + "-strand-bias.png"), prefix)
         except Exception:
-            print("Failed to plot figures, please check your settings...")
+            if WARNED_PLOT_FAILURE == False:
+                WARNED_PLOT_FAILURE = True
+                print("Failed to plot figures, please check your settings...")
 
     def plotOverlapHistgram(self, overlap_histgram, readLen, total_reads, filename):
         if HAVE_MATPLOTLIB == False:
@@ -236,7 +239,9 @@ class QualityControl:
             plt.savefig(filename)
             plt.close(1)
         except Exception:
-            print("Failed to plot figures, please check your settings...")
+            if WARNED_PLOT_FAILURE == False:
+                WARNED_PLOT_FAILURE = True
+                print("Failed to plot figures, please check your settings...")
 
     def plotFilterStats(self, labels, counts, colors, total_reads, filename):
         if HAVE_MATPLOTLIB == False:
@@ -253,7 +258,9 @@ class QualityControl:
             plt.savefig(filename, bbox_inches='tight')
             plt.close(1)
         except Exception:
-            print("Failed to plot figures, please check your settings...")
+            if WARNED_PLOT_FAILURE == False:
+                WARNED_PLOT_FAILURE = True
+                print("Failed to plot figures, please check your settings...")
 
     def qc(self): 
         self.calcReadLen()
