@@ -7,12 +7,16 @@ import util
 HAVE_MATPLOTLIB = True
 WARNED_PLOT_FAILURE = False
 
-try:
-    import matplotlib
-    # fix matplotlib DISPLAY issue
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-except Exception:
+if not sys.executable.endswith("pypy"):
+    try:
+        import matplotlib
+        # fix matplotlib DISPLAY issue
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+    except Exception:
+        HAVE_MATPLOTLIB = False
+
+if sys.executable.endswith("pypy"):
     HAVE_MATPLOTLIB = False
 
 MAX_LEN = 1000
