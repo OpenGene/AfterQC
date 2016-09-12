@@ -89,7 +89,12 @@ def processDir(folder, options):
 
     qc_base_folder = os.path.join(folder, "QC")
     if not os.path.exists(qc_base_folder):
-        os.makedirs(qc_base_folder)
+#        os.makedirs(qc_base_folder)
+        try:
+            os.makedirs(qc_base_folder)
+        except OSError as e:
+            if e.errno != 17:
+                raise
 
     fqext = (".fq", ".fastq", "fq.gz", ".fastq.gz")
     read1name = options.read1_flag
