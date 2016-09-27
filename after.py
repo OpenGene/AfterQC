@@ -93,8 +93,7 @@ def processDir(folder, options):
         try:
             os.makedirs(qc_base_folder)
         except OSError as e:
-            if e.errno != 17:
-                raise
+            print('OSError: ', e)
 
     fqext = (".fq", ".fastq", "fq.gz", ".fastq.gz")
     read1name = options.read1_flag
