@@ -172,9 +172,12 @@ def runDebubble(options):
     
 def main():
     time1 = time.time()
-    if sys.version_info.major >2:
-        print('python3 is not supported yet, please use python2')
-        sys.exit(1)
+    try:
+        if sys.version_info >= (3,0):
+            print('python3 is not supported yet, please use python2')
+            sys.exit(1)
+    except Exception:
+        print('cannot get python version, please make sure you are using python2')
     
     (options, args) = parseCommand()
     options.trim_pair_same = parseBool(options.trim_pair_same)
