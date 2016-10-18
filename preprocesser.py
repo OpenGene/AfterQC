@@ -8,7 +8,7 @@ import fastq
 import util
 import barcodeprocesser
 import json
-from qualitycontrol import QualityControl
+from qualitycontrol import *
 from qcreporter import QCReporter
 
 def getMainName(filename):
@@ -121,6 +121,21 @@ def makeDict(opt):
         'qc_kmer': opt.qc_kmer
     }
     return d
+
+def init_error_matrix():
+    error_matrix = {}
+    for correct_base in ALL_BASES:
+        error_matrix[correct_base]={}
+        for error_base in ALL_BASES:
+            if correct_base != error_base:
+                error_matrix[correct_base][error_base] = 0
+    return error_matrix
+
+def merge_error_matrix(merge_to, merge_from):
+    for correct_base in ALL_BASES:
+        for error_base in ALL_BASES:
+            if correct_base != error_base:
+                merge_to[correct_base][error_base] += merge_from[correct_base][error_base]
     
 ########################### seqFilter
 class seqFilter:
@@ -371,12 +386,15 @@ class seqFilter:
         BADPOL = 0
         BADLQC = 0
         BADNCT = 0
-        BADOL = 0
         BADINDEL = 0
         BADMISMATCH = 0
         BASE_CORRECTED = 0
         OVERLAPPED = 0
         OVERLAP_LEN_SUM = 0
+        OVERLAP_BASE_SUM = 0
+        # error profiling by overlap analysis
+        OVERLAP_BASE_ERR = 0
+        OVERLAP_ERR_MATRIX = init_error_matrix()
 
         while True:
             r1 = read1_file.nextRead()
@@ -498,12 +516,11 @@ class seqFilter:
                     OVERLAPPED += 1
                     distance_histgram[distance] += 1
                     OVERLAP_LEN_SUM += overlap_len
+                    # we consider the distance is caused by sequencing error
+                    OVERLAP_BASE_SUM += overlap_len * 2
+                    OVERLAP_BASE_ERR += distance
                     corrected = 0
-                    if distance > 3:
-                        self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADOL")
-                        BADOL += 1
-                        continue
-                    elif distance>0:
+                    if distance>0:
                         #try to fix low quality base
                         hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         if hamming != distance:
@@ -514,6 +531,7 @@ class seqFilter:
                         #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         #print(r1[3][len(r1[1]) - overlap_len:])
                         #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
+                        err_mtx = init_error_matrix()
                         for o in xrange(overlap_len):
                             b1 = r1[1][len(r1[1]) - overlap_len + o]
                             b2 = util.complement(r2[1][-o-1])
@@ -525,10 +543,14 @@ class seqFilter:
                                     r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
                                     r2[3] = util.changeString(r2[3], -o-1, q1)
                                     corrected += 1
+                                    if b1!='N' and b2!='N':
+                                        err_mtx[util.complement(b1)][util.complement(b2)] += 1
                                 elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 16:
                                     r1[1]= util.changeString(r1[1], len(r1[1]) - overlap_len + o, b2)
                                     r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, q2)
                                     corrected += 1
+                                    if b1!='N' and b2!='N':
+                                        err_mtx[b2][b1] += 1
                                 if corrected >= distance:
                                     break
                         #print(r1[1][len(r1[1]) - overlap_len:])
@@ -536,6 +558,7 @@ class seqFilter:
                         #print(r1[3][len(r1[1]) - overlap_len:])
                         #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
                         if corrected == distance:
+                            merge_error_matrix(OVERLAP_ERR_MATRIX, err_mtx)
                             BASE_CORRECTED += 1
                         else:
                             self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
@@ -593,7 +616,7 @@ class seqFilter:
         result['bad_reads_with_polyX']= BADPOL
         result['bad_reads_with_low_quality']=BADLQC
         result['bad_reads_with_too_many_N']= BADNCT
-        result['bad_reads_with_bad_overlap']= BADOL + BADMISMATCH + BADINDEL
+        result['bad_reads_with_bad_overlap']= BADMISMATCH + BADINDEL
 
         # plot result bar figure
         labels = ['good reads', 'has_polyX', 'low_quality', 'too_short', 'too_many_N']
@@ -601,7 +624,7 @@ class seqFilter:
         colors = ['#66BB11', '#FF33AF', '#FFD3F2', '#FFA322', '#FF8899']
         if self.options.read2_file != None:
             labels.append('bad_overlap')
-            counts.append(BADOL + BADMISMATCH + BADINDEL)
+            counts.append(BADMISMATCH + BADINDEL)
             colors.append('#FF6600')
         if self.options.debubble:
             labels.append('in_bubble')
@@ -633,11 +656,12 @@ class seqFilter:
                 stat["overlap"]['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
             else:
                 stat["overlap"]['average_overlap_length']=0.0
-            stat["overlap"]['bad_edit_distance']=BADOL
-            stat["overlap"]['bad_mismatch_bases']=BADMISMATCH
-            stat["overlap"]['bad_indel']=BADINDEL
-            stat["overlap"]['reads_with_corrected_mismatch_bases']=BASE_CORRECTED
-            stat["overlap"]['overlapped_area_edit_distance_histogram']=distance_histgram[0:10]
+            stat["overlap"]['bad_mismatch_reads']=BADMISMATCH
+            stat["overlap"]['bad_indel_reads']=BADINDEL
+            stat["overlap"]['corrected_reads']=BASE_CORRECTED
+            stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
+            stat["overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
+            stat["overlap"]['edit_distance_histogram']=distance_histgram[0:10]
             r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
