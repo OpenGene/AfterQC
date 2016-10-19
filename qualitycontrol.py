@@ -23,6 +23,9 @@ MAX_LEN = 1000
 ALL_BASES = ("A", "T", "C", "G");
 KMER_TOP = 10
 
+def makeRange(bottom, top):
+    return "[" + str(bottom) + "," + str(top) + "]"
+
 ########################### QualityControl
 class QualityControl:
 
@@ -212,7 +215,7 @@ class QualityControl:
         json_str += "line:{color:'rgba(20,20,20,255)', width:1}\n"
         json_str += "}\n"
         json_str += "];\n"
-        json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'percents'}};\n"
+        json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'percents', range:" + makeRange(0.0, 0.8) + "}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
 
@@ -228,6 +231,19 @@ class QualityControl:
         plt.savefig(filename)
         plt.close(1)
 
+    def gcPlotly(self, div, title=""):
+        json_str = "var data=["
+        x = range(self.readLen+1)
+        xticks = [100.0 * float(t)/self.readLen for t in x]
+        json_str += "{"
+        json_str += "x:[" + ",".join(map(str, xticks)) + "],"
+        json_str += "y:[" + ",".join(map(str, self.gcHistogram[0:self.readLen+1])) + "],"
+        json_str += "type:'bar'"
+        json_str += "}];"
+        json_str += "var layout={title:'" + title + "', xaxis:{title:'percents(%)'}, yaxis:{title:'counts'}};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
+
     def plotDiscontinuity(self, filename, prefix=""):
         x = range(self.readLen)
         plt.figure(1)
@@ -240,6 +256,19 @@ class QualityControl:
         # plt.legend(loc='upper right', ncol=5)
         plt.savefig(filename)
         plt.close(1)
+
+    def discontinuityPlotly(self, div, title=""):
+        json_str = "var data=["
+        x = range(self.readLen)
+        json_str += "{"
+        json_str += "x:[" + ",".join(map(str, x)) + "],"
+        json_str += "y:[" + ",".join(map(str, self.meanDiscontinuity[0:self.readLen])) + "],"
+        json_str += "mode:'lines',"
+        json_str += "line:{color:'rgba(100,150,0,75)', width:2}\n"
+        json_str += "}];"
+        json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'discontinuity', range:" + makeRange(0.0, max(self.meanDiscontinuity)*1.5) + "}};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
 
     def plotStrandBias(self, filename, prefix=""):
         shift = min(50, len(self.topKmerCount)/2)
@@ -263,6 +292,37 @@ class QualityControl:
         # plt.legend(loc='upper right', ncol=5)
         plt.savefig(filename)
         plt.close(1)
+
+    def strandBiasPlotly(self, div, title=""):
+        shift = min(50, len(self.topKmerCount)/2)
+        # we only sample 1000 points for performance issue
+        top = min(len(self.topKmerCount) - shift,1000)
+        forward = [0 for i in xrange(top)]
+        reverse = [0 for i in xrange(top)]
+        step = (len(self.topKmerCount) - shift) / top
+        if step == 0:
+            step = 1
+        maxValue = 0
+        for i in xrange(top):
+            index = i*step+shift
+            if index >= len(self.topKmerCount):
+                break
+            kmer = self.topKmerCount[i*step+shift][0]
+            forward[i] = self.kmerCount[kmer]
+            reverse[i] = self.kmerCount[util.reverseComplement(kmer)]
+            maxValue = max(max(forward[i], reverse[i]), maxValue)
+        json_str = "var data=["
+        x = range(self.readLen)
+        json_str += "{"
+        json_str += "x:[" + ",".join(map(str, forward)) + "],"
+        json_str += "y:[" + ",".join(map(str, reverse)) + "],"
+        json_str += "mode:'markers',"
+        json_str += "type:'scatter',\n"
+        json_str += "marker:{size:2, color:'rgba(0,0,50,128)'}\n"
+        json_str += "}];"
+        json_str += "var layout={title:'" + title + "', xaxis:{title:'Relative forward strand KMER count', range:" + makeRange(-10, maxValue) + "}, yaxis:{title:'Relative reverse strand KMER count', range:" + makeRange(-10, maxValue) + "}};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
 
     def plot(self, folder=".", prefix=""):
         if self.readLen == 0:
