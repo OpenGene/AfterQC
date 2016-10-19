@@ -41,7 +41,7 @@ class QCReporter:
         io.write("#container {text-align:center;}"+"\n")
         io.write(".figure-title {color:#ff6600;font-weight:bold;font-size:20px;padding:10px;}"+"\n")
         io.write(".figure-div {margin-top:40px;text-align:center}"+"\n")
-        io.write(".plotly-div {width:800;height:600;text-align:center}"+"\n")
+        io.write(".plotly-div {width:800;height:600;text-align:center;}"+"\n")
         io.write("li {color:#666666;font-size:15px;border:0px;}"+"\n")
         io.write("</style>"+"\n")
 
