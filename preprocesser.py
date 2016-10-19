@@ -252,25 +252,25 @@ class seqFilter:
 
         reporter = QCReporter()
 
-        r1qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
-        r2qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
-        r1qc_prefilter.statFile(self.options.read1_file)
-        r1qc_prefilter.plot(qc_dir, "R1-prefilter")
+        self.r1qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
+        self.r2qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
+        self.r1qc_prefilter.statFile(self.options.read1_file)
+        self.r1qc_prefilter.plot(qc_dir, "R1-prefilter")
         if self.options.read2_file != None:
-            r2qc_prefilter.statFile(self.options.read2_file)
-            r2qc_prefilter.plot(qc_dir, "R2-prefilter")
+            self.r2qc_prefilter.statFile(self.options.read2_file)
+            self.r2qc_prefilter.plot(qc_dir, "R2-prefilter")
 
-        r1qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
-        r2qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
+        self.r1qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
+        self.r2qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
 
-        readLen = r1qc_prefilter.readLen
+        readLen = self.r1qc_prefilter.readLen
         overlap_histgram = [0 for x in xrange(readLen+1)]
         distance_histgram = [0 for x in xrange(readLen+1)]
 
         #auto detect trim front and trim tail
         if self.options.trim_front == -1 or self.options.trim_tail == -1:
             #auto trim for read1
-            trimFront, trimTail = r1qc_prefilter.autoTrim()
+            trimFront, trimTail = self.r1qc_prefilter.autoTrim()
             if self.options.trim_front == -1:
                 self.options.trim_front = trimFront
             if self.options.trim_tail == -1:
@@ -283,7 +283,7 @@ class seqFilter:
                     self.options.trim_front2 = self.options.trim_front
                     self.options.trim_tail2 = self.options.trim_tail
                 else:
-                    trimFront2, trimTail2 = r2qc_prefilter.autoTrim()
+                    trimFront2, trimTail2 = self.r2qc_prefilter.autoTrim()
                     if self.options.trim_front2 == -1:
                         self.options.trim_front2 = trimFront2
                     if self.options.trim_tail2 == -1:
@@ -574,19 +574,19 @@ class seqFilter:
             if i2 != None:
                 GOOD_BASES += len(r2[1])
             if self.options.qc_sample <=0 or TOTAL_READS < self.options.qc_sample:
-                r1qc_postfilter.statRead(r1)
+                self.r1qc_postfilter.statRead(r1)
                 if r2 != None:
-                    r2qc_postfilter.statRead(r2)
+                    self.r2qc_postfilter.statRead(r2)
 
             GOOD_READS += 1
             if self.options.qc_only and TOTAL_READS >= self.options.qc_sample:
                 break
 
-        r1qc_postfilter.qc()
-        r1qc_postfilter.plot(qc_dir, "R1-postfilter")
+        self.r1qc_postfilter.qc()
+        self.r1qc_postfilter.plot(qc_dir, "R1-postfilter")
         if self.options.read2_file != None:
-            r2qc_postfilter.qc()
-            r2qc_postfilter.plot(qc_dir, "R2-postfilter")
+            self.r2qc_postfilter.qc()
+            self.r2qc_postfilter.plot(qc_dir, "R2-postfilter")
         
         #close all files
         if not self.options.qc_only:
@@ -638,18 +638,18 @@ class seqFilter:
         for i in xrange(len(counts)):
             labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(100.0 * float(counts[i])/TOTAL_READS) + "%)"
 
-        r1qc_prefilter.plotFilterStats(labels, counts, colors, TOTAL_READS, os.path.join(qc_dir, "filter-stat.png"))
+        self.r1qc_prefilter.plotFilterStats(labels, counts, colors, TOTAL_READS, os.path.join(qc_dir, "filter-stat.png"))
 
         stat={}
         # stat["options"]=self.options
         stat["summary"]=result
         stat["command"]=makeDict(self.options)
         stat["kmer_content"] = {}
-        stat["kmer_content"]["read1_prefilter"] = r1qc_prefilter.topKmerCount[0:10]
-        stat["kmer_content"]["read1_postfilter"] = r1qc_postfilter.topKmerCount[0:10]
+        stat["kmer_content"]["read1_prefilter"] = self.r1qc_prefilter.topKmerCount[0:10]
+        stat["kmer_content"]["read1_postfilter"] = self.r1qc_postfilter.topKmerCount[0:10]
         if self.options.read2_file != None:
-            stat["kmer_content"]["read2_prefilter"] = r2qc_prefilter.topKmerCount[0:10]
-            stat["kmer_content"]["read2_postfilter"] = r2qc_postfilter.topKmerCount[0:10]
+            stat["kmer_content"]["read2_prefilter"] = self.r2qc_prefilter.topKmerCount[0:10]
+            stat["kmer_content"]["read2_postfilter"] = self.r2qc_postfilter.topKmerCount[0:10]
             stat["overlap"]={}
             stat["overlap"]['overlapped_pairs']=OVERLAPPED
             if OVERLAPPED > 0:
@@ -662,7 +662,7 @@ class seqFilter:
             stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
             stat["overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
             stat["overlap"]['edit_distance_histogram']=distance_histgram[0:10]
-            r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
+            self.r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
@@ -677,8 +677,10 @@ class seqFilter:
         if self.options.read2_file != None:
             reporter.addFigure('Overlap length distribution for pair end sequencing', 'overlap.png')
         if self.options.read2_file != None:
-            reporter.addFigure('Read1 quality curve before filtering', 'R1-prefilter-quality.png')
-            reporter.addFigure('Read1 base content distribution before filtering', 'R1-prefilter-content.png')
+            reporter.addFigure('Read1 quality curve before filtering', self.r1qc_prefilter.qualityPlotly("r1_pre_quality", 'Read1 quality curve before filtering'), "r1_pre_quality", "")
+            #reporter.addFigure('Read1 quality curve before filtering', 'R1-prefilter-quality.png')
+            reporter.addFigure('Read1 content curve before filtering', self.r1qc_prefilter.contentPlotly("r1_pre_content", 'Read1 content curve before filtering'), "r1_pre_content", "")
+            #reporter.addFigure('Read1 base content distribution before filtering', 'R1-prefilter-content.png')
             reporter.addFigure('Read1 GC curve before filtering', 'R1-prefilter-gc-curve.png')
             reporter.addFigure('Read1 per base discontinuity before filtering (window size = 5)', 'R1-prefilter-discontinuity.png')
             reporter.addFigure('Read1 kmer strand bias before filtering', 'R1-prefilter-strand-bias.png')
@@ -699,13 +701,17 @@ class seqFilter:
             reporter.addFigure('Read2 per base discontinuity after filtering (window size = 5)', 'R2-postfilter-discontinuity.png')
             reporter.addFigure('Read2 kmer strand bias after filtering', 'R2-postfilter-strand-bias.png')
         else:
-            reporter.addFigure('Quality curve before filtering', 'R1-prefilter-quality.png')
-            reporter.addFigure('Base content distribution before filtering', 'R1-prefilter-content.png')
+            reporter.addFigure('Quality curve before filtering', self.r1qc_prefilter.qualityPlotly("r1_pre_quality", 'Quality curve before filtering'), "r1_pre_quality", "")
+            #reporter.addFigure('Quality curve before filtering', 'R1-prefilter-quality.png')
+            reporter.addFigure('Base content distribution before filtering', self.r1qc_prefilter.contentPlotly("r1_pre_content", 'Base content distribution before filtering'), "r1_pre_content", "")
+            #reporter.addFigure('Base content distribution before filtering', 'R1-prefilter-content.png')
             reporter.addFigure('GC curve before filtering', 'R1-prefilter-gc-curve.png')
             reporter.addFigure('Per base discontinuity before filtering (window size = 5)', 'R1-prefilter-discontinuity.png')
             reporter.addFigure('Kmer strand bias before filtering', 'R1-prefilter-strand-bias.png')
-            reporter.addFigure('Quality curve after filtering', 'R1-postfilter-quality.png')
-            reporter.addFigure('Base content distribution after filtering', 'R1-postfilter-content.png')
+            reporter.addFigure('Quality curve after filtering', self.r1qc_postfilter.qualityPlotly("r1_post_quality", 'Quality curve after filtering'), "r1_post_quality", "")
+            #reporter.addFigure('Quality curve after filtering', 'R1-postfilter-quality.png')
+            reporter.addFigure('Base content distribution after filtering', self.r1qc_postfilter.contentPlotly("r1_post_content", 'Quality curve after filtering'), "r1_post_content", "")
+            #reporter.addFigure('Base content distribution after filtering', 'R1-postfilter-content.png')
             reporter.addFigure('GC curve after filtering', 'R1-postfilter-gc-curve.png')
             reporter.addFigure('Per base discontinuity after filtering (window size = 5)', 'R1-postfilter-discontinuity.png')
             reporter.addFigure('Kmer strand bias after filtering', 'R1-postfilter-strand-bias.png')

@@ -144,6 +144,32 @@ class QualityControl:
         plt.savefig(filename)
         plt.close(1)
 
+    def qualityPlotly(self, div, title=""):
+        colors = {'A':'rgba(255,0,0,75)', 'T':'rgba(128,0,128,75)', 'C':'rgba(0,255,0,75)', 'G':'rgba(0,0,255,75)'}
+        json_str = "var data=["
+        x = range(self.readLen)
+        # four bases
+        for base in ALL_BASES:
+            json_str += "{"
+            json_str += "x:[" + ",".join(map(str, x)) + "],"
+            json_str += "y:[" + ",".join(map(str, self.baseMeanQual[base][0:self.readLen])) + "],"
+            json_str += "name: '" + base + "',"
+            json_str += "mode:'lines',"
+            json_str += "line:{color:'" + colors[base] + "', width:1}\n"
+            json_str += "},"
+        # mean
+        json_str += "{"
+        json_str += "x:[" + ",".join(map(str, x)) + "],"
+        json_str += "y:[" + ",".join(map(str, self.meanQual[0:self.readLen])) + "],"
+        json_str += "name: 'mean',"
+        json_str += "mode:'lines',"
+        json_str += "line:{color:'rgba(20,20,20,255)', width:1}\n"
+        json_str += "}\n"
+        json_str += "];\n"
+        json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'quality'}};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
+
     def plotContent(self, filename, prefix=""):
         colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
         x = range(self.readLen)
@@ -163,6 +189,32 @@ class QualityControl:
         plt.legend(loc='upper right', ncol=5)
         plt.savefig(filename)
         plt.close(1)
+
+    def contentPlotly(self, div, title=""):
+        colors = {'A':'rgba(255,0,0,75)', 'T':'rgba(128,0,128,75)', 'C':'rgba(0,255,0,75)', 'G':'rgba(0,0,255,75)'}
+        json_str = "var data=["
+        x = range(self.readLen)
+        # four bases
+        for base in ALL_BASES:
+            json_str += "{"
+            json_str += "x:[" + ",".join(map(str, x)) + "],"
+            json_str += "y:[" + ",".join(map(str, self.percents[base][0:self.readLen])) + "],"
+            json_str += "name: '" + base + "',"
+            json_str += "mode:'lines',"
+            json_str += "line:{color:'" + colors[base] + "', width:1}\n"
+            json_str += "},"
+        # mean
+        json_str += "{"
+        json_str += "x:[" + ",".join(map(str, x)) + "],"
+        json_str += "y:[" + ",".join(map(str, self.gcPercents[0:self.readLen])) + "],"
+        json_str += "name: 'mean',"
+        json_str += "mode:'lines',"
+        json_str += "line:{color:'rgba(20,20,20,255)', width:1}\n"
+        json_str += "}\n"
+        json_str += "];\n"
+        json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'percents'}};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
 
     def plotGCHistogram(self, filename, prefix=""):
         x = range(self.readLen+1)
