@@ -148,7 +148,7 @@ class QualityControl:
         plt.close(1)
 
     def qualityPlotly(self, div, title=""):
-        colors = {'A':'rgba(255,0,0,75)', 'T':'rgba(128,0,128,75)', 'C':'rgba(0,255,0,75)', 'G':'rgba(0,0,255,75)'}
+        colors = {'A':'rgba(255,0,0,0.5)', 'T':'rgba(128,0,128,0.5)', 'C':'rgba(0,255,0,0.5)', 'G':'rgba(0,0,255,0.5)'}
         json_str = "var data=["
         x = range(self.readLen)
         # four bases
@@ -194,7 +194,7 @@ class QualityControl:
         plt.close(1)
 
     def contentPlotly(self, div, title=""):
-        colors = {'A':'rgba(255,0,0,75)', 'T':'rgba(128,0,128,75)', 'C':'rgba(0,255,0,75)', 'G':'rgba(0,0,255,75)'}
+        colors = {'A':'rgba(255,0,0,0.5)', 'T':'rgba(128,0,128,0.5)', 'C':'rgba(0,255,0,0.5)', 'G':'rgba(0,0,255,0.5)'}
         json_str = "var data=["
         x = range(self.readLen)
         # four bases
@@ -264,7 +264,7 @@ class QualityControl:
         json_str += "x:[" + ",".join(map(str, x)) + "],"
         json_str += "y:[" + ",".join(map(str, self.meanDiscontinuity[0:self.readLen])) + "],"
         json_str += "mode:'lines',"
-        json_str += "line:{color:'rgba(100,150,0,75)', width:2}\n"
+        json_str += "line:{color:'rgba(100,150,0,0.5)', width:2}\n"
         json_str += "}];"
         json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'discontinuity', range:" + makeRange(0.0, max(self.meanDiscontinuity)*1.5) + "}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
@@ -369,6 +369,31 @@ class QualityControl:
         json_str += "}];"
         xlabel = 'overlap Length (' + str(int(overlap_histgram[0]*100.0/total_reads)) + '% not overlapped)'
         json_str += "var layout={title:'Pair overlap Length Histgram', xaxis:{title:'" + xlabel + "', range:" + makeRange(-2, readLen) + "}, yaxis:{title:'counts'}};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
+
+    def errorPlotly(self, error_matrix, div):
+        json_str = "var data=["
+        names = []
+        values = []
+        colors = []
+        for correct_base in ALL_BASES:
+            for error_base in ALL_BASES:
+                if correct_base != error_base:
+                    name = correct_base + "->" + error_base
+                    names.append(name)
+                    values.append(error_matrix[correct_base][error_base])
+                    if (correct_base=='A' and error_base=='G') or (correct_base=='G' and error_base=='A') or (correct_base=='C' and error_base=='T') or (correct_base=='T' and error_base=='C'):
+                        colors.append("'rgba(246, 103, 0,1.0)'")
+                    else:
+                        colors.append("'rgba(22, 96, 167,1.0)'")
+        json_str += "{"
+        json_str += "x:['" + "','".join(names) + "'],"
+        json_str += "y:[" + ",".join(map(str, values)) + "],"
+        json_str += "marker:{color:[" + ",".join(colors) + "]},"
+        json_str += "type:'bar'"
+        json_str += "}];"
+        json_str += "var layout={title:'sequencing error transform distribution', xaxis:{title:'seq error transform'}, yaxis:{title:'counts'}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
 

@@ -237,14 +237,6 @@ class seqFilter:
 
         #read1_file is required
         read1_file = fastq.Reader(self.options.read1_file)
-        #create a QC folder to contains QC results
-        qc_base_folder = os.path.join(os.path.dirname(self.options.read1_file), "QC")
-        if not os.path.exists(qc_base_folder):
-            os.makedirs(qc_base_folder)
-        #QC result of this file/pair
-        qc_dir =  os.path.join(qc_base_folder, os.path.basename(self.options.read1_file))
-        if not os.path.exists(qc_dir):
-            os.makedirs(qc_dir)
 
         #no front trim if sequence is barcoded
         if self.options.barcode:
@@ -255,10 +247,8 @@ class seqFilter:
         self.r1qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         self.r2qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         self.r1qc_prefilter.statFile(self.options.read1_file)
-        #self.r1qc_prefilter.plot(qc_dir, "R1-prefilter")
         if self.options.read2_file != None:
             self.r2qc_prefilter.statFile(self.options.read2_file)
-            #self.r2qc_prefilter.plot(qc_dir, "R2-prefilter")
 
         self.r1qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         self.r2qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
@@ -300,12 +290,20 @@ class seqFilter:
         #if bad output folder not specified, set it as the same folder of read1 file            
         bad_dir = self.options.bad_output_folder
         if bad_dir == None:
-            bad_dir = os.path.dirname(self.options.read1_file)
+            bad_dir = os.path.join(os.path.dirname(os.path.dirname(good_dir+"/")), "bad")
 
         #if overlap output folder not specified, set it as the same folder of read1 file
         overlap_dir = self.options.overlap_output_folder
         if overlap_dir == None:
             overlap_dir = os.path.dirname(self.options.read1_file)
+
+        #save QC results at the same folder of good
+        qc_base_folder =  os.path.join(os.path.dirname(os.path.dirname(good_dir+"/")), "QC")
+        if not os.path.exists(qc_base_folder):
+            os.makedirs(qc_base_folder)
+        qc_dir =  os.path.join(qc_base_folder, os.path.basename(self.options.read1_file))
+        if not os.path.exists(qc_dir):
+            os.makedirs(qc_dir)
             
         if not os.path.exists(good_dir):
             os.makedirs(good_dir)
@@ -664,6 +662,7 @@ class seqFilter:
             stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
             stat["overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
             stat["overlap"]['edit_distance_histogram']=distance_histgram[0:10]
+            reporter.addFigure('Sequence error distribution', self.r1qc_prefilter.errorPlotly(OVERLAP_ERR_MATRIX, 'error_matrix'), 'error_matrix', "")
             reporter.addFigure('Overlap length distribution', self.r1qc_prefilter.overlapPlotly(overlap_histgram, readLen, TOTAL_READS, 'overlap_stat'), 'overlap_stat', "")
             #self.r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
 

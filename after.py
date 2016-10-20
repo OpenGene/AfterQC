@@ -26,7 +26,7 @@ def parseCommand():
         help = "the input dir to process automatically. If read1_file are input_dir are not specified, then current dir (.) is specified to input_dir")
     parser.add_option("-g", "--good_output_folder", dest = "good_output_folder", default = "good",
         help = "the folder to store good reads, by default it is the same folder contains read1")
-    parser.add_option("-b", "--bad_output_folder", dest = "bad_output_folder", default = "bad",
+    parser.add_option("-b", "--bad_output_folder", dest = "bad_output_folder", default = None,
         help = "the folder to store bad reads, by default it is same as good_output_folder")
     parser.add_option("", "--read1_flag", dest = "read1_flag", default = "R1",
         help = "specify the name flag of read1, default is R1, which means a file with name *R1* is read1 file")

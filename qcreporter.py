@@ -88,7 +88,7 @@ class QCReporter:
         io.write("<table class='summary-table'>\n")
         self.outputRow(io, "sequencing:", self.getSequencing())
         if self.stat["command"]["read2_file"] != None:
-            self.outputRow(io, "error rate estimated:", str(self.stat["overlap"]["error_rate"]*100) + "%")
+            self.outputRow(io, "estimated seq error:", str(self.stat["overlap"]["error_rate"]*100) + "%")
         self.outputRow(io, "total reads:", self.stat["summary"]["total_reads"])
         self.outputRow(io, "filtered out reads:", str(self.stat["summary"]["bad_reads"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["summary"]["bad_reads"])/float(self.stat["summary"]["total_reads"])) + "%)</font>")
         self.outputRow(io, "total bases:", self.stat["summary"]["total_bases"])
