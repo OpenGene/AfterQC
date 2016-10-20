@@ -617,6 +617,7 @@ class seqFilter:
         result['bad_reads_with_low_quality']=BADLQC
         result['bad_reads_with_too_many_N']= BADNCT
         result['bad_reads_with_bad_overlap']= BADMISMATCH + BADINDEL
+        result['readlen'] = readLen
 
         # plot result bar figure
         labels = ['good reads', 'has_polyX', 'low_quality', 'too_short', 'too_many_N']
@@ -672,6 +673,7 @@ class seqFilter:
         stat_file.close()
 
         self.addFiguresToReport(reporter)
+        reporter.setStat(stat)
         reporter.output(os.path.join(qc_dir, "report.html"))
 
     def addFiguresToReport(self, reporter):
