@@ -517,8 +517,8 @@ class QualityControl:
                 trimTail = pos
                 break
         
-        trimFront = min(self.readLen*0.04,trimFront)
-        trimTail = min(self.readLen*0.04,self.readLen-1-trimTail)
+        trimFront = min(self.readLen*0.03,trimFront)
+        trimTail = min(self.readLen*0.02,self.readLen-1-trimTail)
         # the last base should be definitely trimmed for illumina sequencer output
         trimTail = max(1, trimTail)
         
