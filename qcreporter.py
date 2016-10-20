@@ -37,9 +37,9 @@ class QCReporter:
     def outputCSS(self, io):
         io.write("<style type=\"text/css\">"+"\n")
         io.write("#menu {text-align:left;}"+"\n")
-        io.write(".menu-item{font-size:20px;padding:5px;}"+"\n")
-        io.write("#container {text-align:center;}"+"\n")
-        io.write(".figure-title {color:#ff6600;font-weight:bold;font-size:20px;padding:10px;}"+"\n")
+        io.write(".menu-item{font-size:14px;padding:4px;}"+"\n")
+        io.write("#container {text-align:center;padding-left:30px;}"+"\n")
+        io.write(".figure-title {color:#bbbbbb;font-size:30px;padding:10px;text-align:left;}"+"\n")
         io.write(".figure-div {margin-top:40px;text-align:center}"+"\n")
         io.write(".plotly-div {width:800;height:600;text-align:center;}"+"\n")
         io.write("li {color:#666666;font-size:15px;border:0px;}"+"\n")
@@ -57,19 +57,23 @@ class QCReporter:
 
     def outputMenu(self, io):
         io.write("<div id='menu'><ul>\n")
+        idx = 0
         for figure in self.figures:
-            io.write("<li class='menu-item'><a href='#" + formatDivID(figure[0]) + "'>" + figure[0] + "</a> </li>\n")
+            idx += 1
+            io.write("<li class='menu-item'><a href='#" + formatDivID(figure[0]) + "'>" + str(idx) + ", " + figure[0] + "</a> </li>\n")
         io.write("</ul></div>\n")
 
     def outputFigures(self, io):
         io.write("<div id='figures'>")
+        idx = 0
         for figure in self.figures:
             title = figure[0]
             content = figure[1]
             div = figure[2]
             summary = figure[3]
+            idx += 1
             io.write("<div class='figure-div'>\n")
-            io.write("<div class='figure-title'><a name='" + formatDivID(title) + "'>" + title + "</a></div>\n")
+            io.write("<div class='figure-title'><a name='" + formatDivID(title) + "'>" + str(idx) + ", " + title + "</a></div>\n")
             if div == '':
                 # an image figure
                 io.write("<div class='figure'><img src='" + content + "'></div>\n")

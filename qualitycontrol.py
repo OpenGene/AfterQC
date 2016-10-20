@@ -320,7 +320,7 @@ class QualityControl:
         json_str += "type:'scatter',\n"
         json_str += "marker:{size:2, color:'rgba(0,0,50,128)'}\n"
         json_str += "}];"
-        json_str += "var layout={title:'" + title + "', xaxis:{title:'Relative forward strand KMER count', range:" + makeRange(-10, maxValue) + "}, yaxis:{title:'Relative reverse strand KMER count', range:" + makeRange(-10, maxValue) + "}};\n"
+        json_str += "var layout={title:'" + title + "', xaxis:{title:'relative forward strand KMER count', range:" + makeRange(-10, maxValue) + "}, yaxis:{title:'relative reverse strand KMER count', range:" + makeRange(-10, maxValue) + "}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
 
@@ -359,6 +359,19 @@ class QualityControl:
                 WARNED_PLOT_FAILURE = True
                 print("Failed to plot figures, please check your settings...")
 
+    def overlapPlotly(self, overlap_histgram, readLen, total_reads, div):
+        json_str = "var data=["
+        x = range(self.readLen+1)
+        json_str += "{"
+        json_str += "x:[" + ",".join(map(str, x)) + "],"
+        json_str += "y:[" + ",".join(map(str, overlap_histgram)) + "],"
+        json_str += "type:'bar'"
+        json_str += "}];"
+        xlabel = 'overlap Length (' + str(int(overlap_histgram[0]*100.0/total_reads)) + '% not overlapped)'
+        json_str += "var layout={title:'Pair overlap Length Histgram', xaxis:{title:'" + xlabel + "', range:" + makeRange(-2, readLen) + "}, yaxis:{title:'counts'}};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
+
     def plotFilterStats(self, labels, counts, colors, total_reads, filename):
         if HAVE_MATPLOTLIB == False:
             return
@@ -377,6 +390,17 @@ class QualityControl:
             if WARNED_PLOT_FAILURE == False:
                 WARNED_PLOT_FAILURE = True
                 print("Failed to plot figures, please check your settings...")
+
+    def statPlotly(self, labels, counts, total_reads, div):
+        json_str = "var data=["
+        json_str += "{values:[" + ",".join(map(str, counts)) + "],"
+        json_str += "labels:['" + "','".join(labels) + "'],"
+        json_str += "textinfo: 'none',"
+        json_str += "type:'pie'}];\n"
+        title = "Filtering statistics of sampled " + str(total_reads) + " reads"
+        json_str += "var layout={title:'" + title + "', width:800, height:600};\n"
+        json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
+        return json_str
 
     def qc(self): 
         self.calcReadLen()

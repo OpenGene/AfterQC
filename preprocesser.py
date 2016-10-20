@@ -255,10 +255,10 @@ class seqFilter:
         self.r1qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         self.r2qc_prefilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         self.r1qc_prefilter.statFile(self.options.read1_file)
-        self.r1qc_prefilter.plot(qc_dir, "R1-prefilter")
+        #self.r1qc_prefilter.plot(qc_dir, "R1-prefilter")
         if self.options.read2_file != None:
             self.r2qc_prefilter.statFile(self.options.read2_file)
-            self.r2qc_prefilter.plot(qc_dir, "R2-prefilter")
+            #self.r2qc_prefilter.plot(qc_dir, "R2-prefilter")
 
         self.r1qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
         self.r2qc_postfilter = QualityControl(self.options.qc_sample, self.options.qc_kmer)
@@ -583,10 +583,10 @@ class seqFilter:
                 break
 
         self.r1qc_postfilter.qc()
-        self.r1qc_postfilter.plot(qc_dir, "R1-postfilter")
+        #self.r1qc_postfilter.plot(qc_dir, "R1-postfilter")
         if self.options.read2_file != None:
             self.r2qc_postfilter.qc()
-            self.r2qc_postfilter.plot(qc_dir, "R2-postfilter")
+            #self.r2qc_postfilter.plot(qc_dir, "R2-postfilter")
         
         #close all files
         if not self.options.qc_only:
@@ -638,7 +638,8 @@ class seqFilter:
         for i in xrange(len(counts)):
             labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(100.0 * float(counts[i])/TOTAL_READS) + "%)"
 
-        self.r1qc_prefilter.plotFilterStats(labels, counts, colors, TOTAL_READS, os.path.join(qc_dir, "filter-stat.png"))
+        reporter.addFigure('Good reads and bad reads after filtering', self.r1qc_prefilter.statPlotly(labels, counts, TOTAL_READS, 'filter_stat'), 'filter_stat', "")
+        #self.r1qc_prefilter.plotFilterStats(labels, counts, colors, TOTAL_READS, os.path.join(qc_dir, "filter-stat.png"))
 
         stat={}
         # stat["options"]=self.options
@@ -662,7 +663,8 @@ class seqFilter:
             stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
             stat["overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
             stat["overlap"]['edit_distance_histogram']=distance_histgram[0:10]
-            self.r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
+            reporter.addFigure('Overlap length distribution', self.r1qc_prefilter.overlapPlotly(overlap_histgram, readLen, TOTAL_READS, 'overlap_stat'), 'overlap_stat', "")
+            #self.r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
 
         stat_file = open(os.path.join(qc_dir, "after.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
@@ -673,9 +675,6 @@ class seqFilter:
         reporter.output(os.path.join(qc_dir, "report.html"))
 
     def addFiguresToReport(self, reporter):
-        reporter.addFigure('Good reads and bad reads after filtering', 'filter-stat.png')
-        if self.options.read2_file != None:
-            reporter.addFigure('Overlap length distribution for pair end sequencing', 'overlap.png')
         if self.options.read2_file != None:
             reporter.addFigure('Read1 quality curve before filtering', self.r1qc_prefilter.qualityPlotly("r1_pre_quality", 'Read1 quality curve before filtering'), "r1_pre_quality", "")
             reporter.addFigure('Read1 base content distribution before filtering', self.r1qc_prefilter.contentPlotly("r1_pre_content", 'Read1 base content distribution before filtering'), "r1_pre_content", "")
