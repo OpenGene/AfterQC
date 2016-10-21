@@ -464,90 +464,56 @@ class QualityControl:
     def autoTrim(self):
         #use (center-5, center+5) as initial good segment        
         center = int(self.readLen/2)
-        left = center-5
-        right = center+5
-        
-        threshold = 0.05
-        lastStepIsLeft = False
-        leftFinished = False
-        rightFinished = False
-        current = -1
-        
-        #expand the good segment
-        meanPercents = {}
-        while not (leftFinished and rightFinished):
-            for base in ALL_BASES:
-                meanPercents[base] = 0.0
-                for pos in xrange(left, right):
-                    meanPercents[base] += self.percents[base][pos]
-                meanPercents[base] /= (right-left)
-            
-            if leftFinished:
-                current = right + 1
-                lastStepIsLeft = False
-            elif rightFinished:
-                current = left - 1
-                lastStepIsLeft = True
-            elif lastStepIsLeft:
-                current = right + 1
-                lastStepIsLeft = False
-            else:
-                current = left - 1
-                lastStepIsLeft = True
-                                
-            percentBias = 0.0
-            for base in ALL_BASES:
-                percentBias += abs(meanPercents[base] - self.percents[base][current])
-            
-            if percentBias > threshold:
-                if lastStepIsLeft:
-                    leftFinished = True
-                else:
-                    rightFinished = True
-            else:
-                if lastStepIsLeft:
-                    left = current
-                    if left == 0: leftFinished = True
-                else:
-                    right = current
-                    if right == self.readLen-1: rightFinished = True
-                    
-        #find the bad segment from front, considering a small window
-        #if any in the window is bad, it is bad
-        trimFront = left
-        window = 3
-        for pos in xrange(0, left):
-            isGood = True
-            for posInWindow in xrange(pos, min(pos+3, self.readLen)):
-                percentBias = 0.0
-                for base in ALL_BASES:
-                    percentBias += abs(meanPercents[base] - self.percents[base][posInWindow])
-                if percentBias > threshold:
-                    isGood = False
-            if isGood:    
-                trimFront = pos
+        front = center
+        tail = center
+        bad_in_front = False
+        bad_in_tail = False
+
+        for front in range(0, center)[::-1]:
+            if self.isAbnormalCycle(front, front+1, 0.10):
+                bad_in_front = True
                 break
-        #find the bad segment from tail, considering a small window
-        #if any in the window is bad, it is bad
-        trimTail = right
-        for pos in xrange(self.readLen-1, right, -1):
-            isGood = True
-            for posInWindow in xrange(pos, max(pos-3, 0), -1):
-                percentBias = 0.0
-                for base in ALL_BASES:
-                    percentBias += abs(meanPercents[base] - self.percents[base][posInWindow])
-                if percentBias > threshold:
-                    isGood = False
-            if isGood: 
-                trimTail = pos
+
+        for tail in range(center+1, self.readLen):
+            if self.isAbnormalCycle(tail, tail-1, 0.05):
+                bad_in_tail = True
                 break
+
+        print tail
+        print self.readLen
+
+        trimFront = 0
+        trimTail = 0
+        if bad_in_front:
+            trimFront = front+1
+        if bad_in_tail:
+            trimTail = self.readLen-tail
         
-        trimFront = min(self.readLen*0.03,trimFront)
-        trimTail = min(self.readLen*0.02,self.readLen-1-trimTail)
-        # the last base should be definitely trimmed for illumina sequencer output
-        trimTail = max(1, trimTail)
+        trimFront = min(int(self.readLen*0.1),trimFront)
+        trimTail = min(int(self.readLen*0.05),trimTail)
         
-        return (int(trimFront), int(trimTail))
+        return (trimFront, trimTail)
+
+    def isAbnormalCycle(self, this_cycle, comp_cycle, percent_change_threshold):
+        # thresholds
+        BASE_TOP = 0.4
+        BASE_BOTTOM = 0.15
+        GC_TOP = 0.7
+        GC_BOTTOM = 0.3
+        QUAL_BOTTOM = 20.0
+
+        if self.gcPercents[this_cycle] > GC_TOP or self.gcPercents[this_cycle] < GC_BOTTOM:
+            return True
+
+        for base in ALL_BASES:
+            if self.percents[base][this_cycle] > BASE_TOP or self.percents[base][this_cycle] < BASE_BOTTOM:
+                return True
+            if abs(self.percents[base][this_cycle] - self.percents[base][comp_cycle]) > percent_change_threshold:
+                return True
+            if self.baseMeanQual[base][this_cycle] < QUAL_BOTTOM:
+                return True
+
+        return False
 
 if __name__  == "__main__":
     qc = QualityControl()
