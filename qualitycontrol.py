@@ -210,7 +210,7 @@ class QualityControl:
         json_str += "{"
         json_str += "x:[" + ",".join(map(str, x)) + "],"
         json_str += "y:[" + ",".join(map(str, self.gcPercents[0:self.readLen])) + "],"
-        json_str += "name: 'mean',"
+        json_str += "name: 'GC',"
         json_str += "mode:'lines',"
         json_str += "line:{color:'rgba(20,20,20,255)', width:1}\n"
         json_str += "}\n"
