@@ -479,9 +479,6 @@ class QualityControl:
                 bad_in_tail = True
                 break
 
-        print tail
-        print self.readLen
-
         trimFront = 0
         trimTail = 0
         if bad_in_front:
