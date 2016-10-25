@@ -70,7 +70,7 @@ def parseCommand():
         help = "specify the verify sequence of a barcode which is adjunct to the barcode")
     parser.add_option("", "--store_overlap", dest = "store_overlap", default = "off",
         help = "specify whether store only overlapped bases of the good reads")
-    parser.add_option("", "--overlap_output_folder", dest = "overlap_output_folder", default = "overlap",
+    parser.add_option("", "--overlap_output_folder", dest = "overlap_output_folder", default = None,
         help = "the folder to store only overlapped bases of the good reads")
     parser.add_option("", "--qc_only", dest = "qc_only", action='store_true', default = False,
         help = "if qconly is true, only QC result will be output, this can be much fast")
