@@ -295,7 +295,8 @@ class seqFilter:
         #if overlap output folder not specified, set it as the same folder of read1 file
         overlap_dir = self.options.overlap_output_folder
         if overlap_dir == None:
-            overlap_dir = os.path.dirname(self.options.read1_file)
+#            overlap_dir = os.path.dirname(self.options.read1_file)
+            overlap_dir = os.path.join(os.path.dirname(os.path.dirname(good_dir+"/")), "overlap")
 
         #save QC results at the same folder of good
         qc_base_folder =  os.path.join(os.path.dirname(os.path.dirname(good_dir+"/")), "QC")
