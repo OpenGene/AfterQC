@@ -3,6 +3,9 @@ Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data
 `AfterQC` can simply go through all fastq files in a folder and then output three folders: <b>good</b>, <b>bad</b> and <b>QC</b> folders, which contains good reads, bad reads and the QC results of each fastq file/pair.   
 Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
+# An exmample of Report
+The report of AfterQC is a single HTML page with figures contained in. See an example: [http://opengene.org/AfterQC/report.html](http://opengene.org/AfterQC/report.html)
+
 # Features:
 `AfterQC` does following tasks automatically:  
 * Filters reads with too low quality, too short length or too many N
@@ -13,24 +16,28 @@ Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 50
 * Detects and eliminates bubble artifact caused by sequencer due to fluid dynamics issues
 * Single molecule barcode sequencing support: if all reads have a single molecule barcode (see duplex sequencing), `AfterQC` shifts the barcodes from the reads to the fastq query names
 * Support both single-end sequencing and pair-end sequencing data
+* Automatic adapter cutting for pair-end sequencing data
+* Sequencing error estimation, and error distribution profiling
 
 # Get AfterQC
 * latest: `git clone https://github.com/OpenGene/AfterQC.git`
 * stable: [Releases](https://github.com/OpenGene/AfterQC/releases)
 
 # Dependency:
-`AfterQC` uses `editdistance` module for performance, if you are using native `python`, install it using `pip`:
+`AfterQC` uses `editdistance` module for performance.  
+1, if you are using `standard python`, you can install it using `pip`:
 ```shell
 pip install editdistance
 ```
-If you failed to install `editdistance` with `pip`, you can run `make` in the `AfterQC` module to build a `editdistance` library locally with `g++`, and `AfterQC` will load it automatically.
+2, if you use `pypy` or you fail to install `editdistance` with `pip`, you can build a `editdistance` library locally with `g++` following:
+```shell
+cd /path/to/AfterQC
+make
+```
 
-***WARNING: If you don't install or build `editdistance` module, `AfterQC` will use a python implementation of editdistance, but it will be extremely slow.***
+*** Using `pypy` is suggested, since it's about 3X fast as `standard python`. ***
 
-# pypy support
-* Can be `3X` faster than native `python`
-* Run `make` in `AfterQC` folder to build `editdistance` because it is not easy to install it from `pypy pip`
-* All figures will not be generated with `pypy`, because `matplotlib` and `PIL` are not supported by `pypy`
+*** If you don't install or build `editdistance` module, `AfterQC` will use a python implementation of editdistance, which will be extremely slow. ***
 
 # Simple usage:
 * Prepare your fastq files in a folder
@@ -176,26 +183,3 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
 * For single-end sequencing data, it will still have `R1`.
 * `prefilter` means `before filtering`, `postfilter` means `after filtering`
 * For pair-end sequencing data, `After` will do an `overlap analysis`. read1 and read2 will be overlapped when `read1_length + read2_length > DNA_template_length`. 
-
-### Filtering statistics
-![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/filter-stat.png)
-
-### Overlapped length distribution
-![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/overlap.png)
-
-### Per-cycle quality
-![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-quality.png)
-
-### Per-cycle base content
-![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-content.png)
-
-### GC content ratio distribution
-![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-gc-curve.png)
-
-### Per-cycle discontinuity
-`discontinuity` means the summution of the difference neighbor cycles, in a KMER window. For example, `discontinuity` of `AAAAA` is `0`, `discontinuity` of `ATCGA` is `4`. This value reflects the `signal-noise-ratio` of each sequencing cycle. Idealy it should be nearly a hrizontal straight line.
-![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-discontinuity.png)
-
-### KMER-based strand bias
-Theoretically in a sequencing run, the repeat count of a KMER should be close to the count of this KMER's reverse complement. If these two counts are not close, it reflects there is amplificaion bias (like PCR bias) or sequencing bias. If the bias is very low, the points of `(KMER-count, KMER-reverse-complement-count)` should be near the line `y=x`. The compacter the points are, the lower the bias is.  
-![image](https://github.com/OpenGene/AfterQC/raw/master/report_sample/R1-prefilter-strand-bias.png)
