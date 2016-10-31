@@ -542,7 +542,7 @@ class seqFilter:
                             if b1 != b2:
                                 # print(TOTAL_READS, o, b1, b2, q1, q2)
                                 this_is_corrected = False
-                                if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 16:
+                                if util.qualNum(q1) >= 30 and util.qualNum(q2) <= 14:
                                     if b1!='N' and b2!='N':
                                         err_mtx[util.complement(b1)][util.complement(b2)] += 1
                                     if not self.options.no_correction:
@@ -550,7 +550,7 @@ class seqFilter:
                                         r2[3] = util.changeString(r2[3], -o-1, q1)
                                         corrected += 1
                                         this_is_corrected = True
-                                elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 16:
+                                elif util.qualNum(q2) >= 30 and util.qualNum(q1) <= 14:
                                     if b1!='N' and b2!='N':
                                         err_mtx[b2][b1] += 1
                                     if not self.options.no_correction:
