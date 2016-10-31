@@ -387,7 +387,9 @@ class seqFilter:
         BADNCT = 0
         BADINDEL = 0
         BADMISMATCH = 0
+        READ_CORRECTED = 0
         BASE_CORRECTED = 0
+        BASE_ZERO_QUAL_MASKED = 0
         OVERLAPPED = 0
         OVERLAP_LEN_SUM = 0
         OVERLAP_BASE_SUM = 0
@@ -519,6 +521,7 @@ class seqFilter:
                     OVERLAP_BASE_SUM += overlap_len * 2
                     OVERLAP_BASE_ERR += distance
                     corrected = 0
+                    zero_qual_masked = 0
                     if distance>0:
                         #try to fix low quality base
                         hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
@@ -538,27 +541,42 @@ class seqFilter:
                             q2 = r2[3][-o-1]
                             if b1 != b2:
                                 # print(TOTAL_READS, o, b1, b2, q1, q2)
+                                this_is_corrected = False
                                 if util.qualNum(q1) >= 27 and util.qualNum(q2) <= 16:
-                                    r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
-                                    r2[3] = util.changeString(r2[3], -o-1, q1)
-                                    corrected += 1
                                     if b1!='N' and b2!='N':
                                         err_mtx[util.complement(b1)][util.complement(b2)] += 1
+                                    if not self.options.no_correction:
+                                        r2[1] = util.changeString(r2[1], -o-1, util.complement(b1))
+                                        r2[3] = util.changeString(r2[3], -o-1, q1)
+                                        corrected += 1
+                                        this_is_corrected = True
                                 elif util.qualNum(q2) >= 27 and util.qualNum(q1) <= 16:
-                                    r1[1]= util.changeString(r1[1], len(r1[1]) - overlap_len + o, b2)
-                                    r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, q2)
-                                    corrected += 1
                                     if b1!='N' and b2!='N':
                                         err_mtx[b2][b1] += 1
-                                if corrected >= distance:
+                                    if not self.options.no_correction:
+                                        r1[1]= util.changeString(r1[1], len(r1[1]) - overlap_len + o, b2)
+                                        r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, q2)
+                                        corrected += 1
+                                        this_is_corrected = True
+                                if not this_is_corrected:
+                                    # mask them as zero qual if it is not corrected
+                                    zero_qual = '!'
+                                    r2[3] = util.changeString(r2[3], -o-1, zero_qual)
+                                    r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, zero_qual)
+                                    zero_qual_masked += 1
+
+                                if corrected + zero_qual_masked>= distance:
                                     break
                         #print(r1[1][len(r1[1]) - overlap_len:])
                         #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         #print(r1[3][len(r1[1]) - overlap_len:])
                         #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
-                        if corrected == distance:
+                        if corrected + zero_qual_masked == distance:
                             merge_error_matrix(OVERLAP_ERR_MATRIX, err_mtx)
-                            BASE_CORRECTED += 1
+                            READ_CORRECTED += 1
+                            BASE_CORRECTED += corrected
+                            # multiply by 2 since we mask bases by pair
+                            BASE_ZERO_QUAL_MASKED += zero_qual_masked * 2
                         else:
                             self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
                             BADMISMATCH += 1
@@ -659,7 +677,9 @@ class seqFilter:
                 stat["overlap"]['average_overlap_length']=0.0
             stat["overlap"]['bad_mismatch_reads']=BADMISMATCH
             stat["overlap"]['bad_indel_reads']=BADINDEL
-            stat["overlap"]['corrected_reads']=BASE_CORRECTED
+            stat["overlap"]['corrected_reads']=READ_CORRECTED
+            stat["overlap"]['corrected_bases']=BASE_CORRECTED
+            stat["overlap"]['zero_qual_masked']=BASE_ZERO_QUAL_MASKED
             stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
             stat["overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
             stat["overlap"]['edit_distance_histogram']=distance_histgram[0:10]

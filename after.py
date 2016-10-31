@@ -9,7 +9,7 @@ from multiprocessing import Process, Queue
 import copy
 from util import *
 
-AFTERQC_VERSION = "0.7.0"
+AFTERQC_VERSION = "0.8.1"
 
 def parseCommand():
     usage = "Automatic Filtering, Trimming, Error Removing and Quality Control for Illumina fastq data \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
@@ -78,6 +78,8 @@ def parseCommand():
         help = "sample up to qc_sample reads when do QC, 0 means sample all reads. Default is 200,000")
     parser.add_option("", "--qc_kmer", dest = "qc_kmer", default = 8, type = "int",
         help = "specify the kmer length for KMER statistics for QC, default is 8")
+    parser.add_option("", "--no_correction", dest = "no_correction", action='store_true', default = False,
+        help = "disable base correction for mismatched base pairs in overlapped areas")
     return parser.parse_args()
 
 def matchFlag(filename, flag):
