@@ -654,7 +654,10 @@ class seqFilter:
             colors.append('#CCDD22')
 
         for i in xrange(len(counts)):
-            labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(100.0 * float(counts[i])/TOTAL_READS) + "%)"
+            type_percent = 0.0
+            if TOTAL_READS > 0:
+                type_percent = 100.0 * float(counts[i])/TOTAL_READS
+            labels[i] = labels[i] + ": " + str(counts[i]) + "(" + str(type_percent) + "%)"
 
         reporter.addFigure('Good reads and bad reads after filtering', self.r1qc_prefilter.statPlotly(labels, counts, TOTAL_READS, 'filter_stat'), 'filter_stat', "")
         #self.r1qc_prefilter.plotFilterStats(labels, counts, colors, TOTAL_READS, os.path.join(qc_dir, "filter-stat.png"))
@@ -680,7 +683,10 @@ class seqFilter:
             stat["overlap"]['corrected_reads']=READ_CORRECTED
             stat["overlap"]['corrected_bases']=BASE_CORRECTED
             stat["overlap"]['zero_qual_masked']=BASE_ZERO_QUAL_MASKED
-            stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
+            if OVERLAP_BASE_SUM > 0:
+                stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
+            else:
+                stat["overlap"]['error_rate']=0.0
             stat["overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
             stat["overlap"]['edit_distance_histogram']=distance_histgram[0:10]
             reporter.addFigure('Sequence error distribution', self.r1qc_prefilter.errorPlotly(OVERLAP_ERR_MATRIX, 'error_matrix'), 'error_matrix', "")

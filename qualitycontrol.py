@@ -132,21 +132,6 @@ class QualityControl:
     def sortKmer(self):
         self.topKmerCount = sorted(self.kmerCount.items(), key=lambda x: x[1], reverse=True)
 
-    def plotQuality(self, filename, prefix=""):
-        colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
-        x = range(self.readLen)
-        plt.figure(1)
-        plt.title(prefix + " base quality" )
-        plt.xlim(0, self.readLen)
-        plt.ylabel('Quality')
-        plt.xlabel('Cycle')
-        for base in ALL_BASES:
-            plt.plot(x, self.baseMeanQual[base][0:self.readLen], color = colors[base], label=base, alpha=0.3)
-        plt.plot(x, self.meanQual[0:self.readLen], color = 'black', label = 'mean')
-        plt.legend(loc='upper right', ncol=5)
-        plt.savefig(filename)
-        plt.close(1)
-
     def qualityPlotly(self, div, title=""):
         colors = {'A':'rgba(255,0,0,0.5)', 'T':'rgba(128,0,128,0.5)', 'C':'rgba(0,255,0,0.5)', 'G':'rgba(0,0,255,0.5)'}
         json_str = "var data=["
@@ -172,26 +157,6 @@ class QualityControl:
         json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'quality'}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
-
-    def plotContent(self, filename, prefix=""):
-        colors = {'A':'red', 'T':'purple', 'C':'blue', 'G':'green'}
-        x = range(self.readLen)
-        plt.figure(1)
-        plt.title(prefix + " base contents" )
-        plt.xlim(0, self.readLen)
-        max_y = 0.8
-        for base in ALL_BASES:
-            max_of_base = max(self.percents[base][0:self.readLen])
-            max_y = max(max_y, max_of_base+0.05)
-        plt.ylim(0.0, max_y )
-        plt.ylabel('Percents')
-        plt.xlabel('Cycle')
-        for base in ALL_BASES:
-            plt.plot(x, self.percents[base][0:self.readLen], color = colors[base], label=base, alpha=0.5)
-        plt.plot(x, self.gcPercents[0:self.readLen], color = 'black', label='GC')
-        plt.legend(loc='upper right', ncol=5)
-        plt.savefig(filename)
-        plt.close(1)
 
     def contentPlotly(self, div, title=""):
         colors = {'A':'rgba(255,0,0,0.5)', 'T':'rgba(128,0,128,0.5)', 'C':'rgba(0,255,0,0.5)', 'G':'rgba(0,0,255,0.5)'}
@@ -219,18 +184,6 @@ class QualityControl:
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
 
-    def plotGCHistogram(self, filename, prefix=""):
-        x = range(self.readLen+1)
-        plt.figure(1)
-        plt.title(prefix + " GC content distribution" )
-        plt.ylabel('Count')
-        plt.xlabel('GC percentage (%)')
-        xticks = [100.0 * float(t)/self.readLen for t in x]
-        plt.bar(xticks, self.gcHistogram[0:self.readLen+1], color = 'gray', label='Actual', alpha=0.8)
-        # plt.legend(loc='upper right', ncol=5)
-        plt.savefig(filename)
-        plt.close(1)
-
     def gcPlotly(self, div, title=""):
         json_str = "var data=["
         x = range(self.readLen+1)
@@ -244,19 +197,6 @@ class QualityControl:
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
 
-    def plotDiscontinuity(self, filename, prefix=""):
-        x = range(self.readLen)
-        plt.figure(1)
-        plt.xlim(0, self.readLen)
-        plt.ylim(0.0, max(self.meanDiscontinuity)*1.5)
-        plt.title(prefix + " per base discontinuity" )
-        plt.ylabel('Mean discontinuity')
-        plt.xlabel('Cycle')
-        plt.plot(x, self.meanDiscontinuity[0:self.readLen], color = '#FF6600', label='Discontinuity', alpha=0.8)
-        # plt.legend(loc='upper right', ncol=5)
-        plt.savefig(filename)
-        plt.close(1)
-
     def discontinuityPlotly(self, div, title=""):
         json_str = "var data=["
         x = range(self.readLen)
@@ -269,29 +209,6 @@ class QualityControl:
         json_str += "var layout={title:'" + title + "', xaxis:{title:'cycles'}, yaxis:{title:'discontinuity', range:" + makeRange(0.0, max(self.meanDiscontinuity)*1.5) + "}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
-
-    def plotStrandBias(self, filename, prefix=""):
-        shift = min(50, len(self.topKmerCount)/2)
-        top = len(self.topKmerCount) - shift
-        forward = [0 for i in xrange(top)]
-        reverse = [0 for i in xrange(top)]
-        maxValue = 0
-        for i in xrange(top):
-            kmer = self.topKmerCount[i+shift][0]
-            forward[i] = self.kmerCount[kmer]
-            reverse[i] = self.kmerCount[util.reverseComplement(kmer)]
-            maxValue = max(max(forward[i], reverse[i]), maxValue)
-
-        plt.figure(1)
-        plt.xlim(-10, maxValue)
-        plt.ylim(-10, maxValue)
-        plt.title(prefix + " strand bias" )
-        plt.xlabel('Relative forward strand KMER count')
-        plt.ylabel('Relative reverse strand KMER count')
-        plt.scatter(forward, reverse, label='Discontinuity', alpha=0.4, s=0.3)
-        # plt.legend(loc='upper right', ncol=5)
-        plt.savefig(filename)
-        plt.close(1)
 
     def strandBiasPlotly(self, div, title=""):
         shift = min(50, len(self.topKmerCount)/2)
@@ -324,40 +241,6 @@ class QualityControl:
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
 
-    def plot(self, folder=".", prefix=""):
-        if self.readLen == 0:
-            return
-        if HAVE_MATPLOTLIB == False:
-            return
-        try:
-            self.plotQuality(os.path.join(folder, prefix + "-quality.png"), prefix)
-            self.plotContent(os.path.join(folder, prefix + "-content.png"), prefix)
-            self.plotGCHistogram(os.path.join(folder, prefix + "-gc-curve.png"), prefix)
-            self.plotDiscontinuity(os.path.join(folder, prefix + "-discontinuity.png"), prefix)
-            self.plotStrandBias(os.path.join(folder, prefix + "-strand-bias.png"), prefix)
-        except Exception:
-            if WARNED_PLOT_FAILURE == False:
-                WARNED_PLOT_FAILURE = True
-                print("Failed to plot figures, please check your settings...")
-
-    def plotOverlapHistgram(self, overlap_histgram, readLen, total_reads, filename):
-        if HAVE_MATPLOTLIB == False:
-            return
-        try:
-            ratio = [100.0 * float(i)/float(total_reads) for i in overlap_histgram]
-            x = range(readLen+1)
-            plt.figure(1)
-            plt.title('Pair Overlap Length Histgram')
-            plt.xlim(-2, readLen)
-            plt.ylabel('Count')
-            plt.xlabel('Overlap Length (' + str(int(overlap_histgram[0]*100.0/total_reads)) + '% not overlapped)')
-            plt.bar(x, overlap_histgram, color='gray')
-            plt.savefig(filename)
-            plt.close(1)
-        except Exception:
-            if WARNED_PLOT_FAILURE == False:
-                WARNED_PLOT_FAILURE = True
-                print("Failed to plot figures, please check your settings...")
 
     def overlapPlotly(self, overlap_histgram, readLen, total_reads, div):
         json_str = "var data=["
@@ -367,7 +250,10 @@ class QualityControl:
         json_str += "y:[" + ",".join(map(str, overlap_histgram)) + "],"
         json_str += "type:'bar'"
         json_str += "}];"
-        xlabel = 'overlap Length (' + str(int(overlap_histgram[0]*100.0/total_reads)) + '% not overlapped)'
+        not_overlap_percent = 0
+        if total_reads > 0:
+            not_overlap_percent = int(overlap_histgram[0]*100.0/total_reads)
+        xlabel = 'overlap Length (' + str(not_overlap_percent) + '% not overlapped)'
         json_str += "var layout={title:'Pair overlap Length Histgram', xaxis:{title:'" + xlabel + "', range:" + makeRange(-2, readLen) + "}, yaxis:{title:'counts'}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
@@ -396,25 +282,6 @@ class QualityControl:
         json_str += "var layout={title:'sequencing error transform distribution', xaxis:{title:'seq error transform'}, yaxis:{title:'counts'}};\n"
         json_str += "Plotly.newPlot('" + div + "', data, layout);\n"
         return json_str
-
-    def plotFilterStats(self, labels, counts, colors, total_reads, filename):
-        if HAVE_MATPLOTLIB == False:
-            return
-        try:
-            fig = plt.figure(1)
-            plt.title("Filtering statistics of sampled " + str(total_reads) + " reads", fontsize=12, color='#666666')
-            plt.axis('equal')
-            patches, texts = plt.pie(counts, colors=colors, radius=0.7)
-            patches, labels, dummy =  zip(*sorted(zip(patches, labels, counts),
-                                                      key=lambda x: x[2],
-                                                      reverse=True))
-            plt.legend(patches, labels, loc='upper left', fontsize=9)
-            plt.savefig(filename, bbox_inches='tight')
-            plt.close(1)
-        except Exception:
-            if WARNED_PLOT_FAILURE == False:
-                WARNED_PLOT_FAILURE = True
-                print("Failed to plot figures, please check your settings...")
 
     def statPlotly(self, labels, counts, total_reads, div):
         json_str = "var data=["
