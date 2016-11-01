@@ -185,6 +185,8 @@ class QualityControl:
         return json_str
 
     def gcPlotly(self, div, title=""):
+        if self.readLen == 0:
+            return ""
         json_str = "var data=["
         x = range(self.readLen+1)
         xticks = [100.0 * float(t)/self.readLen for t in x]
@@ -211,6 +213,8 @@ class QualityControl:
         return json_str
 
     def strandBiasPlotly(self, div, title=""):
+        if self.readLen == 0:
+            return ""
         shift = min(50, len(self.topKmerCount)/2)
         # we only sample 1000 points for performance issue
         top = min(len(self.topKmerCount) - shift,1000)

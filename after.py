@@ -80,6 +80,8 @@ def parseCommand():
         help = "specify the kmer length for KMER statistics for QC, default is 8")
     parser.add_option("", "--no_correction", dest = "no_correction", action='store_true', default = False,
         help = "disable base correction for mismatched base pairs in overlapped areas")
+    parser.add_option("", "--no_overlap", dest = "no_overlap", action='store_true', default = False,
+        help = "disable overlap analysis (usually much faster with this option)")
     return parser.parse_args()
 
 def matchFlag(filename, flag):

@@ -501,7 +501,7 @@ class seqFilter:
                     continue
 
             #check overlap and do error correction
-            if r2!=None:
+            if r2!=None and (not self.options.no_overlap):
                 (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                 overlap_histgram[overlap_len] += 1
                 # deal with the case insert DNA is shorter than read length and cause offset is negative
