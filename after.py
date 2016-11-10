@@ -42,8 +42,8 @@ def parseCommand():
         help = "number of bases to be trimmed in the tail of read. -1 means auto detect")
     parser.add_option("", "--trim_pair_same", dest = "trim_pair_same", default = "true",
         help = "use same trimming configuration for read1 and read2 to keep their sequence length identical, default is true")
-    parser.add_option("-q", "--qualified_quality_phred", dest = "qualified_quality_phred", default = 14, type = "int",
-        help = "the quality value that a base is qualifyed. Default 14 means phred base quality >=Q14 is qualified.")
+    parser.add_option("-q", "--qualified_quality_phred", dest = "qualified_quality_phred", default = 15, type = "int",
+        help = "the quality value that a base is qualifyed. Default 15 means phred base quality >=Q15 is qualified.")
     parser.add_option("-u", "--unqualified_base_limit", dest = "unqualified_base_limit", default = 10, type = "int",
         help = "if exists more than unqualified_base_limit bases that quality is lower than qualified quality, then this read/pair is bad. Default is 10")
     parser.add_option("-p", "--poly_size_limit", dest = "poly_size_limit", default = 35, type = "int",
