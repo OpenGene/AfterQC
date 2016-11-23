@@ -44,8 +44,8 @@ def parseCommand():
         help = "use same trimming configuration for read1 and read2 to keep their sequence length identical, default is true")
     parser.add_option("-q", "--qualified_quality_phred", dest = "qualified_quality_phred", default = 15, type = "int",
         help = "the quality value that a base is qualifyed. Default 15 means phred base quality >=Q15 is qualified.")
-    parser.add_option("-u", "--unqualified_base_limit", dest = "unqualified_base_limit", default = 20, type = "int",
-        help = "if exists more than unqualified_base_limit bases that quality is lower than qualified quality, then this read/pair is bad. Default is 20")
+    parser.add_option("-u", "--unqualified_base_limit", dest = "unqualified_base_limit", default = 60, type = "int",
+        help = "if exists more than unqualified_base_limit bases that quality is lower than qualified quality, then this read/pair is bad. Default is 60")
     parser.add_option("-p", "--poly_size_limit", dest = "poly_size_limit", default = 35, type = "int",
         help = "if exists one polyX(polyG means GGGGGGGGG...), and its length is >= poly_size_limit, then this read/pair is bad. Default is 35")
     parser.add_option("-a", "--allow_mismatch_in_poly", dest = "allow_mismatch_in_poly", default = 2, type = "int",
