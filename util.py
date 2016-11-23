@@ -99,6 +99,7 @@ def overlap(r1, r2):
     overlap_len = 0
     offset = 0
     distance = 0
+    offset_0_is_min = True
     # a match of less than 10 is considered as unconfident
     while offset < len1-10 and overlapped==False:
         # the overlap length of r1 & r2 when r2 is move right for offset
@@ -119,17 +120,19 @@ def overlap(r1, r2):
                     overlapped = True
                     break
                 else:
+                    offset_0_is_min = False
                     offset = next_offset
                     distance = next_distance
                     overlap_len = next_overlap_len
             break
         else:
             offset += max(1, (distance - int(threshold))/2 )
-
-    if overlapped and offset == 0:
+    if offset_0_is_min:
+        # in this case, the adapter is sequenced since TEMPLATE_LEN < SEQ_LEN
         # check if distance can get smaller if offset goes negative
         # this only happens when insert DNA is shorter than sequencing read length, and some adapter/primer is sequenced but not trimmed cleanly
         # we go reversely
+        offset = 0
         while offset > -(len2-10):
             # the overlap length of r1 & r2 when r2 is move right for offset
             overlap_len = min(len1,  len2- abs(offset))
@@ -157,3 +160,8 @@ def changeString(str, pos, val):
     lst = list(str)
     lst[pos] = val
     return ''.join(lst)
+
+if __name__  == "__main__":
+    r1 = "CCGCGCCTACGGGCCCCTTTTTCTGCGCGACCGCGTGGCTGTGGGCGCGGATGCCTTTGAGCGCGGTGACTTCTCACTGCGTATCGAGCCGCTGGAGGTCTCCC"
+    r2 = "ACCTCCAGCGGCTCGATACGCAGTGAGAAGTCACCGCGCTCAAAGGCATCCGCGCCCACAGCCACGCGGTCGCGCAGAAAAAGGGGCCCGTAGGCGCGGCTCCC"
+    print overlap(r1, r2)

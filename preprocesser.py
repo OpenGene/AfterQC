@@ -397,6 +397,9 @@ class seqFilter:
         OVERLAP_BASE_ERR = 0
         OVERLAP_ERR_MATRIX = init_error_matrix()
 
+        #adapter trimming by overlap analysis
+        TRIMMED_ADAPTER_BASE = 0
+
         while True:
             r1 = read1_file.nextRead()
             if r1==None:
@@ -505,6 +508,7 @@ class seqFilter:
                 (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                 overlap_histgram[overlap_len] += 1
                 # deal with the case insert DNA is shorter than read length and cause offset is negative
+                # in this case the adapter is sequenced and should be trimmed
                 if offset <0 and overlap_len > 30:
                     # shift the junk bases
                     r1[1] = r1[1][0:overlap_len]
@@ -513,6 +517,7 @@ class seqFilter:
                     r2[3] = r2[3][-offset:-offset+overlap_len]
                     # then calc overlap again
                     (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
+                    TRIMMED_ADAPTER_BASE += abs(offset)*2
                 if overlap_len>30:
                     OVERLAPPED += 1
                     distance_histgram[distance] += 1
@@ -683,6 +688,7 @@ class seqFilter:
             stat["overlap"]['corrected_reads']=READ_CORRECTED
             stat["overlap"]['corrected_bases']=BASE_CORRECTED
             stat["overlap"]['zero_qual_masked']=BASE_ZERO_QUAL_MASKED
+            stat["overlap"]['trimmed_adapter_bases']=TRIMMED_ADAPTER_BASE
             if OVERLAP_BASE_SUM > 0:
                 stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
             else:
