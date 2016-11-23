@@ -527,6 +527,7 @@ class seqFilter:
                     OVERLAP_BASE_ERR += distance
                     corrected = 0
                     zero_qual_masked = 0
+                    skipped_mismatch = 0
                     if distance>0:
                         #try to fix low quality base
                         hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
@@ -564,21 +565,25 @@ class seqFilter:
                                         corrected += 1
                                         this_is_corrected = True
                                 if not this_is_corrected:
-                                    # mask them as zero qual if it is not corrected
-                                    zero_qual = '!'
-                                    r2[3] = util.changeString(r2[3], -o-1, zero_qual)
-                                    r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, zero_qual)
-                                    zero_qual_masked += 1
+                                    if self.options.mask_mismatch:
+                                        # mask them as zero qual if it is not corrected
+                                        zero_qual = '!'
+                                        r2[3] = util.changeString(r2[3], -o-1, zero_qual)
+                                        r1[3] = util.changeString(r1[3], len(r1[3]) - overlap_len + o, zero_qual)
+                                        zero_qual_masked += 1
+                                    else:
+                                        skipped_mismatch += 1
 
-                                if corrected + zero_qual_masked>= distance:
+                                if corrected + zero_qual_masked + skipped_mismatch >= distance:
                                     break
                         #print(r1[1][len(r1[1]) - overlap_len:])
                         #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         #print(r1[3][len(r1[1]) - overlap_len:])
                         #print(util.reverse(r2[3][len(r2[1]) - overlap_len:]))
-                        if corrected + zero_qual_masked == distance:
+                        if corrected + zero_qual_masked + skipped_mismatch == distance:
                             merge_error_matrix(OVERLAP_ERR_MATRIX, err_mtx)
-                            READ_CORRECTED += 1
+                            if corrected > 0:
+                                READ_CORRECTED += 1
                             BASE_CORRECTED += corrected
                             # multiply by 2 since we mask bases by pair
                             BASE_ZERO_QUAL_MASKED += zero_qual_masked * 2
