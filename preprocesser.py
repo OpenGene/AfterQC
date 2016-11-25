@@ -299,7 +299,9 @@ class seqFilter:
             overlap_dir = os.path.join(os.path.dirname(os.path.dirname(good_dir+"/")), "overlap")
 
         #save QC results at the same folder of good
-        qc_base_folder =  os.path.join(os.path.dirname(os.path.dirname(good_dir+"/")), "QC")
+        qc_base_folder = self.options.report_output_folder
+        if qc_base_folder == None:
+            qc_base_folder =  os.path.join(os.path.dirname(os.path.dirname(good_dir+"/")), "QC")
         if not os.path.exists(qc_base_folder):
             os.makedirs(qc_base_folder)
         qc_dir =  os.path.join(qc_base_folder, os.path.basename(self.options.read1_file))
@@ -704,7 +706,7 @@ class seqFilter:
             reporter.addFigure('Overlap length distribution', self.r1qc_prefilter.overlapPlotly(overlap_histgram, readLen, TOTAL_READS, 'overlap_stat'), 'overlap_stat', "")
             #self.r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
 
-        stat_file = open(os.path.join(qc_dir, "after.json"), "w")
+        stat_file = open(os.path.join(qc_dir, "report.json"), "w")
         stat_json = json.dumps(stat, sort_keys=True,indent=4, separators=(',', ': '))
         stat_file.write(stat_json)
         stat_file.close()
