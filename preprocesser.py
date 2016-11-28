@@ -517,9 +517,14 @@ class seqFilter:
                     r1[3] = r1[3][0:overlap_len]
                     r2[1] = r2[1][0:overlap_len]
                     r2[3] = r2[3][0:overlap_len]
+                    TRIMMED_ADAPTER_BASE += abs(offset)*2
+                    # check the sequence length again after adapter trimmed
+                    if len(r1[1])<self.options.seq_len_req:
+                        self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLEN")
+                        BADLEN += 1
+                        continue
                     # then calc overlap again
                     (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
-                    TRIMMED_ADAPTER_BASE += abs(offset)*2
                 if overlap_len>30:
                     OVERLAPPED += 1
                     distance_histgram[distance] += 1
