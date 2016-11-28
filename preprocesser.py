@@ -515,8 +515,8 @@ class seqFilter:
                     # shift the junk bases
                     r1[1] = r1[1][0:overlap_len]
                     r1[3] = r1[3][0:overlap_len]
-                    r2[1] = r2[1][-offset:-offset+overlap_len]
-                    r2[3] = r2[3][-offset:-offset+overlap_len]
+                    r2[1] = r2[1][0:overlap_len]
+                    r2[3] = r2[3][0:overlap_len]
                     # then calc overlap again
                     (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
                     TRIMMED_ADAPTER_BASE += abs(offset)*2
