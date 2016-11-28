@@ -740,7 +740,7 @@ class seqFilter:
             reporter.addFigure('Read2 per base discontinuity before filtering', self.r2qc_prefilter.discontinuityPlotly("r2_pre_discontinuity", 'Read2 discontinuity curve before filtering'), 'r2_pre_discontinuity', "")
             reporter.addFigure('Read2 kmer strand bias before filtering', self.r2qc_prefilter.strandBiasPlotly("r2_pre_sb", 'Read2 Kmer strand bias before filtering'), 'r2_pre_sb', "")
             reporter.addFigure('Read2 quality curve after filtering', self.r2qc_postfilter.qualityPlotly("r2_post_quality", 'Read2 quality curve after filtering'), "r2_post_quality", "")
-            reporter.addFigure('Read2 base content distribution after filtering', self.r2qc_postfilter.contentPlotly("r2_post_content", 'Read2 base content distribution filtering'), "r2_post_content", "")
+            reporter.addFigure('Read2 base content distribution after filtering', self.r2qc_postfilter.contentPlotly("r2_post_content", 'Read2 base content distribution after filtering'), "r2_post_content", "")
             reporter.addFigure('Read2 GC curve after filtering', self.r2qc_postfilter.gcPlotly("r2_post_gc", 'Read2 GC curve after filtering'), 'r2_post_gc', "")
             reporter.addFigure('Read2 per base discontinuity after filtering', self.r2qc_postfilter.discontinuityPlotly("r2_post_discontinuity", 'Read2 discontinuity curve after filtering'), 'r2_post_discontinuity', "")
             reporter.addFigure('Read2 kmer strand bias after filtering', self.r2qc_postfilter.strandBiasPlotly("r2_post_sb", 'Read2 kmer strand bias after filtering'), 'r2_post_sb', "")
