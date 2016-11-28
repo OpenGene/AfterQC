@@ -17,6 +17,9 @@ class QCReporter:
     def setStat(self, stat):
         self.stat = stat
 
+    def setVersion(self, ver):
+        self.version = ver
+
     def output(self, filename):
         io = open(filename, "w")
         self.outputHeader(io)
@@ -86,6 +89,7 @@ class QCReporter:
         io.write("<div class='figure-div'>\n")
         io.write("<div class='figure-title'><a name='summary'>1, AfterQC summary</a></div>\n")
         io.write("<table class='summary-table'>\n")
+        self.outputRow(io, "AfterQC Version:", self.version)
         self.outputRow(io, "sequencing:", self.getSequencing())
         if self.stat["command"]["read2_file"] != None:
             self.outputRow(io, "estimated seq error:", str(self.stat["overlap"]["error_rate"]*100) + "%")

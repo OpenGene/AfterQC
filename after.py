@@ -9,7 +9,7 @@ from multiprocessing import Process, Queue
 import copy
 from util import *
 
-AFTERQC_VERSION = "0.8.1"
+AFTERQC_VERSION = "0.9.0"
 
 def parseCommand():
     usage = "Automatic Filtering, Trimming, Error Removing and Quality Control for Illumina fastq data \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
@@ -189,6 +189,7 @@ def main():
         print('cannot get python version, please make sure you are using python2')
     
     (options, args) = parseCommand()
+    options.version = AFTERQC_VERSION
     options.trim_pair_same = parseBool(options.trim_pair_same)
     options.draw = parseBool(options.draw)
     options.store_overlap = parseBool(options.store_overlap)

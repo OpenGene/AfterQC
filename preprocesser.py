@@ -713,6 +713,7 @@ class seqFilter:
 
         self.addFiguresToReport(reporter)
         reporter.setStat(stat)
+        reporter.setVersion(self.options.version)
         reporter.output(os.path.join(qc_dir, "report.html"))
 
     def addFiguresToReport(self, reporter):
