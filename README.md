@@ -20,8 +20,11 @@ The report of AfterQC is a single HTML page with figures contained in. See an ex
 * Sequencing error estimation, and error distribution profiling
 
 # Get AfterQC
-* latest: `git clone https://github.com/OpenGene/AfterQC.git`
+* latest: `git clone https://github.com/OpenGene/AfterQC.git` or download [https://github.com/OpenGene/AfterQC/archive/master.zip](https://github.com/OpenGene/AfterQC/archive/master.zip)
 * stable: [Releases](https://github.com/OpenGene/AfterQC/releases)
+
+# Cite AfterQC
+Shifu Chen, Tanxiao Huang, Yanqing Zhou, Yue Han, Mingyan Xu and Jia Gu.  AfterQC: automatic filtering, trimming, error removing and quality control for fastq data.  BMC Bioinformatics 2017 18(Suppl 3):80 
 
 # Dependency:
 `AfterQC` uses `editdistance` module for performance.  
