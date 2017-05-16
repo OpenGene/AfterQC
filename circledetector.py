@@ -89,7 +89,8 @@ class CircleDetector:
         return (right - left) * (bottom - top)
         
     def isInCorner(self):
-        
+        if len(self.records)==0:
+            return False
         cornerCount = 0
         thresholdX = 0.1 * self.xmax
         thresholdY = 0.1 * self.ymax

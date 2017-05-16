@@ -202,7 +202,10 @@ def main():
     
     if options.input_dir != None:
         if options.debubble:
-            runDebubble(options)
+            try:
+                runDebubble(options)
+            except Exception:
+                print('Error happened with debubble function, just skip it now since it will not affect other features')
         processDir(options.input_dir, options)
     else:
         if options.barcode_flag in options.read1_file and parseBool(options.barcode):
