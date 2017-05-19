@@ -28,5 +28,7 @@ RUN apt-get install -y pypy pypy-dev
 RUN mkdir -p /tools/after
 COPY . /tools/after
 RUN chmod +x /tools/after/after.py
+WORKDIR /tools/after
+RUN make
 
 ENTRYPOINT ["/usr/bin/pypy"]
