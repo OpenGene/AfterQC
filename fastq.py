@@ -1,10 +1,11 @@
  #!/usr/bin/env python
   
 import gzip
+import bz2
 import os,sys
 
 def isFastq(f):
-    fqext = (".fq", ".fastq", "fq.gz", ".fastq.gz")
+    fqext = (".fq", ".fastq", ".fq.gz", ".fastq.gz", ".fq.bz2", ".fastq.bz2")
     for ext in fqext:
         if f.endswith(ext):
             return True
@@ -17,14 +18,13 @@ class Reader:
 
     def __init__(self, fname):
         self.__file = None
-        self.__gz = False
         self.__eof = False
         self.filename = fname
         if self.filename.endswith(".gz"):
-            self.__gz = True
             self.__file = gzip.open(self.filename, "r")
+        elif self.filename.endswith(".bz2"):
+            self.__file = bz2.BZ2File(self.filename)
         else:
-            self.__gz = False
             self.__file = open(self.filename, "r")
         if self.__file == None:
             print("Failed to open file " + self.filename)
@@ -59,15 +59,15 @@ class Writer:
     filename = ""
     
     __file = None
-    __gz = False
     
     def __init__(self, fname):
         self.filename = fname
         if self.filename.endswith(".gz"):
-            self.__gz = True
             self.__file = gzip.open(self.filename, "w")
+        elif self.filename.endswith(".bz2"):
+            print("ERROR: Write bzip2 stream is not supported")
+            sys.exit(1)
         else:
-            self.__gz = False
             self.__file = open(self.filename, "w")
         if self.__file == None:
             print("Failed to open file " + self.filename + " to write")

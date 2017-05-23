@@ -61,7 +61,10 @@ class QualityControl:
         gc = 0
         for i in xrange(seqlen):
             self.totalNum[i] += 1
-            qnum = util.qualNum(qual[i])
+            try:
+                qnum = util.qualNum(qual[i])
+            except Exception:
+                continue
             self.totalQual[i] += qnum
             b = seq[i]
             if b=='G' or b=='C':

@@ -9,7 +9,7 @@ from multiprocessing import Process, Queue
 import copy
 from util import *
 
-AFTERQC_VERSION = "0.9.1"
+AFTERQC_VERSION = "0.9.2"
 
 def parseCommand():
     usage = "Automatic Filtering, Trimming, Error Removing and Quality Control for Illumina fastq data \n\nSimplest usage:\ncd to the folder containing your fastq data, run <python after.py>"
@@ -104,7 +104,7 @@ def processDir(folder, options):
 #        except OSError as e:
 #            print('OSError: ', e)
 
-    fqext = (".fq", ".fastq", "fq.gz", ".fastq.gz")
+    fqext = (".fq", ".fastq", ".fq.gz", ".fastq.gz", ".fq.bz2", ".fastq.bz2")
     read1name = options.read1_flag
     read2name = options.read2_flag
     index1name = options.index1_flag
