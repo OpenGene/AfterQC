@@ -6,6 +6,7 @@ import util
 
 HAVE_MATPLOTLIB = True
 WARNED_PLOT_FAILURE = False
+WARNED_BZIP2_ERROR = False
 
 if not sys.executable.endswith("pypy"):
     try:
@@ -30,6 +31,7 @@ def makeRange(bottom, top):
 class QualityControl:
 
     def __init__(self, qc_sample=1000000, qc_kmer=8):
+        self.filename = ""
         self.sampleLimit = qc_sample
         self.kmerLen = qc_kmer
         self.readLen = 0
@@ -55,6 +57,7 @@ class QualityControl:
             self.baseTotalQual[base] = [0 for x in xrange(MAX_LEN)]
 
     def statRead(self, read):
+        global WARNED_BZIP2_ERROR
         seq = read[1]
         qual = read[3]
         seqlen = len(seq)
@@ -64,6 +67,9 @@ class QualityControl:
             try:
                 qnum = util.qualNum(qual[i])
             except Exception:
+                if self.filename.endswith("bz2") and WARNED_BZIP2_ERROR == False:
+                    WARNED_BZIP2_ERROR = True
+                    print("WARNING: Incompatible bzip2 format, please note that the file compressed with pbzip2 may have problem. Please compress it with bzip2 insteadly.\n")
                 continue
             self.totalQual[i] += qnum
             b = seq[i]
@@ -309,6 +315,7 @@ class QualityControl:
         self.sortKmer()
         
     def statFile(self, filename):
+        self.filename = filename
         READ_TO_SKIP = 1000
         reader = fastq.Reader(filename)
         stat_reads_num = 0
