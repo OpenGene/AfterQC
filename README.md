@@ -37,6 +37,7 @@ pip install editdistance
 cd /path/to/AfterQC
 make
 ```
+3, Python3 is not supported yet, please use Python2.  
 
 *** Using `pypy` is suggested, since it's about 3X fast as `standard python`. ***
 
