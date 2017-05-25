@@ -23,9 +23,6 @@ The report of AfterQC is a single HTML page with figures contained in. See an ex
 * latest: `git clone https://github.com/OpenGene/AfterQC.git` or download [https://github.com/OpenGene/AfterQC/archive/master.zip](https://github.com/OpenGene/AfterQC/archive/master.zip)
 * stable: [Releases](https://github.com/OpenGene/AfterQC/releases)
 
-# Cite AfterQC
-Shifu Chen, Tanxiao Huang, Yanqing Zhou, Yue Han, Mingyan Xu and Jia Gu.  AfterQC: automatic filtering, trimming, error removing and quality control for fastq data.  BMC Bioinformatics 2017 18(Suppl 3):80 
-
 # Dependency:
 `AfterQC` uses `editdistance` module for performance.  
 1, if you are using `standard python`, you can install it using `pip`:
@@ -37,11 +34,11 @@ pip install editdistance
 cd /path/to/AfterQC
 make
 ```
-3, Python3 is not supported yet, please use Python2.  
+3, Python3 is not supported yet, please use Python2.
 
-*** Using `pypy` is suggested, since it's about 3X fast as `standard python`. ***
+***Using `pypy` is suggested, since it's about 3X fast as `standard python`.***
 
-*** If you don't install or build `editdistance` module, `AfterQC` will use a python implementation of editdistance, which will be extremely slow. ***
+***If you don't install or build `editdistance` module, `AfterQC` will use a python implementation of editdistance, which will be extremely slow.***
 
 # Simple usage:
 * Prepare your fastq files in a folder
@@ -187,3 +184,6 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
 * For single-end sequencing data, it will still have `R1`.
 * `prefilter` means `before filtering`, `postfilter` means `after filtering`
 * For pair-end sequencing data, `After` will do an `overlap analysis`. read1 and read2 will be overlapped when `read1_length + read2_length > DNA_template_length`. 
+
+# Cite AfterQC
+Shifu Chen, Tanxiao Huang, Yanqing Zhou, Yue Han, Mingyan Xu and Jia Gu.  AfterQC: automatic filtering, trimming, error removing and quality control for fastq data.  BMC Bioinformatics 2017 18(Suppl 3):80 
