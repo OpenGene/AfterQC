@@ -23,22 +23,8 @@ The report of AfterQC is a single HTML page with figures contained in. See an ex
 * latest: `git clone https://github.com/OpenGene/AfterQC.git` or download [https://github.com/OpenGene/AfterQC/archive/master.zip](https://github.com/OpenGene/AfterQC/archive/master.zip)
 * stable: [Releases](https://github.com/OpenGene/AfterQC/releases)
 
-# Dependency:
-`AfterQC` uses `editdistance` module for performance.  
-1, if you are using `standard python`, you can install it using `pip`:
-```shell
-pip install editdistance
-```
-2, if you use `pypy` or you fail to install `editdistance` with `pip`, you can build a `editdistance` library locally with `g++` following:
-```shell
-cd /path/to/AfterQC
-make
-```
-3, Python3 is not supported yet, please use Python2.
-
-***Using `pypy` is suggested, since it's about 3X fast as `standard python`.***
-
-***If you don't install or build `editdistance` module, `AfterQC` will use a python implementation of editdistance, which will be extremely slow.***
+# PyPy suggestion:
+`AfterQC` is compitable with `PyPy`. Using `PyPy` to run `AfterQC` is strongly suggested since it can make `AfterQC` 3X faster than native Python (CPython).  To run with `pypy`, just replace `python` with `pypy` in the commands.
 
 # Simple usage:
 * Prepare your fastq files in a folder
