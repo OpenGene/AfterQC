@@ -91,12 +91,14 @@ class QCReporter:
         io.write("<table class='summary-table'>\n")
         self.outputRow(io, "AfterQC Version:", self.version)
         self.outputRow(io, "sequencing:", self.getSequencing())
-        if self.stat["command"]["read2_file"] != None:
-            self.outputRow(io, "estimated seq error:", str(self.stat["overlap"]["error_rate"]*100) + "%")
         self.outputRow(io, "total reads:", self.stat["summary"]["total_reads"])
         self.outputRow(io, "filtered out reads:", str(self.stat["summary"]["bad_reads"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["summary"]["bad_reads"])/float(self.stat["summary"]["total_reads"])) + "%)</font>")
         self.outputRow(io, "total bases:", self.stat["summary"]["total_bases"])
         self.outputRow(io, "filtered out bases:", str(self.stat["summary"]["total_bases"] - self.stat["summary"]["good_bases"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["summary"]["total_bases"] - self.stat["summary"]["good_bases"])/float(self.stat["summary"]["total_bases"])) + "%)</font>")
+        if self.stat["command"]["read2_file"] != None:
+            self.outputRow(io, "estimated seq error:", str(self.stat["overlap"]["error_rate"]*100) + "%")
+            self.outputRow(io, "adapter trimmed reads:", self.stat["overlap"]['trimmed_adapter_reads'])
+            self.outputRow(io, "adapter trimmed bases:", self.stat["overlap"]['trimmed_adapter_bases'])
         self.outputRow(io, "auto trimming", "front:" + str(self.stat["command"]["trim_front"]) + ", tail:" + str(self.stat["command"]["trim_tail"]) + " (use <font color='#aaaaaa'>-f0 -t0</font> to disable)")
         io.write("</table>\n")
         io.write("</div>\n")

@@ -387,8 +387,10 @@ class seqFilter:
         BADNCT = 0
         BADINDEL = 0
         BADMISMATCH = 0
+        BADDIFF = 0
         READ_CORRECTED = 0
         BASE_CORRECTED = 0
+        BASE_SKIPPED_CORRECTION = 0
         BASE_ZERO_QUAL_MASKED = 0
         OVERLAPPED = 0
         OVERLAP_LEN_SUM = 0
@@ -399,6 +401,7 @@ class seqFilter:
 
         #adapter trimming by overlap analysis
         TRIMMED_ADAPTER_BASE = 0
+        TRIMMED_ADAPTER_READ = 0
 
         while True:
             r1 = read1_file.nextRead()
@@ -516,6 +519,7 @@ class seqFilter:
                     r2[1] = r2[1][0:overlap_len]
                     r2[3] = r2[3][0:overlap_len]
                     TRIMMED_ADAPTER_BASE += abs(offset)*2
+                    TRIMMED_ADAPTER_READ += 1
                     # check the sequence length again after adapter trimmed
                     if len(r1[1])<self.options.seq_len_req:
                         self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADLEN")
@@ -523,9 +527,15 @@ class seqFilter:
                         continue
                     # then calc overlap again
                     (offset, overlap_len, distance) = util.overlap(r1[1], r2[1])
+
+                distance_histgram[distance] += 1
+                # if distance is too high, then set it as bad mismatch
+                if distance > 3:
+                    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADDIFF")
+                    BADDIFF += 1
+                    continue
                 if overlap_len>30:
                     OVERLAPPED += 1
-                    distance_histgram[distance] += 1
                     OVERLAP_LEN_SUM += overlap_len
                     # we consider the distance is caused by sequencing error
                     OVERLAP_BASE_SUM += overlap_len * 2
@@ -535,11 +545,11 @@ class seqFilter:
                     skipped_mismatch = 0
                     if distance>0:
                         #try to fix low quality base
-                        hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
-                        if hamming != distance:
-                            self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADINDEL")
-                            BADINDEL += 1
-                            continue
+                        #hamming = util.hammingDistance(r1[1][len(r1[1]) - overlap_len:], util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
+                        #if hamming != distance:
+                        #    self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADINDEL")
+                        #    BADINDEL += 1
+                        #    continue
                         #print(r1[1][len(r1[1]) - overlap_len:])
                         #print(util.reverseComplement(r2[1][len(r2[1]) - overlap_len:]))
                         #print(r1[3][len(r1[1]) - overlap_len:])
@@ -592,6 +602,7 @@ class seqFilter:
                             BASE_CORRECTED += corrected
                             # multiply by 2 since we mask bases by pair
                             BASE_ZERO_QUAL_MASKED += zero_qual_masked * 2
+                            BASE_SKIPPED_CORRECTION += skipped_mismatch * 2
                         else:
                             self.writeReads(r1, r2, i1, i2, bad_read1_file, bad_read2_file, bad_index1_file, bad_index2_file, "BADMISMATCH")
                             BADMISMATCH += 1
@@ -648,7 +659,7 @@ class seqFilter:
         result['bad_reads_with_polyX']= BADPOL
         result['bad_reads_with_low_quality']=BADLQC
         result['bad_reads_with_too_many_N']= BADNCT
-        result['bad_reads_with_bad_overlap']= BADMISMATCH + BADINDEL
+        result['bad_reads_with_bad_overlap']= BADMISMATCH + BADINDEL + BADDIFF
         result['readlen'] = readLen
 
         # plot result bar figure
@@ -694,11 +705,15 @@ class seqFilter:
             else:
                 stat["overlap"]['average_overlap_length']=0.0
             stat["overlap"]['bad_mismatch_reads']=BADMISMATCH
+            stat["overlap"]['bad_diff']=BADDIFF
             stat["overlap"]['bad_indel_reads']=BADINDEL
             stat["overlap"]['corrected_reads']=READ_CORRECTED
             stat["overlap"]['corrected_bases']=BASE_CORRECTED
+            stat["overlap"]['skipped_correction_bases']=BASE_SKIPPED_CORRECTION
             stat["overlap"]['zero_qual_masked']=BASE_ZERO_QUAL_MASKED
+            stat["overlap"]['zero_qual_skipped']=BASE_ZERO_QUAL_MASKED
             stat["overlap"]['trimmed_adapter_bases']=TRIMMED_ADAPTER_BASE
+            stat["overlap"]['trimmed_adapter_reads']=TRIMMED_ADAPTER_READ
             if OVERLAP_BASE_SUM > 0:
                 stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
             else:

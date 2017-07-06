@@ -125,6 +125,62 @@ unsigned int edit_distance(const char *a, const unsigned int asize, const char *
     return edit_distance_dp<char>(ap, *asizep, bp, *bsizep);
 }
 
+int seek_overlap(const char *r1, const int len1, const char *r2, const int len2, const int limit_distance, const int complete_compare_require, const int overlap_require) {
+
+    int overlap_len = 0;
+    int offset = 0;
+
+    // forward
+    // a match of less than overlap_require is considered as unconfident
+    while (offset < len1-overlap_require){
+        // the overlap length of r1 & r2 when r2 is move right for offset
+        overlap_len = min(len1-offset, len2);
+
+        int diff = 0;
+        int i=0;
+        for (i=0; i<overlap_len; i++){
+            if (r1[offset + i] != r2[i]){
+                diff += 1;
+                if (diff >= limit_distance && i < complete_compare_require)
+                    break;
+            }
+        }
+        
+        if (diff < limit_distance || (diff >= limit_distance && i>=complete_compare_require))
+            return (offset<<8) + diff;
+
+        offset ++;
+    }
+
+
+    // reverse
+    // in this case, the adapter is sequenced since TEMPLATE_LEN < SEQ_LEN
+    // check if distance can get smaller if offset goes negative
+    // this only happens when insert DNA is shorter than sequencing read length, and some adapter/primer is sequenced but not trimmed cleanly
+    // we go reversely
+    offset = 0;
+    while ( offset > (-(len2-overlap_require)) ) {
+        // the overlap length of r1 & r2 when r2 is move right for offset
+        overlap_len = min(len1,  len2- abs(offset));
+
+        int diff = 0;
+        int i=0;
+        for (i=0; i<overlap_len; i++){
+            if (r1[i] != r2[-offset + i]) {
+                diff += 1;
+                if (diff >= limit_distance && i < complete_compare_require)
+                    break;
+            }
+        }
+        
+        if (diff < limit_distance || (diff >= limit_distance && i>=complete_compare_require))
+            return (offset<<8) + diff;
+
+        offset --;
+    }
+    return 0x7FFFFFFF;
+}
+
 // void create_patternmap(PatternMap *pm, char const *a, unsigned int const size) {
 //     pm->tmax_ = (size - 1) >> 6;
 //     pm->tlen_ = size - pm->tmax_ * 64;

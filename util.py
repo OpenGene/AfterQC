@@ -91,6 +91,9 @@ def distance_threshold(overlap_len):
     return min(3, overlap_len/10.0)
 
 def overlap(r1, r2):
+    return overlap_hm(r1, r2)
+
+def overlap_ed(r1, r2):
     len1 = len(r1)
     len2 = len(r2)
     reverse_r2 = reverseComplement(r2)
@@ -156,12 +159,98 @@ def overlap(r1, r2):
 
     return (0,0,0)
 
+# calculate overlap by hamming distance
+def overlap_hm(r1, r2):
+    len1 = len(r1)
+    len2 = len(r2)
+    reverse_r2 = reverseComplement(r2)
+
+    limit_distance = 3
+    overlap_require = 30
+    complete_compare_require = 50
+
+    overlap_len = 0
+    offset = 0
+
+    # forward
+    # a match of less than 10 is considered as unconfident
+    while offset < len1-overlap_require:
+        # the overlap length of r1 & r2 when r2 is move right for offset
+        overlap_len = min(len1-offset, len2)
+
+        diff = 0
+        for i in xrange(overlap_len):
+            if r1[offset + i] != reverse_r2[i]:
+                diff += 1
+                if diff >= limit_distance and i < complete_compare_require:
+                    break
+        
+        if diff < limit_distance or (diff >= limit_distance and i>complete_compare_require):
+            return (offset, overlap_len, diff)
+
+        offset += 1
+
+
+    # reverse
+    # in this case, the adapter is sequenced since TEMPLATE_LEN < SEQ_LEN
+    # check if distance can get smaller if offset goes negative
+    # this only happens when insert DNA is shorter than sequencing read length, and some adapter/primer is sequenced but not trimmed cleanly
+    # we go reversely
+    offset = 0
+    while offset > -(len2-overlap_require):
+        # the overlap length of r1 & r2 when r2 is move right for offset
+        overlap_len = min(len1,  len2- abs(offset))
+
+        diff = 0
+        for i in xrange(overlap_len):
+            if r1[i] != reverse_r2[-offset + i]:
+                diff += 1
+                if diff >= limit_distance and i < complete_compare_require:
+                    break
+        
+        if diff < limit_distance or (diff >= limit_distance and i>complete_compare_require):
+            return (offset, overlap_len, diff)
+
+        offset -= 1
+
+    # not matched
+    return (0,0,0)
+
+def overlap_hm_cpp(r1, r2):
+    len1 = len(r1)
+    len2 = len(r2)
+    reverse_r2 = reverseComplement(r2)
+
+    limit_distance = 3
+    overlap_require = 30
+    complete_compare_require = 50
+
+    ret =  ed_ctypes.seek_overlap(r1, len1, reverse_r2, len2, limit_distance, overlap_require, complete_compare_require)
+    offset = ret >> 8
+    diff = ret & (0xFF)
+    if ret == 0x7FFFFFFF:
+        return (0,0,0)
+    elif offset >=0:
+        overlap_len = min(len1-offset, len2)
+    else:
+        overlap_len = min(len1,  len2- abs(offset))
+
+    return (offset, overlap_len, diff)
+
+
 def changeString(str, pos, val):
     lst = list(str)
     lst[pos] = val
     return ''.join(lst)
 
 if __name__  == "__main__":
-    r1 = "CCGCGCCTACGGGCCCCTTTTTCTGCGCGACCGCGTGGCTGTGGGCGCGGATGCCTTTGAGCGCGGTGACTTCTCACTGCGTATCGAGCCGCTGGAGGTCTCCC"
+    r1 = "CAGCGCCTACGGGCCCCTTTTTCTGCGCGACCGCGTGGCTGTGGGCGCGGATGCCTTTGAGCGCGGTGACTTCTCACTGCGTATCGAGCCGCTGGAGGTCTCCC"
     r2 = "ACCTCCAGCGGCTCGATACGCAGTGAGAAGTCACCGCGCTCAAAGGCATCCGCGCCCACAGCCACGCGGTCGCGCAGAAAAAGGGGCCCGTAGGCGCGGCTCCC"
-    print(overlap(r1, r2))
+
+    r1 = "CAGCGCCTACGGGCCCCTTTTTCTGCGCGACCGCGTGGCTGTGGGCGCGGATGCCTTTGAGCGCGGTGACTTCTCACTGCGTATCGAGC"
+    r2 = "ACCTCCAGCGGCTCGATACGCAGTGAGAAGTCACCGCGCTCAAAGGCATCCGCGCCCACAGCCACGCGGTCGCGCAGAAAAAGGGGTCC"
+    print(overlap_ed(r1, r2))
+    print(overlap_hm(r1, r2))
+    print(overlap_hm_cpp(r1, r2))
+    for i in xrange(10000):
+        overlap_ed(r1, r2)
