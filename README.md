@@ -129,7 +129,7 @@ python after.py --qc_only
                         if the trimmed read is shorter than seq_len_req, then
                         this read/pair is bad. Default is 35
 ```
-***Debubble options***   
+***Debubble options (not suggested for regular tasks)***    
 If you want to eliminate bubble artifact, turn debubble option on (this is slow, usually you don't need to do this): 
 ```
   --debubble            enable debubble algorithm to remove the
