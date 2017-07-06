@@ -27,7 +27,7 @@ class QCReporter:
     def outputHeader(self, io):
         io.write("<HTML>\n")
         io.write("<HEAD>\n")
-        io.write('<script src="http://cdn.plot.ly/plotly-1.2.0.min.js"></script>\n')
+        io.write('<script src="http://cdn.plot.ly/plotly-latest.min.js"></script>\n')
         self.outputCSS(io)
         io.write("</HEAD>\n")
         io.write("<BODY>\n")

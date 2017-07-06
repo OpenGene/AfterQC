@@ -668,7 +668,7 @@ class seqFilter:
         colors = ['#66BB11', '#FF33AF', '#FFD3F2', '#FFA322', '#FF8899']
         if self.options.read2_file != None:
             labels.append('bad_overlap')
-            counts.append(BADMISMATCH + BADINDEL)
+            counts.append(BADMISMATCH + BADINDEL + BADDIFF)
             colors.append('#FF6600')
         if self.options.debubble:
             labels.append('in_bubble')
