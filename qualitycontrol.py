@@ -56,6 +56,20 @@ class QualityControl:
             self.baseMeanQual[base] = [0.0 for x in xrange(MAX_LEN)]
             self.baseTotalQual[base] = [0 for x in xrange(MAX_LEN)]
 
+    def squeeze(self):
+        self.totalQual = self.totalQual[0:self.readLen]
+        self.totalNum = self.totalNum[0:self.readLen]
+        self.meanQual = self.meanQual[0:self.readLen]
+        self.gcPercents = self.gcPercents[0:self.readLen]
+        self.gcHistogram = self.gcHistogram[0:self.readLen]
+        self.meanDiscontinuity = self.meanDiscontinuity[0:self.readLen]
+        self.totalDiscontinuity = self.totalDiscontinuity[0:self.readLen]
+        for base in ALL_BASES:
+            self.baseCounts[base] = self.baseCounts[base][0:self.readLen]
+            self.percents[base] = self.percents[base][0:self.readLen]
+            self.baseMeanQual[base] = self.baseMeanQual[base][0:self.readLen]
+            self.baseTotalQual[base] = self.baseTotalQual[base][0:self.readLen]
+
     def statRead(self, read):
         global WARNED_BZIP2_ERROR
         seq = read[1]

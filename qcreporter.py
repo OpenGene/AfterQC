@@ -78,7 +78,7 @@ class QCReporter:
         io.write("<tr><td class='col1'>" + str(k) + "</td><td class='col2'>" + str(v) + "</td></tr>\n")
 
     def getSequencing(self):
-        ret = str(self.stat["summary"]["readlen"])
+        ret = str(self.stat["afterqc_main_summary"]["readlen"])
         if self.stat["command"]["read2_file"] != None:
             ret = "2*" + ret + " pair end"
         else:
@@ -91,14 +91,14 @@ class QCReporter:
         io.write("<table class='summary-table'>\n")
         self.outputRow(io, "AfterQC Version:", self.version)
         self.outputRow(io, "sequencing:", self.getSequencing())
-        self.outputRow(io, "total reads:", self.stat["summary"]["total_reads"])
-        self.outputRow(io, "filtered out reads:", str(self.stat["summary"]["bad_reads"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["summary"]["bad_reads"])/float(self.stat["summary"]["total_reads"])) + "%)</font>")
-        self.outputRow(io, "total bases:", self.stat["summary"]["total_bases"])
-        self.outputRow(io, "filtered out bases:", str(self.stat["summary"]["total_bases"] - self.stat["summary"]["good_bases"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["summary"]["total_bases"] - self.stat["summary"]["good_bases"])/float(self.stat["summary"]["total_bases"])) + "%)</font>")
+        self.outputRow(io, "total reads:", self.stat["afterqc_main_summary"]["total_reads"])
+        self.outputRow(io, "filtered out reads:", str(self.stat["afterqc_main_summary"]["bad_reads"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["afterqc_main_summary"]["bad_reads"])/float(self.stat["afterqc_main_summary"]["total_reads"])) + "%)</font>")
+        self.outputRow(io, "total bases:", self.stat["afterqc_main_summary"]["total_bases"])
+        self.outputRow(io, "filtered out bases:", str(self.stat["afterqc_main_summary"]["total_bases"] - self.stat["afterqc_main_summary"]["good_bases"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["afterqc_main_summary"]["total_bases"] - self.stat["afterqc_main_summary"]["good_bases"])/float(self.stat["afterqc_main_summary"]["total_bases"])) + "%)</font>")
         if self.stat["command"]["read2_file"] != None:
-            self.outputRow(io, "estimated seq error:", str(self.stat["overlap"]["error_rate"]*100) + "%")
-            self.outputRow(io, "adapter trimmed reads:", self.stat["overlap"]['trimmed_adapter_reads'])
-            self.outputRow(io, "adapter trimmed bases:", self.stat["overlap"]['trimmed_adapter_bases'])
+            self.outputRow(io, "estimated seq error:", str(self.stat["afterqc_overlap"]["error_rate"]*100) + "%")
+            self.outputRow(io, "adapter trimmed reads:", self.stat["afterqc_overlap"]['trimmed_adapter_reads'])
+            self.outputRow(io, "adapter trimmed bases:", self.stat["afterqc_overlap"]['trimmed_adapter_bases'])
         self.outputRow(io, "auto trimming", "front:" + str(self.stat["command"]["trim_front"]) + ", tail:" + str(self.stat["command"]["trim_tail"]) + " (use <font color='#aaaaaa'>-f0 -t0</font> to disable)")
         io.write("</table>\n")
         io.write("</div>\n")

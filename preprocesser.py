@@ -688,38 +688,74 @@ class seqFilter:
         reporter.addFigure('Good reads and bad reads after filtering', self.r1qc_prefilter.statPlotly(labels, counts, TOTAL_READS, 'filter_stat'), 'filter_stat', "")
         #self.r1qc_prefilter.plotFilterStats(labels, counts, colors, TOTAL_READS, os.path.join(qc_dir, "filter-stat.png"))
 
+        #squeeze qc data for JSON output
+        self.r1qc_prefilter.squeeze()
+        self.r1qc_postfilter.squeeze()
+        if self.options.read2_file != None:
+            self.r2qc_prefilter.squeeze()
+            self.r2qc_postfilter.squeeze()
+
         stat={}
         # stat["options"]=self.options
-        stat["summary"]=result
+        stat["afterqc_main_summary"]=result
         stat["command"]=makeDict(self.options)
         stat["kmer_content"] = {}
         stat["kmer_content"]["read1_prefilter"] = self.r1qc_prefilter.topKmerCount[0:10]
         stat["kmer_content"]["read1_postfilter"] = self.r1qc_postfilter.topKmerCount[0:10]
+
+        # output more data in JSON file for offline plotting directly from JSON
+        stat["base_quality"] = {}
+        stat["base_quality"]["read1_prefilter"] = self.r1qc_prefilter.baseMeanQual
+        stat["base_quality"]["read1_postfilter"] = self.r1qc_postfilter.baseMeanQual
+        stat["mean_quality"] = {}
+        stat["mean_quality"]["read1_prefilter"] = self.r1qc_prefilter.meanQual
+        stat["mean_quality"]["read1_postfilter"] = self.r1qc_postfilter.meanQual
+        stat["base_content"] = {}
+        stat["base_content"]["read1_prefilter"] = self.r1qc_prefilter.percents
+        stat["base_content"]["read1_postfilter"] = self.r1qc_postfilter.percents
+        stat["gc_content"] = {}
+        stat["gc_content"]["read1_prefilter"] = self.r1qc_prefilter.gcPercents
+        stat["gc_content"]["read1_postfilter"] = self.r1qc_postfilter.gcPercents
+
         if self.options.read2_file != None:
             stat["kmer_content"]["read2_prefilter"] = self.r2qc_prefilter.topKmerCount[0:10]
             stat["kmer_content"]["read2_postfilter"] = self.r2qc_postfilter.topKmerCount[0:10]
-            stat["overlap"]={}
-            stat["overlap"]['overlapped_pairs']=OVERLAPPED
+
+
+            stat["base_quality"]["read2_prefilter"] = self.r2qc_prefilter.baseMeanQual
+            stat["base_quality"]["read2_postfilter"] = self.r2qc_postfilter.baseMeanQual
+
+            stat["mean_quality"]["read2_prefilter"] = self.r2qc_prefilter.meanQual
+            stat["mean_quality"]["read2_postfilter"] = self.r2qc_postfilter.meanQual
+
+            stat["base_content"]["read2_prefilter"] = self.r2qc_prefilter.percents
+            stat["base_content"]["read2_postfilter"] = self.r2qc_postfilter.percents
+
+            stat["gc_content"]["read2_prefilter"] = self.r2qc_prefilter.gcPercents
+            stat["gc_content"]["read2_postfilter"] = self.r2qc_postfilter.gcPercents
+
+            stat["afterqc_overlap"]={}
+            stat["afterqc_overlap"]['overlapped_pairs']=OVERLAPPED
             if OVERLAPPED > 0:
-                stat["overlap"]['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
+                stat["afterqc_overlap"]['average_overlap_length']=float(OVERLAP_LEN_SUM/OVERLAPPED)
             else:
-                stat["overlap"]['average_overlap_length']=0.0
-            stat["overlap"]['bad_mismatch_reads']=BADMISMATCH
-            stat["overlap"]['bad_diff']=BADDIFF
-            stat["overlap"]['bad_indel_reads']=BADINDEL
-            stat["overlap"]['corrected_reads']=READ_CORRECTED
-            stat["overlap"]['corrected_bases']=BASE_CORRECTED
-            stat["overlap"]['skipped_correction_bases']=BASE_SKIPPED_CORRECTION
-            stat["overlap"]['zero_qual_masked']=BASE_ZERO_QUAL_MASKED
-            stat["overlap"]['zero_qual_skipped']=BASE_ZERO_QUAL_MASKED
-            stat["overlap"]['trimmed_adapter_bases']=TRIMMED_ADAPTER_BASE
-            stat["overlap"]['trimmed_adapter_reads']=TRIMMED_ADAPTER_READ
+                stat["afterqc_overlap"]['average_overlap_length']=0.0
+            stat["afterqc_overlap"]['bad_mismatch_reads']=BADMISMATCH
+            stat["afterqc_overlap"]['bad_diff']=BADDIFF
+            stat["afterqc_overlap"]['bad_indel_reads']=BADINDEL
+            stat["afterqc_overlap"]['corrected_reads']=READ_CORRECTED
+            stat["afterqc_overlap"]['corrected_bases']=BASE_CORRECTED
+            stat["afterqc_overlap"]['skipped_correction_bases']=BASE_SKIPPED_CORRECTION
+            stat["afterqc_overlap"]['zero_qual_masked']=BASE_ZERO_QUAL_MASKED
+            stat["afterqc_overlap"]['zero_qual_skipped']=BASE_ZERO_QUAL_MASKED
+            stat["afterqc_overlap"]['trimmed_adapter_bases']=TRIMMED_ADAPTER_BASE
+            stat["afterqc_overlap"]['trimmed_adapter_reads']=TRIMMED_ADAPTER_READ
             if OVERLAP_BASE_SUM > 0:
-                stat["overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
+                stat["afterqc_overlap"]['error_rate']=float(OVERLAP_BASE_ERR)/float(OVERLAP_BASE_SUM)
             else:
-                stat["overlap"]['error_rate']=0.0
-            stat["overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
-            stat["overlap"]['edit_distance_histogram']=distance_histgram[0:10]
+                stat["afterqc_overlap"]['error_rate']=0.0
+            stat["afterqc_overlap"]['error_matrix']=OVERLAP_ERR_MATRIX
+            stat["afterqc_overlap"]['edit_distance_histogram']=distance_histgram[0:10]
             reporter.addFigure('Sequence error distribution', self.r1qc_prefilter.errorPlotly(OVERLAP_ERR_MATRIX, 'error_matrix'), 'error_matrix', "")
             reporter.addFigure('Overlap length distribution', self.r1qc_prefilter.overlapPlotly(overlap_histgram, readLen, TOTAL_READS, 'overlap_stat'), 'overlap_stat', "")
             #self.r1qc_prefilter.plotOverlapHistgram(overlap_histgram, readLen, TOTAL_READS, os.path.join(qc_dir, "overlap.png"))
