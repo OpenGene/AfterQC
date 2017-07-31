@@ -6,6 +6,19 @@ def formatDivID(str):
     str = str.replace("/", "-")
     return str
 
+def formatNumber(num):
+    num = float(num)
+    unit = ["", "K", "M", "G", "T", "P"]
+    order = 0
+    while num > 1024.0:
+        order += 1
+        num /= 1024.0
+
+    if order == 0:
+        return str(int(num))
+    else:
+        return '{:0.3f}'.format(num) + " " + unit[order]
+
 class QCReporter:
 
     def __init__(self):
@@ -91,14 +104,14 @@ class QCReporter:
         io.write("<table class='summary-table'>\n")
         self.outputRow(io, "AfterQC Version:", self.version)
         self.outputRow(io, "sequencing:", self.getSequencing())
-        self.outputRow(io, "total reads:", self.stat["afterqc_main_summary"]["total_reads"])
-        self.outputRow(io, "filtered out reads:", str(self.stat["afterqc_main_summary"]["bad_reads"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["afterqc_main_summary"]["bad_reads"])/float(self.stat["afterqc_main_summary"]["total_reads"])) + "%)</font>")
-        self.outputRow(io, "total bases:", self.stat["afterqc_main_summary"]["total_bases"])
-        self.outputRow(io, "filtered out bases:", str(self.stat["afterqc_main_summary"]["total_bases"] - self.stat["afterqc_main_summary"]["good_bases"]) + " <font color='#aaaaaa'>(" + str(100.0 * float(self.stat["afterqc_main_summary"]["total_bases"] - self.stat["afterqc_main_summary"]["good_bases"])/float(self.stat["afterqc_main_summary"]["total_bases"])) + "%)</font>")
+        self.outputRow(io, "total reads:", formatNumber(self.stat["afterqc_main_summary"]["total_reads"]))
+        self.outputRow(io, "filtered out reads:", '{:0.3f}'.format(self.stat["afterqc_main_summary"]["bad_reads"]) + " <font color='#aaaaaa'>(" + '{:0.3f}'.format(100.0 * float(self.stat["afterqc_main_summary"]["bad_reads"])/float(self.stat["afterqc_main_summary"]["total_reads"])) + "%)</font>")
+        self.outputRow(io, "total bases:", formatNumber(self.stat["afterqc_main_summary"]["total_bases"]))
+        self.outputRow(io, "filtered out bases:", '{:0.3f}'.format(self.stat["afterqc_main_summary"]["total_bases"] - self.stat["afterqc_main_summary"]["good_bases"]) + " <font color='#aaaaaa'>(" + '{:0.3f}'.format(100.0 * float(self.stat["afterqc_main_summary"]["total_bases"] - self.stat["afterqc_main_summary"]["good_bases"])/float(self.stat["afterqc_main_summary"]["total_bases"])) + "%)</font>")
         if self.stat["command"]["read2_file"] != None:
-            self.outputRow(io, "estimated seq error:", str(self.stat["afterqc_overlap"]["error_rate"]*100) + "%")
-            self.outputRow(io, "adapter trimmed reads:", self.stat["afterqc_overlap"]['trimmed_adapter_reads'])
-            self.outputRow(io, "adapter trimmed bases:", self.stat["afterqc_overlap"]['trimmed_adapter_bases'])
+            self.outputRow(io, "estimated seq error:", '{:0.3f}'.format(self.stat["afterqc_overlap"]["error_rate"]*100) + "%")
+            self.outputRow(io, "adapter trimmed reads:", formatNumber(self.stat["afterqc_overlap"]['trimmed_adapter_reads']))
+            self.outputRow(io, "adapter trimmed bases:", formatNumber(self.stat["afterqc_overlap"]['trimmed_adapter_bases']))
         self.outputRow(io, "auto trimming", "front:" + str(self.stat["command"]["trim_front"]) + ", tail:" + str(self.stat["command"]["trim_tail"]) + " (use <font color='#aaaaaa'>-f0 -t0</font> to disable)")
         io.write("</table>\n")
         io.write("</div>\n")
