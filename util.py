@@ -23,11 +23,6 @@ except ImportError:
 else:
     EDIT_DISTANCE_MODULE_EXISTS = True
 
-if EDIT_DISTANCE_MODULE_EXISTS==False and EDIT_DISTANCE_CTYPES_LOADED == False:
-    print("Warning: editdistance module doesn't exist, it will make AfterQC extremely slow")
-    print("If you are using python, run: pip install editdistance")
-    print("If you are using pypy, run: make, in AfterQC folder to build editdistance with ctypes")
-
 
 COMP = {"A" : "T", "T" : "A", "C" : "G", "G" : "C", "a" : "t", "t" : "a", "c" : "g", "g" : "c", "N":"N", "\n":"\n"}
     
