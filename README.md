@@ -1,3 +1,4 @@
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/afterqc/README.html)
 # AfterQC
 Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data   
 `AfterQC` can simply go through all fastq files in a folder and then output three folders: <b>good</b>, <b>bad</b> and <b>QC</b> folders, which contains good reads, bad reads and the QC results of each fastq file/pair.   
@@ -20,6 +21,7 @@ The report of AfterQC is a single HTML page with figures contained in. See an ex
 * Sequencing error estimation, and error distribution profiling
 
 # Get AfterQC
+* with bioconda `conda install afterqc`
 * latest: `git clone https://github.com/OpenGene/AfterQC.git` or download [https://github.com/OpenGene/AfterQC/archive/master.zip](https://github.com/OpenGene/AfterQC/archive/master.zip)
 * stable: [Releases](https://github.com/OpenGene/AfterQC/releases)
 
