@@ -86,6 +86,10 @@ def parseCommand():
         help = "set the qual num to 0 for mismatched base pairs in overlapped areas to mask them out")
     parser.add_option("", "--no_overlap", dest = "no_overlap", action='store_true', default = False,
         help = "disable overlap analysis (usually much faster with this option)")
+    parser.add_option("-z", "--gzip", dest = "gzip", action='store_true', default = False,
+        help = "force gzip compression for output, even the input is not gzip compressed")
+    parser.add_option("", "--compression", dest = "compression", type = "int", default = 2,
+        help = "set compression level (0~9) for gzip output, default is 2 (0 = best speed, 9 = best compression).")
     return parser.parse_args()
 
 def matchFlag(filename, flag):

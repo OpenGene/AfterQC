@@ -314,17 +314,22 @@ class seqFilter:
 
         if self.options.store_overlap and self.options.read2_file != None and (not os.path.exists(overlap_dir)):
             os.makedirs(overlap_dir)
+
+        gzip_out = self.options.gzip
+        gzip_comp = self.options.compression;
+        if not gzip_out and self.options.read1_file.endswith(".gz"):
+            gzip_out = True
         
         good_read1_file = None
         bad_read1_file = None
         overlap_read1_file = None
         if not self.options.qc_only:
-            good_read1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read1_file)+".good.fq"))
-            bad_read1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read1_file)+".bad.fq"))
+            good_read1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read1_file)+".good.fq"), gzip_out, gzip_comp)
+            bad_read1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read1_file)+".bad.fq"), gzip_out, gzip_comp)
 
             overlap_read1_file = None
             if self.options.store_overlap:
-                overlap_read1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read1_file)+".overlap.fq"))
+                overlap_read1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read1_file)+".overlap.fq"), gzip_out, gzip_comp)
         
         #other files are optional
         read2_file = None
@@ -346,24 +351,24 @@ class seqFilter:
         if self.options.read2_file != None:
             read2_file = fastq.Reader(self.options.read2_file)
             if not self.options.qc_only:
-                good_read2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read2_file)+".good.fq"))
-                bad_read2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read2_file)+".bad.fq"))
+                good_read2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.read2_file)+".good.fq"), gzip_out, gzip_comp)
+                bad_read2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.read2_file)+".bad.fq"), gzip_out, gzip_comp)
                 if self.options.store_overlap and self.options.read2_file != None:
-                    overlap_read2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read2_file)+".overlap.fq"))
+                    overlap_read2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.read2_file)+".overlap.fq"), gzip_out, gzip_comp)
         if self.options.index1_file != None:
             index1_file = fastq.Reader(self.options.index1_file)
             if not self.options.qc_only:
-                good_index1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index1_file)+".good.fq"))
-                bad_index1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index1_file)+".bad.fq"))
+                good_index1_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index1_file)+".good.fq"), gzip_out, gzip_comp)
+                bad_index1_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index1_file)+".bad.fq"), gzip_out, gzip_comp)
                 if self.options.store_overlap and self.options.read2_file != None:
-                    overlap_index1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index1_file)+".overlap.fq"))
+                    overlap_index1_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index1_file)+".overlap.fq"), gzip_out, gzip_comp)
         if self.options.index2_file != None:
             index2_file = fastq.Reader(self.options.index2_file)
             if not self.options.qc_only:
-                good_index2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index2_file)+".good.fq"))
-                bad_index2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index2_file)+".bad.fq"))
+                good_index2_file = fastq.Writer(os.path.join(good_dir, getMainName(self.options.index2_file)+".good.fq"), gzip_out, gzip_comp)
+                bad_index2_file = fastq.Writer(os.path.join(bad_dir, getMainName(self.options.index2_file)+".bad.fq"), gzip_out, gzip_comp)
                 if self.options.store_overlap and self.options.read2_file != None:
-                    overlap_index2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index2_file)+".overlap.fq"))
+                    overlap_index2_file = fastq.Writer(os.path.join(overlap_dir, getMainName(self.options.index2_file)+".overlap.fq"), gzip_out, gzip_comp)
             
         r1 = None
         r2 = None
@@ -633,17 +638,17 @@ class seqFilter:
         
         #close all files
         if not self.options.qc_only:
-            good_read1_file.flush()
-            bad_read1_file.flush()
+            good_read1_file.close()
+            bad_read1_file.close()
             if self.options.read2_file != None:
-                good_read2_file.flush()
-                bad_read2_file.flush()
+                good_read2_file.close()
+                bad_read2_file.close()
             if self.options.index1_file != None:
-                good_index1_file.flush()
-                bad_index1_file.flush()
+                good_index1_file.close()
+                bad_index1_file.close()
             if self.options.index2_file != None:
-                good_index2_file.flush()
-                bad_index2_file.flush()
+                good_index2_file.close()
+                bad_index2_file.close()
 
         # print stat numbers
         BAD_READS = TOTAL_READS - GOOD_READS

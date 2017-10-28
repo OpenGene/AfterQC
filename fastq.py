@@ -60,10 +60,12 @@ class Writer:
     
     __file = None
     
-    def __init__(self, fname):
+    def __init__(self, fname, force_gzip = False, gzip_compression = 2):
         self.filename = fname
+        if not self.filename.endswith(".gz") and force_gzip:
+            self.filename = self.filename + ".gz"
         if self.filename.endswith(".gz"):
-            self.__file = gzip.open(self.filename, "w")
+            self.__file = gzip.open(self.filename, "w", compresslevel = gzip_compression)
         elif self.filename.endswith(".bz2"):
             print("ERROR: Write bzip2 stream is not supported")
             sys.exit(1)
@@ -81,6 +83,11 @@ class Writer:
     def flush(self):
         if self.__file !=None:
             self.__file.flush()
+
+    def close(self):
+        if self.__file !=None:
+            self.__file.flush()
+            self.__file.close()
  
     def writeLines(self, lines):
         if self.__file == None:
