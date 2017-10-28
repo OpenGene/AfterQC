@@ -74,11 +74,6 @@ class Writer:
         if self.__file == None:
             print("Failed to open file " + self.filename + " to write")
             sys.exit(1)
-            
-    def __del__(self):
-        if self.__file != None:
-            self.__file.flush()
-            self.__file.close()
 
     def flush(self):
         if self.__file !=None:
