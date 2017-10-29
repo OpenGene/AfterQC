@@ -53,6 +53,11 @@ If you only want to get quality control statistics, run:
 python after.py --qc_only
 ```
 
+# Gzip output
+* If the input FastQ files are gzipped, then the output will be also gzipped.   
+* If the input FastQ files are not gzipped, you can enable `--gzip` or `-z` option to force gzip compression.
+* Use `--compression` to change the compression level (0~9), default is 2. The better the compression, the lower the speed.
+
 # Full options:
 ***Common options***
 ```shell
