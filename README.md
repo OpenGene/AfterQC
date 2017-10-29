@@ -179,4 +179,4 @@ If you want to eliminate bubble artifact, turn debubble option on (this is slow,
 * For pair-end sequencing data, `After` will do an `overlap analysis`. read1 and read2 will be overlapped when `read1_length + read2_length > DNA_template_length`. 
 
 # Cite AfterQC
-Shifu Chen, Tanxiao Huang, Yanqing Zhou, Yue Han, Mingyan Xu and Jia Gu.  AfterQC: automatic filtering, trimming, error removing and quality control for fastq data.  BMC Bioinformatics 2017 18(Suppl 3):80 
+Shifu Chen, Tanxiao Huang, Yanqing Zhou, Yue Han, Mingyan Xu and Jia Gu.  AfterQC: automatic filtering, trimming, error removing and quality control for fastq data.  BMC Bioinformatics 2017 18(Suppl 3):80 https://doi.org/10.1186/s12859-017-1469-3
