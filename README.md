@@ -4,6 +4,8 @@ Automatic Filtering, Trimming, Error Removing and Quality Control for fastq data
 `AfterQC` can simply go through all fastq files in a folder and then output three folders: <b>good</b>, <b>bad</b> and <b>QC</b> folders, which contains good reads, bad reads and the QC results of each fastq file/pair.   
 Currently it supports processing data from HiSeq 2000/2500/3000/4000, Nextseq 500/550, MiniSeq...and other [Illumina 1.8 or newer formats](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm)   
 
+The author has reimplemented this tool in C++ with multithreading support to make it much faster. The new tool is called `fastp` and can be found at: https://github.com/OpenGene/fastp . If you prefer a C++ based tool, please use `fastp` instead.   
+
 # An Example of Report
 The report of AfterQC is a single HTML page with figures contained in. See an example: [http://opengene.org/AfterQC/report.html](http://opengene.org/AfterQC/report.html)
 
