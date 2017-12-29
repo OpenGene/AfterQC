@@ -649,6 +649,13 @@ class seqFilter:
             if self.options.index2_file != None:
                 good_index2_file.close()
                 bad_index2_file.close()
+            #close the overlap files if relevant:
+            if self.options.store_overlap:
+                if overlap_read1_file != None:
+                    overlap_read1_file.close()
+                if self.options.read2_file != None:
+                    overlap_read2_file.close()
+
 
         # print stat numbers
         BAD_READS = TOTAL_READS - GOOD_READS
